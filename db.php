@@ -1,9 +1,9 @@
 <?php
 
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "login_crud";
+$host = "srv1858.hstgr.io";
+$user = "u130348899_randythegreat";
+$pass = "RandyBOY999999@";
+$db = "u130348899_easypark_db";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
