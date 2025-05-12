@@ -122,7 +122,10 @@
 
 <div class="container-fluid bg-car text-warning"">
 
+  <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
+    
+  </div>
 
 </div>
 <footer class="bg-dark text-light pt-5 pb-4">
