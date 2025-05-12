@@ -1,6 +1,6 @@
 <?php
 
-$host = "srv1858.hstgr.io";
+$host = "194.59.164.68";
 $user = "u130348899_randythegreat";
 $pass = "RandyBOY999999@";
 $db = "u130348899_easypark_db";
