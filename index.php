@@ -86,16 +86,6 @@
       .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
         color: #ccc;
       }
-
-      .carousel-indicators {
-        bottom: -30px; /* Move indicators below the carousel content */
-      }
-
-      @media (max-width: 768px) {
-        .carousel-indicators {
-            bottom: -20px; /* Adjust for smaller screens */
-        }
-      }
 </style>
 </head>
 
@@ -131,11 +121,7 @@
 
   <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
-    <ul class="carousel-indicators">
-      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-      <li data-target="#myCarousel" data-slide-to="1" ></li>
-      <li data-target="#myCarousel" data-slide-to="2" ></li>
-    </ul>
+    
 
     <div class="carousel-inner">
           <div class="carousel-item active">
@@ -190,6 +176,13 @@
       <span class="carousel-control-next-icon"></span>
     </a>
 
+
+    <ul class="carousel-indicators">
+      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+      <li data-target="#myCarousel" data-slide-to="1" ></li>
+      <li data-target="#myCarousel" data-slide-to="2" ></li>
+    </ul>
+    
     </div>
   </div>
 
