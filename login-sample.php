@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           name="email"
           id="email"
           required
-          placeholder="you@example.com"
+          placeholder="Email address"
           class="form-control"
           autocomplete="off"
         />
