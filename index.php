@@ -86,6 +86,30 @@
       .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
         color: #ccc;
       }
+
+  @media (max-width: 768px) {
+    .carousel-inner .carousel-item h1 {
+      font-size: 2rem; /* Adjust heading size for smaller screens */
+    }
+    .carousel-inner .carousel-item p {
+      font-size: 1rem; /* Adjust paragraph size for smaller screens */
+    }
+    .carousel-inner .carousel-item .btn {
+      font-size: 0.9rem; /* Adjust button size for smaller screens */
+      padding: 0.5rem 1rem; /* Adjust button padding */
+    }
+  }
+
+  .carousel-inner .carousel-item h1 {
+    font-size: 3rem; /* Use rem for scalable font size */
+  }
+  .carousel-inner .carousel-item p {
+    font-size: 1.5rem; /* Use rem for scalable font size */
+  }
+  .carousel-inner .carousel-item .btn {
+    font-size: 1.2rem; /* Use rem for scalable font size */
+    padding: 0.75rem 1.5rem; /* Adjust button padding */
+  }
 </style>
 </head>
 
