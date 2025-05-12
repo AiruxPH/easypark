@@ -86,6 +86,16 @@
       .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
         color: #ccc;
       }
+
+      .carousel-indicators {
+        bottom: -30px; /* Move indicators below the carousel content */
+      }
+
+      @media (max-width: 768px) {
+        .carousel-indicators {
+            bottom: -20px; /* Adjust for smaller screens */
+        }
+      }
 </style>
 </head>
 
