@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="card bg-white shadow-lg p-4" style="max-width: 400px; background: rgba(255, 255, 255, 0.9) !important;">
     <!-- Website Name/Logo -->
     <div class="text-center mb-4">
-      <h1 class="display-4 font-weight-bold text-warning">EASYPARK</h1>
+      <h1 class="display-3 font-weight-bold text-warning">EASYPARK</h1>
       <p class="text-muted small">Your Smart Parking Solution</p>
     </div>
 
