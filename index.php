@@ -117,7 +117,7 @@
   </div>  
 </nav>
 
-<div class="container-fluid text-warning"">
+<div class="container-fluid text-warning">
 
   <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
