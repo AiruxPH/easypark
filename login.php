@@ -122,69 +122,7 @@
 
 <div class="container-fluid bg-car text-warning"">
 
-  <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
-    <ul class="carousel-indicators">
-      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-      <li data-target="#myCarousel" data-slide-to="1" ></li>
-      <li data-target="#myCarousel" data-slide-to="2" ></li>
-    </ul>
-
-    <div class="carousel-inner">
-          <div class="carousel-item active">
-                    <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
-                        <div class="container p-5" style="height: 90%;">
-                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Welcome to EASYPARK</h1>
-                              <br>
-                              <p class="lead text-light text-center">Reserve your spot anytime, anywhere</p>
-                              <div class="d-flex justify-content-center">
-                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Reserve Now</a>
-                              </div>
-                              
-                            </div>
-                    
-                    </div>
-          </div>
-          <div class="carousel-item">
-          <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
-                        <div class="container p-5" style="height: 90%;">
-                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Park with Confidence</h1>
-                              <br>
-                              <p class="lead text-light text-center">Real-time availability, no more guessing</p>
-                              <div class="d-flex justify-content-center">
-                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Learn More</a>
-                              </div>
-                              
-                            </div>
-                    
-                    </div>
-            </div>
-          <div class="carousel-item">
-          <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
-                        <div class="container p-5" style="height: 90%;">
-                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Save Time & Fuel</h1>
-                              <br>
-                              <p class="lead text-light text-center">Stop circling blocks, start parking smarter</p>
-                              <div class="d-flex justify-content-center">
-                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Download App</a>
-                              </div>
-                              
-                            </div>
-                    
-                    </div>
-          </div>
-          
-    </div>
-
-    <a class="carousel-control-prev custom-hover" href="#myCarousel" data-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </a>
-    <a class="carousel-control-next custom-hover" href="#myCarousel" data-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </a>
-
-    </div>
-  </div>
 
 </div>
 <footer class="bg-dark text-light pt-5 pb-4">
