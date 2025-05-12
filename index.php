@@ -110,6 +110,19 @@
     font-size: 1.2rem; /* Use rem for scalable font size */
     padding: 0.75rem 1.5rem; /* Adjust button padding */
   }
+
+  .carousel-inner .carousel-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Ensure the container adjusts dynamically */
+  }
+
+  @media (max-width: 768px) {
+    .carousel-inner .carousel-item {
+      height: auto; /* Adjust height for smaller screens */
+    }
+  }
 </style>
 </head>
 
