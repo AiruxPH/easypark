@@ -146,7 +146,6 @@
   <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
     
-
     <div class="carousel-inner">
           <div class="carousel-item active">
                     <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
