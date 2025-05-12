@@ -92,7 +92,7 @@
 </style>
 </head>
 
-<body>
+<body class="bg-car">
 <nav id="navbar" class="w-100 navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top" >
 <a id="opp" class="navbar-brand" href="index.php">
 <h1 class="custom-size 75rem">
@@ -120,8 +120,9 @@
   </div>  
 </nav>
 
-<div class="container-fluid bg-car text-warning"">
+<div class="container-fluid text-warning">
 
+      
 
   </div>
 

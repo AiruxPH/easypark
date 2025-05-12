@@ -1,132 +1,253 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+
+?>
+<!DOCTYPE>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EASYPARK - Under Construction</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .construction-bg {
-            background-image: url('https://images8.alphacoders.com/366/thumb-1920-366762.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/font-awesome.min.css">
+<link rel="stylesheet" href="css/bootstrap.min.css" >
+
+
+<style>
+
+    .fa:hover {
+        transform: scale(1.2);
+        transition: transform 0.5s ease-in-out;
+    }
+
+
+    .hov {
+
+    }
+
+    .hov:hover {
+      transform: scale(1.1);
+        transition: transform 0.3s ease-in-out;
+    }
+
+      .bg-image-dark {
+        background-image: url('nav-bg.jpg');
+        background-size: 100% auto;
+        background-position: top left;
+        background-repeat: repeat-y;
+        
+        
+      }
+      .bg-car {
+        background-image: url('bg-car.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+    @media (max-width: 768px)
+      {
+        .bg-image-dark {
+          background-size: cover;
         }
-        .overlay {
-            background: rgba(0, 0, 0, 0.7);
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .animate-pulse-slow {
-            animation: pulse 3s infinite;
-        }
-    </style>
+      }
+      .custom-size {
+        color: #ffc107;
+        transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+      }
+
+      .custom-size:hover {
+        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+        color: white;
+      }
+
+      .custom-hover {
+        opacity: 0;
+      }
+
+      .custom-hover:hover {
+        opacity 1;
+      }
+
+      #navbar {
+        transition: background: 1s ease-in-out;
+      }
+      #navbar::before {
+        
+      }
+      .scrolled {
+        background: rgba(0, 0, 0, 0.3);
+        transition: background: 1s ease-in-out;
+      }
+      #opp {
+        opacity: 1 !important;
+        transition: opacity: 1s ease-in-out;
+      }
+      #opp.op1 {
+        opacity: 1 !important;
+      }
+
+      .navbar-dark .navbar-brand, .navbar-dark .navbar-nav .nav-link {
+        color: #fff;
+      }
+      .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
+        color: #ccc;
+      }
+</style>
 </head>
-<body class="font-sans">
-    <!-- Construction Section -->
-    <section class="construction-bg min-h-screen flex items-center justify-center text-white">
-        <div class="overlay fixed inset-0"></div>
-        <div class="container mx-auto px-4 z-10 text-center mt-4 mb-4">
-            <div class="animate-pulse-slow flex items-center justify-center">
-    <i class="fas fa-car text-yellow-500 text-8xl"></i>
-    <h1 class="text-5xl md:text-7xl font-bold mx-4 mb-4">EASYPARK</h1>
-</div>
-<h2 class="text-3xl md:text-5xl font-bold mb-8 text-yellow-500 text-center">UNDER CONSTRUCTION</h2>
 
-            
-            <p class="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
-                We're building a revolutionary parking solution. Stay tuned for our launch!
-            </p>
+<body>
+<nav id="navbar" class="w-100 navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top" >
+<a id="opp" class="navbar-brand" href="index.php">
+<h1 class="custom-size 75rem">
+        EASYPARK
+    </h1>
+  </a>
+  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar ">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
+    <ul id="opp" class="navbar-nav">
+      <li class="nav-item">
+      <a class="nav-link" href="index.php">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Reserve</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">How It Works</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link btn btn-primary" href="login.php">Login/Sign Up</a>
+      </li>
+    </ul>
+  </div>  
+</nav>
 
-            <!-- Countdown Timer -->
-            <div class="flex flex-wrap justify-center space-x-4 mb-12">
-    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-24">
-        <div id="days" class="text-3xl font-bold">00</div>
-        <div class="text-sm">Days</div>
-    </div>
-    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-24">
-        <div id="hours" class="text-3xl font-bold">00</div>
-        <div class="text-sm">Hours</div>
-    </div>
-    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-24">
-        <div id="minutes" class="text-3xl font-bold">00</div>
-        <div class="text-sm">Minutes</div>
-    </div>
-    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-24">
-        <div id="seconds" class="text-3xl font-bold">00</div>
-        <div class="text-sm">Seconds</div>
-    </div>
-</div>
+<div class="container-fluid bg-car text-warning"">
 
+  <div id="myCarousel" class="carousel slide" data-ride="carousel">
 
-            <!-- Contact Info -->
-            <div class="max-w-md mx-auto bg-white bg-opacity-10 p-6 rounded-lg">
-                <h3 class="text-xl font-semibold mb-4">CONTACT US</h3>
-               <div class="text-center">
-    <p class="mb-2">
-        <a href="mailto:randythegreat000@gmail.com" class="text-lg text-blue-500 hover:text-blue-700">
-            <i class="fas fa-envelope mr-2"></i> randythegreat000@gmail.com
-        </a>
-    </p>
-    <p class="mb-2">
-        <a href="tel:+639168811468" class="text-lg text-green-500 hover:text-green-700">
-            <i class="fas fa-phone mr-2"></i> (+63) 916 881 1468
-        </a>
-    </p>
-</div>
+    <ul class="carousel-indicators">
+      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+      <li data-target="#myCarousel" data-slide-to="1" ></li>
+      <li data-target="#myCarousel" data-slide-to="2" ></li>
+    </ul>
 
-                <div class="flex justify-center space-x-4 mt-4">
-                    <a href="http://facebook.com/randythegreat000" class="text-2xl hover:text-orange-500 transition">
-                        <i class="fab fa-facebook"></i>
-                    </a>
-                    <a href="http://x.com/AiruxPH" class="text-2xl hover:text-orange-500 transition">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="http://instagram.com/itsmerandythegreat" class="text-2xl hover:text-orange-500 transition">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                </div>
+    <div class="carousel-inner">
+          <div class="carousel-item active">
+                    <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
+                        <div class="container p-5" style="height: 90%;">
+                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Welcome to EASYPARK</h1>
+                              <br>
+                              <p class="lead text-light text-center">Reserve your spot anytime, anywhere</p>
+                              <div class="d-flex justify-content-center">
+                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Reserve Now</a>
+                              </div>
+                              
+                            </div>
+                    
+                    </div>
+          </div>
+          <div class="carousel-item">
+          <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
+                        <div class="container p-5" style="height: 90%;">
+                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Park with Confidence</h1>
+                              <br>
+                              <p class="lead text-light text-center">Real-time availability, no more guessing</p>
+                              <div class="d-flex justify-content-center">
+                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Learn More</a>
+                              </div>
+                              
+                            </div>
+                    
+                    </div>
             </div>
-        </div>
-    </section>
+          <div class="carousel-item">
+          <div class="w-100 d-flex justify-content-center align-items-center container" style="height: 90vh">
+                        <div class="container p-5" style="height: 90%;">
+                        <br><br><h1 class="custom-size display-4" style="text-align: center;">Save Time & Fuel</h1>
+                              <br>
+                              <p class="lead text-light text-center">Stop circling blocks, start parking smarter</p>
+                              <div class="d-flex justify-content-center">
+                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Download App</a>
+                              </div>
+                              
+                            </div>
+                    
+                    </div>
+          </div>
+          
+    </div>
 
-    <!-- Countdown Script -->
-    <script>
-        // Set the launch date (December 1, 2024)
-        const launchDate = new Date("May 5, 2025 00:00:00").getTime();
+    <a class="carousel-control-prev custom-hover" href="#myCarousel" data-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next custom-hover" href="#myCarousel" data-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </a>
 
-        // Update countdown every second
-        const countdown = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = launchDate - now;
+    </div>
+  </div>
 
-            // Time calculations
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+</div>
+<footer class="bg-dark text-light pt-5 pb-4">
+  <div class="container text-center text-md-left">
+    <div class="row">
+      <!-- Company Info -->
+      <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
+        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">EASYPARK</h5>
+        <p>We help drivers find and reserve parking spots faster, smarter, and stress-free.</p>
+      </div>
 
-            // Display results
-            document.getElementById("days").innerHTML = days.toString().padStart(2, "0");
-            document.getElementById("hours").innerHTML = hours.toString().padStart(2, "0");
-            document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, "0");
-            document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, "0");
+      <!-- Quick Links -->
+      <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
+        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Quick Links</h5>
+        <p><a href="#about" class="text-light" style="text-decoration: none;">About Us</a></p>
+        <p><a href="#terms" class="text-light" style="text-decoration: none;">Terms of Service</a></p>
+        <p><a href="#privacy" class="text-light" style="text-decoration: none;">Privacy Policy</a></p>
+        <p><a href="#contact" class="text-light" style="text-decoration: none;">Contact</a></p>
+      </div>
 
-            // If countdown is finished
-            if (distance < 0) {
-                clearInterval(countdown);
-                document.getElementById("days").innerHTML = "00";
-                document.getElementById("hours").innerHTML = "00";
-                document.getElementById("minutes").innerHTML = "00";
-                document.getElementById("seconds").innerHTML = "00";
-                document.querySelector("h2").textContent = "WE'RE LIVE!";
-                document.querySelector("h2").classList.add("text-green-500");
-                document.querySelector("h2").classList.remove("text-orange-500");
-            }
-        }, 1000);
-    </script>
+      <!-- Social Links -->
+      <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3 text-center">
+        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Follow Us</h5>
+        <a href="https://www.facebook.com/randythegreat000" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-facebook fa-lg"></i></a>
+        <a href="https://x.com/AiruxPH" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-twitter fa-lg"></i></a>
+        <a href="https://www.instagram.com/itsmerandythegreat" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-instagram fa-lg"></i></a>
+        <a href="https://www.linkedin.com/in/anecito-randy-calunod-jr-326680210" class="text-light" target="_blank" rel="noopener"><i class="fa fa-linkedin fa-lg"></i></a>
+
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="row mt-4">
+      <div class="col-md-12 text-center">
+        <p class="text-muted mb-0">&copy; 2025 EASYPARK. All Rights Reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
+<script src="js/jquery.slim.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  const opp = document.getElementById('opp');
+
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 100) {
+
+      navbar.classList.add('scrolled');
+      opp.classList.add('op1');
+    } else {
+
+      navbar.classList.remove('scrolled');
+      opp.classList.remove('op1');
+    }
+  });
+</script>
+
+
+
+
 </body>
+
 </html>
