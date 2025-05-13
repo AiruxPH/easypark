@@ -105,10 +105,10 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     <a class="navbar-brand mb-4" href="#"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a class="nav-link<?= !$showParkingSlots ? ' active' : '' ?>" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fas fa-car"></i> Parking Slots</a>
+        <a class="nav-link<?= $showParkingSlots ? ' active' : '' ?>" href="#"><i class="fas fa-car"></i> Parking Slots</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#"><i class="fas fa-users"></i> Users</a>
