@@ -18,7 +18,8 @@ if (isset($_SESSION['user_id'])) {
 <style>
 
 #myCarousel {
-  height: 90vh;
+  height: 100vh;
+  min-height: 500px;
 }
 .carousel-inner {
   height: 100%;
@@ -89,15 +90,40 @@ if (isset($_SESSION['user_id'])) {
       }
 
       @media (max-width: 768px) {
+  #myCarousel {
+    height: 100vh;
+    min-height: 400px;
+  }
+  
   .carousel-inner .carousel-item h1 {
-    font-size: 2rem;
+    font-size: 2rem !important;
   }
   .carousel-inner .carousel-item p {
-    font-size: 1rem;
+    font-size: 1.2rem !important;
   }
   .carousel-inner .carousel-item .btn {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+  .container.p-5 {
+    padding: 1rem !important;
+  }
+  .custom-size.display-4 {
+    font-size: 2.5rem;
+  }
+  .navbar-brand h1 {
+    font-size: 1.5rem;
+  }
+}
+@media (max-width: 576px) {
+  .carousel-inner .carousel-item h1 {
+    font-size: 1.75rem !important;
+  }
+  .carousel-inner .carousel-item p {
+    font-size: 1rem !important;
+  }
+  .custom-size.display-4 {
+    font-size: 2rem;
   }
 }
   .carousel-inner .carousel-item h1 {
