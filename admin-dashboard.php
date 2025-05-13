@@ -234,23 +234,23 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           <span><i class="fas fa-car"></i> Parking Slots</span>
         </div>
         <div class="card-body">
-          <form class="form-inline mb-3" id="slotFilterForm">
+          <form class="form-inline mb-3">
             <label class="mr-2">Status:</label>
-            <select name="status" class="form-control mr-3" id="statusFilter">
+            <select name="status" class="form-control mr-3" onchange="this.form.submit()">
               <option value="">All</option>
               <option value="available"<?= isset($_GET['status']) && $_GET['status']==='available'?' selected':'' ?>>Available</option>
               <option value="reserved"<?= isset($_GET['status']) && $_GET['status']==='reserved'?' selected':'' ?>>Reserved</option>
               <option value="occupied"<?= isset($_GET['status']) && $_GET['status']==='occupied'?' selected':'' ?>>Occupied</option>
             </select>
             <label class="mr-2">Type:</label>
-            <select name="type" class="form-control mr-3" id="typeFilter">
+            <select name="type" class="form-control mr-3" onchange="this.form.submit()">
               <option value="">All</option>
               <option value="two_wheeler"<?= isset($_GET['type']) && $_GET['type']==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
               <option value="standard"<?= isset($_GET['type']) && $_GET['type']==='standard'?' selected':'' ?>>Standard</option>
               <option value="compact"<?= isset($_GET['type']) && $_GET['type']==='compact'?' selected':'' ?>>Compact</option>
             </select>
           </form>
-          <div class="table-responsive" id="slotsTableContainer">
+          <div class="table-responsive">
             <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
           </div>
         </div>
@@ -265,37 +265,6 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     document.getElementById('sidebarToggle').addEventListener('click', function() {
       var sidebar = document.getElementById('sidebarMenu');
       sidebar.classList.toggle('show');
-    });
-
-    // AJAX filter for parking slots
-    $(function() {
-      $('#slotFilterForm select').on('change', function() {
-        var status = $('#statusFilter').val();
-        var type = $('#typeFilter').val();
-        $.ajax({
-          url: 'admin-dashboard.php',
-          type: 'GET',
-          data: { ajax: 1, status: status, type: type },
-          success: function(data) {
-            $('#slotsTableContainer').html(data);
-          }
-        });
-      });
-      // Pagination click
-      $(document).on('click', '.pagination .page-link', function(e) {
-        e.preventDefault();
-        var url = $(this).attr('href');
-        var status = $('#statusFilter').val();
-        var type = $('#typeFilter').val();
-        $.ajax({
-          url: url,
-          type: 'GET',
-          data: { ajax: 1, status: status, type: type },
-          success: function(data) {
-            $('#slotsTableContainer').html(data);
-          }
-        });
-      });
     });
   </script>
 </body>
