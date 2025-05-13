@@ -267,7 +267,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             <?php
             $users = [];
             try {
-              $users = $pdo->query("SELECT * FROM users ORDER BY id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
+              $users = $pdo->query("SELECT * FROM users ORDER BY user_id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
             } catch (Exception $e) {
               echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
             }
