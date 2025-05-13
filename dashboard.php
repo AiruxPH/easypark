@@ -7,8 +7,10 @@ if(!isset($_SESSION['user_id'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<title>EasyPark Dashboard</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="css/font-awesome.min.css">
 <link rel="stylesheet" href="css/bootstrap.min.css" >
@@ -29,12 +31,7 @@ if(!isset($_SESSION['user_id'])) {
 
 
     .hov {
-
-    }
-
-    .hov:hover {
-      transform: scale(1.1);
-        transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out;
     }
 
       .bg-image-dark {
@@ -78,7 +75,7 @@ if(!isset($_SESSION['user_id'])) {
 }
       #opp {
         opacity: 1 !important;
-        transition: opacity: 1s ease-in-out;
+        transition: opacity 1s ease-in-out;
       }
       #opp.op1 {
         opacity: 1 !important;
@@ -133,7 +130,7 @@ if(!isset($_SESSION['user_id'])) {
         EASYPARK
     </h1>
   </a>
-  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar ">
+  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
