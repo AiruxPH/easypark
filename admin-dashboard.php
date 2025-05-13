@@ -238,16 +238,16 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             <label class="mr-2">Status:</label>
             <select name="status" class="form-control mr-3" id="statusFilter">
               <option value="">All</option>
-              <option value="available"<?= isset($filterStatus) && $filterStatus==='available'?' selected':'' ?>>Available</option>
-              <option value="reserved"<?= isset($filterStatus) && $filterStatus==='reserved'?' selected':'' ?>>Reserved</option>
-              <option value="occupied"<?= isset($filterStatus) && $filterStatus==='occupied'?' selected':'' ?>>Occupied</option>
+              <option value="available"<?= isset($_GET['status']) && $_GET['status']==='available'?' selected':'' ?>>Available</option>
+              <option value="reserved"<?= isset($_GET['status']) && $_GET['status']==='reserved'?' selected':'' ?>>Reserved</option>
+              <option value="occupied"<?= isset($_GET['status']) && $_GET['status']==='occupied'?' selected':'' ?>>Occupied</option>
             </select>
             <label class="mr-2">Type:</label>
             <select name="type" class="form-control mr-3" id="typeFilter">
               <option value="">All</option>
-              <option value="two_wheeler"<?= isset($filterType) && $filterType==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
-              <option value="standard"<?= isset($filterType) && $filterType==='standard'?' selected':'' ?>>Standard</option>
-              <option value="compact"<?= isset($filterType) && $filterType==='compact'?' selected':'' ?>>Compact</option>
+              <option value="two_wheeler"<?= isset($_GET['type']) && $_GET['type']==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
+              <option value="standard"<?= isset($_GET['type']) && $_GET['type']==='standard'?' selected':'' ?>>Standard</option>
+              <option value="compact"<?= isset($_GET['type']) && $_GET['type']==='compact'?' selected':'' ?>>Compact</option>
             </select>
           </form>
           <div class="table-responsive" id="slotsTableContainer">
