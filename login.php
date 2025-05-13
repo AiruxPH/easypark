@@ -1,193 +1,172 @@
 <?php
+session_start();
+require_once 'db.php';
 
-?>
-<!DOCTYPE>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" href="css/bootstrap.min.css" >
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
+    $password = $_POST['password'];
 
-
-<style>
-
-    .fa:hover {
-        transform: scale(1.2);
-        transition: transform 0.5s ease-in-out;
-    }
-
-
-    .hov {
-
-    }
-
-    .hov:hover {
-      transform: scale(1.1);
-        transition: transform 0.3s ease-in-out;
-    }
-
-      .bg-image-dark {
-        background-image: url('nav-bg.jpg');
-        background-size: 100% auto;
-        background-position: top left;
-        background-repeat: repeat-y;
-        
-        
-      }
-      .bg-car {
-        background-image: url('bg-car.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-
-    @media (max-width: 768px)
-      {
-        .bg-image-dark {
-          background-size: cover;
-        }
-      }
-      .custom-size {
-        color: #ffc107;
-        transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
-      }
-
-      .custom-size:hover {
-        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
-        color: white;
-      }
-
-      .custom-hover {
-        opacity: 0;
-      }
-
-      .custom-hover:hover {
-        opacity 1;
-      }
-
-      #navbar {
-        transition: background: 1s ease-in-out;
-      }
-      #navbar::before {
-        
-      }
-      .scrolled {
-        background: rgba(0, 0, 0, 0.3);
-        transition: background: 1s ease-in-out;
-      }
-      #opp {
-        opacity: 1 !important;
-        transition: opacity: 1s ease-in-out;
-      }
-      #opp.op1 {
-        opacity: 1 !important;
-      }
-
-      .navbar-dark .navbar-brand, .navbar-dark .navbar-nav .nav-link {
-        color: #fff;
-      }
-      .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
-        color: #ccc;
-      }
-</style>
-</head>
-
-<body class="bg-car">
-<nav id="navbar" class="w-100 navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top" >
-<a id="opp" class="navbar-brand" href="index.php">
-<h1 class="custom-size 75rem">
-        EASYPARK
-    </h1>
-  </a>
-  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar ">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-    <ul id="opp" class="navbar-nav">
-      <li class="nav-item">
-      <a class="nav-link" href="index.php">Home</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Reserve</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">How It Works</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="login.php">Login/Sign Up</a>
-      </li>
-    </ul>
-  </div>  
-</nav>
-
-<div class="container-fluid text-warning">
-
-      
-
-  </div>
-
-
-<footer class="bg-dark text-light pt-5 pb-4">
-  <div class="container text-center text-md-left">
-    <div class="row">
-      <!-- Company Info -->
-      <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">EASYPARK</h5>
-        <p>We help drivers find and reserve parking spots faster, smarter, and stress-free.</p>
-      </div>
-
-      <!-- Quick Links -->
-      <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Quick Links</h5>
-        <p><a href="#about" class="text-light" style="text-decoration: none;">About Us</a></p>
-        <p><a href="#terms" class="text-light" style="text-decoration: none;">Terms of Service</a></p>
-        <p><a href="#privacy" class="text-light" style="text-decoration: none;">Privacy Policy</a></p>
-        <p><a href="#contact" class="text-light" style="text-decoration: none;">Contact</a></p>
-      </div>
-
-      <!-- Social Links -->
-      <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3 text-center">
-        <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Follow Us</h5>
-        <a href="https://www.facebook.com/randythegreat000" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-facebook fa-lg"></i></a>
-        <a href="https://x.com/AiruxPH" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-twitter fa-lg"></i></a>
-        <a href="https://www.instagram.com/itsmerandythegreat" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-instagram fa-lg"></i></a>
-        <a href="https://www.linkedin.com/in/anecito-randy-calunod-jr-326680210" class="text-light" target="_blank" rel="noopener"><i class="fa fa-linkedin fa-lg"></i></a>
-
-      </div>
-    </div>
-
-    <!-- Copyright -->
-    <div class="row mt-4">
-      <div class="col-md-12 text-center">
-        <p class="text-muted mb-0">&copy; 2025 EASYPARK. All Rights Reserved.</p>
-      </div>
-    </div>
-  </div>
-</footer>
-<script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
-<script src="js/jquery.slim.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
-
-<script>
-  const navbar = document.getElementById('navbar');
-  const opp = document.getElementById('opp');
-
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > 100) {
-
-      navbar.classList.add('scrolled');
-      opp.classList.add('op1');
+    if (!$email) {
+        $message = "⚠️ Invalid email address.";
+    } elseif (empty($password)) {
+        $message = "⚠️ Password is required.";
     } else {
-
-      navbar.classList.remove('scrolled');
-      opp.classList.remove('op1');
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            if ($stmt->rowCount() > 0) {
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (password_verify($password, $user['password'])) {
+                    // Start session and redirect based on user type
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_type'] = $user['user_type'];
+                    if ($user['user_type'] === 'admin') {
+                        header('Location: admin_dashboard.php');
+                    } elseif ($user['user_type'] === 'staff') {
+                        header('Location: staff_dashboard.php');
+                    } else {
+                        header('Location: client_dashboard.php');
+                    }
+                    exit;
+                } else {
+                    $message = "❌ Invalid email or password.";
+                }
+            } else {
+                $message = "❌ No account found with this email.";
+            }
+        } catch (\PDOException $e) {
+            error_log("Database error during login: " . $e->getMessage());
+            $message = "❌ A database error occurred. Please try again later.";
+        }
     }
-  });
-</script>
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EASYPARK - Login</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css"/>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.3;
+      z-index: -1;
+    }
+    .form-control:focus {
+      border-color: #ffc107;
+      box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border-color: #ffc107;
+    }
+    .btn-warning:hover {
+      background-color: #6610f2;
+      border-color: #6610f2;
+    }
+  </style>
+</head>
+<body class="d-flex align-items-center justify-content-center p-4">
+  <img class="bg-image" src="bg-car.jpg" alt="parking bg" />
+  <div class="card bg-white shadow-lg p-4" style="max-width: 400px; background: rgba(255, 255, 255, 0.9) !important;">
+    <!-- Website Name/Logo -->
+    <div class="text-center mb-4">
+      <h1 class="display-5 font-weight-bold text-warning">EASYPARK</h1>
+      <p class="text-muted small">Your Smart Parking Solution</p>
+    </div>
 
+    <!-- Error/Success Message -->
+    <?php if ($message): ?>
+      <div class="alert alert-warning small mb-4"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
+    <!-- Login Form -->
+    <form action="index.php" method="POST">
+      <div class="form-group">
+        <label for="email" class="small font-weight-bold text-muted">
+          Email Address <span class="text-danger">*</span>
+        </label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          required
+          placeholder="Email address"
+          class="form-control"
+          autocomplete="off"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password" class="small font-weight-bold text-muted">
+          Password <span class="text-danger">*</span>
+        </label>
+        <div class="position-relative">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            placeholder="••••••••"
+            class="form-control"
+            autocomplete="new-password"
+          />
+          <button type="button" onclick="togglePassword()" class="btn btn-link position-absolute" style="right: 0; top: 0; padding: 6px 12px;">
+            <i class="fas fa-eye text-muted" id="toggleIcon"></i>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-warning btn-block text-white font-weight-bold">
+        Login
+      </button>
+    </form>
 
+    <!-- Forgot Password Link -->
+    <div class="text-center mt-4">
+      <a href="forgot_password.php" class="text-primary">Forgot your password?</a>
+    </div>
 
+    <!-- Register Link -->
+    <div class="text-center mt-3 text-muted">
+      Don't have an account? <a href="register.php" class="text-primary">Sign up here</a>
+    </div>
+
+    <div class="text-center mt-3 text-muted">
+   <a href="index.php" class="text-primary">Go back to home</a>
+    </div>
+  </div>
+
+  <script src="js/jquery.slim.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/ef9baa832e.js"></script>
+  <script>
+    function togglePassword() {
+      const pwd = document.getElementById('password');
+      const icon = document.getElementById('toggleIcon');
+      if (pwd.type === "password") {
+        pwd.type = "text";
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        pwd.type = "password";
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+  </script>
 </body>
-
 </html>
