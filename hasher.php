@@ -17,18 +17,25 @@
 </html>
 
 <?php
-if (isset($_POST['password']) && !empty($_POST['password'])) {
-    die('Please enter a password.');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die('Please submit the form.');
+}else
+{
+    if (isset($_POST['password']) && !empty($_POST['password'])) {
+        die('Please enter a password.');
+    }
+    
+    $password = $_POST['password'];
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    
+    echo "<h1>Hashed Password</h1>";
+    echo "<p>Original Password: <strong>" . htmlspecialchars($password) . "</strong></p>";
+    echo "<p>Hashed Password: <strong>" . htmlspecialchars($hashed) . "</strong></p>";
+    echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
+    echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
+    echo "<p><a href='hasher.php'>Go Back</a></p>"; 
+    
 }
-
-$password = $_POST['password'];
-$hashed = password_hash($password, PASSWORD_DEFAULT);
-
-echo "<h1>Hashed Password</h1>";
-echo "<p>Original Password: <strong>" . htmlspecialchars($password) . "</strong></p>";
-echo "<p>Hashed Password: <strong>" . htmlspecialchars($hashed) . "</strong></p>";
-echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
-echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
-echo "<p><a href='hasher.php'>Go Back</a></p>"; 
 // index.php
 ?>
