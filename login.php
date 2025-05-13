@@ -23,11 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_email'] = $user['email'];
                     $_SESSION['user_type'] = $user['user_type'];
                     if ($user['user_type'] === 'admin') {
-                        header('Location: admin_dashboard.php');
+                        header('Location: dashboard.php');
                     } elseif ($user['user_type'] === 'staff') {
-                        header('Location: staff_dashboard.php');
+                        header('Location: dashboard.php');
                     } else {
-                        header('Location: client_dashboard.php');
+                        header('Location: dashboard.php');
                     }
                     exit;
                 } else {
