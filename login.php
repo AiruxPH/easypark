@@ -28,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id'] = $user['user_id'];
                     $_SESSION['user_email'] = $user['email'];
                     $_SESSION['user_type'] = $user['user_type'];
+                    $_SESSION['username'] = $user['first_name'];
+
                     if ($user['user_type'] === 'admin') {
                         header('Location: dashboard.php');
                     } elseif ($user['user_type'] === 'staff') {
