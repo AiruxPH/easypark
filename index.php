@@ -37,12 +37,6 @@
         background-repeat: no-repeat;
       }
 
-    @media (max-width: 768px)
-      {
-        .bg-image-dark {
-          background-size: cover;
-        }
-      }
       .custom-size {
         color: #ffc107;
         transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
@@ -86,19 +80,6 @@
         color: #ccc;
       }
 
-  @media (max-width: 768px) {
-    .carousel-inner .carousel-item h1 {
-      font-size: 2rem; /* Adjust heading size for smaller screens */
-    }
-    .carousel-inner .carousel-item p {
-      font-size: 1rem; /* Adjust paragraph size for smaller screens */
-    }
-    .carousel-inner .carousel-item .btn {
-      font-size: 0.9rem; /* Adjust button size for smaller screens */
-      padding: 0.5rem 1rem; /* Adjust button padding */
-    }
-  }
-
   .carousel-inner .carousel-item h1 {
     font-size: 3rem; /* Use rem for scalable font size */
   }
@@ -115,12 +96,6 @@
     align-items: center;
     justify-content: center;
     height: 100%; /* Ensure the container adjusts dynamically */
-  }
-
-  @media (max-width: 768px) {
-    .carousel-inner .carousel-item {
-      height: auto; /* Adjust height for smaller screens */
-    }
   }
 
   /* Fix for carousel items appearing all at once */
