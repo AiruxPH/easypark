@@ -28,6 +28,6 @@ echo "<p>Original Password: <strong>" . htmlspecialchars($password) . "</strong>
 echo "<p>Hashed Password: <strong>" . htmlspecialchars($hashed) . "</strong></p>";
 echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
 echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
-echo "<p><a href='hasher.php.php'>Go Back</a></p>"; 
+echo "<p><a href='hasher.php'>Go Back</a></p>"; 
 // index.php
 ?>
