@@ -155,92 +155,95 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     </nav>
 
     <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-md-3 mb-4">
-          <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Parking Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalSlots; ?></div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-parking fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 mb-4">
-          <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Available Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $availableSlots; ?></div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+      <div id="dashboard-cards">
+        <div class="row">
+          <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Parking Slots</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalSlots; ?></div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-parking fa-2x text-gray-300"></i>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col-md-3 mb-4">
-          <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Reserved Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $reservedSlots; ?></div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+          <div class="col-md-3 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Available Slots</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $availableSlots; ?></div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col-md-3 mb-4">
-          <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Occupied Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $occupiedSlots; ?></div>
+          <div class="col-md-3 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Reserved Slots</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $reservedSlots; ?></div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                  </div>
                 </div>
-                <div class="col-auto">
-                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Occupied Slots</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $occupiedSlots; ?></div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Parking Slots Table with Pagination and Categorization -->
-      <div class="card mb-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-car"></i> Parking Slots</span>
-        </div>
-        <div class="card-body">
-          <form class="form-inline mb-3">
-            <label class="mr-2">Status:</label>
-            <select name="status" class="form-control mr-3" onchange="this.form.submit()">
-              <option value="">All</option>
-              <option value="available"<?= isset($_GET['status']) && $_GET['status']==='available'?' selected':'' ?>>Available</option>
-              <option value="reserved"<?= isset($_GET['status']) && $_GET['status']==='reserved'?' selected':'' ?>>Reserved</option>
-              <option value="occupied"<?= isset($_GET['status']) && $_GET['status']==='occupied'?' selected':'' ?>>Occupied</option>
-            </select>
-            <label class="mr-2">Type:</label>
-            <select name="type" class="form-control mr-3" onchange="this.form.submit()">
-              <option value="">All</option>
-              <option value="two_wheeler"<?= isset($_GET['type']) && $_GET['type']==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
-              <option value="standard"<?= isset($_GET['type']) && $_GET['type']==='standard'?' selected':'' ?>>Standard</option>
-              <option value="compact"<?= isset($_GET['type']) && $_GET['type']==='compact'?' selected':'' ?>>Compact</option>
-            </select>
-          </form>
-          <div class="table-responsive">
-            <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
+      <div id="parking-slots-container" style="display:none;">
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-car"></i> Parking Slots</span>
+          </div>
+          <div class="card-body">
+            <form class="form-inline mb-3">
+              <label class="mr-2">Status:</label>
+              <select name="status" class="form-control mr-3" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="available"<?= isset($_GET['status']) && $_GET['status']==='available'?' selected':'' ?>>Available</option>
+                <option value="reserved"<?= isset($_GET['status']) && $_GET['status']==='reserved'?' selected':'' ?>>Reserved</option>
+                <option value="occupied"<?= isset($_GET['status']) && $_GET['status']==='occupied'?' selected':'' ?>>Occupied</option>
+              </select>
+              <label class="mr-2">Type:</label>
+              <select name="type" class="form-control mr-3" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="two_wheeler"<?= isset($_GET['type']) && $_GET['type']==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
+                <option value="standard"<?= isset($_GET['type']) && $_GET['type']==='standard'?' selected':'' ?>>Standard</option>
+                <option value="compact"<?= isset($_GET['type']) && $_GET['type']==='compact'?' selected':'' ?>>Compact</option>
+              </select>
+            </form>
+            <div class="table-responsive">
+              <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
+            </div>
           </div>
         </div>
       </div>
@@ -254,6 +257,21 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     document.getElementById('sidebarToggle').addEventListener('click', function() {
       var sidebar = document.getElementById('sidebarMenu');
       sidebar.classList.toggle('show');
+    });
+
+    // Show Parking Slots section when sidebar link is clicked
+    document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        if (this.textContent.trim().includes('Parking Slots')) {
+          e.preventDefault();
+          document.getElementById('dashboard-cards').style.display = 'none';
+          document.getElementById('parking-slots-container').style.display = 'block';
+        } else if (this.textContent.trim().includes('Dashboard')) {
+          e.preventDefault();
+          document.getElementById('dashboard-cards').style.display = 'block';
+          document.getElementById('parking-slots-container').style.display = 'none';
+        }
+      });
     });
   </script>
 </body>
