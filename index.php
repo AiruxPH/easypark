@@ -7,6 +7,13 @@
 
 <style>
 
+#myCarousel {
+  height: 90vh;
+}
+.carousel-inner {
+  height: 100%;
+}
+
     .fa:hover {
         transform: scale(1.2);
         transition: transform 0.5s ease-in-out;
@@ -48,23 +55,19 @@
       }
 
       .custom-hover {
-        opacity: 0;
-      }
-
-      .custom-hover:hover {
-        opacity 1;
-      }
+  opacity: 0.5;
+  transition: opacity 0.3s ease-in-out;
+}
+.custom-hover:hover {
+  opacity: 1;
+}
 
       #navbar {
-        transition: background: 1s ease-in-out;
-      }
-      #navbar::before {
-        
-      }
-      .scrolled {
-        background: rgba(0, 0, 0, 0.3);
-        transition: background: 1s ease-in-out;
-      }
+  transition: background 1s ease-in-out;
+}
+.scrolled {
+  background: rgba(0, 0, 0, 0.3);
+}
       #opp {
         opacity: 1 !important;
         transition: opacity: 1s ease-in-out;
@@ -80,6 +83,18 @@
         color: #ccc;
       }
 
+      @media (max-width: 768px) {
+  .carousel-inner .carousel-item h1 {
+    font-size: 2rem;
+  }
+  .carousel-inner .carousel-item p {
+    font-size: 1rem;
+  }
+  .carousel-inner .carousel-item .btn {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+}
   .carousel-inner .carousel-item h1 {
     font-size: 3rem; /* Use rem for scalable font size */
   }
@@ -236,26 +251,21 @@
   </div>
 </footer>
 
-<script src="js/jquery.slim.min.js"></script>
+<script src="js/jquery.min.js"></script>
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/ef9baa832e.js"></script>
 
 <script>
   const navbar = document.getElementById('navbar');
-  const opp = document.getElementById('opp');
 
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > 100) {
-
-      navbar.classList.add('scrolled');
-      opp.classList.add('op1');
-    } else {
-
-      navbar.classList.remove('scrolled');
-      opp.classList.remove('op1');
-    }
-  });
+window.addEventListener('scroll', function () {
+  if (window.scrollY > 100) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
 </script>
 
 
