@@ -251,7 +251,7 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             </select>
           </form>
           <div class="table-responsive" id="slotsTableContainer">
-            <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
+            <?php include 'admin-dashboard.php-table.php'; ?>
           </div>
         </div>
       </div>
