@@ -1,8 +1,8 @@
 
 <?php
 session_start();
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+if(!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
     exit();
 }
 ?>
@@ -145,7 +145,7 @@ if (isset($_SESSION['user_id'])) {
         <a class="nav-link" href="#">How It Works</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="login.php">Login/Sign Up</a>
+        <a class="nav-link btn btn-primary" href="#"> <i class="fa-solid fa-circle-user"></i> My Account</a>
       </li>
     </ul>
   </div>  
