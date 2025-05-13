@@ -166,7 +166,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     </nav>
 
     <div class="container-fluid py-4">
-      <div id="dashboard-cards" style="<?= $showParkingSlots ? 'display:none;' : '' ?>">
+      <div id="dashboard-cards" style="<?= $showParkingSlots || isset($_GET['users']) ? 'display:none;' : '' ?>">
         <div class="row">
           <div class="col-md-3 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -230,7 +230,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           </div>
         </div>
       </div>
-      <div id="parking-slots-container" style="<?= $showParkingSlots ? '' : 'display:none;' ?>">
+      <div id="parking-slots-container" style="<?= $showParkingSlots && !isset($_GET['users']) ? '' : 'display:none;' ?>">
         <div class="card mb-4">
           <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <span><i class="fas fa-car"></i> Parking Slots</span>
@@ -255,6 +255,47 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             <div class="table-responsive">
               <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
             </div>
+          </div>
+        </div>
+      </div>
+      <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-users"></i> Users</span>
+          </div>
+          <div class="card-body">
+            <?php
+            // Try to fetch users from a likely table name
+            $users = [];
+            try {
+              $users = $pdo->query("SELECT * FROM users ORDER BY id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) {
+              echo '<div class="text-danger">Users table not found in database.</div>';
+            }
+            if ($users && count($users) > 0): ?>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover text-center">
+                <thead class="thead-dark">
+                  <tr>
+                    <?php foreach(array_keys($users[0]) as $col): ?>
+                      <th><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
+                    <?php endforeach; ?>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($users as $user): ?>
+                    <tr>
+                      <?php foreach($user as $val): ?>
+                        <td><?= htmlspecialchars($val) ?></td>
+                      <?php endforeach; ?>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+            <?php else: ?>
+              <div class="text-muted">No users found.</div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -284,10 +325,17 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'block';
+          document.getElementById('users-container').style.display = 'none';
         } else if (text.includes('Dashboard')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'block';
           document.getElementById('parking-slots-container').style.display = 'none';
+          document.getElementById('users-container').style.display = 'none';
+        } else if (text.includes('Users')) {
+          e.preventDefault();
+          document.getElementById('dashboard-cards').style.display = 'none';
+          document.getElementById('parking-slots-container').style.display = 'none';
+          document.getElementById('users-container').style.display = 'block';
         }
       });
     });
