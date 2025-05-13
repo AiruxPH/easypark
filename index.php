@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="css/font-awesome.min.css">
 <link rel="stylesheet" href="css/bootstrap.min.css" >
 
-
 <style>
 
     .fa:hover {
@@ -156,7 +155,7 @@
 
 <div class="container-fluid text-warning">
 
-  <div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
 
     
     <div class="carousel-inner">
@@ -205,11 +204,13 @@
           
     </div>
 
-    <a class="carousel-control-prev custom-hover" href="#myCarousel" data-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
+    <a class="carousel-control-prev custom-hover" href="#myCarousel" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
     </a>
-    <a class="carousel-control-next custom-hover" href="#myCarousel" data-slide="next">
-      <span class="carousel-control-next-icon"></span>
+    <a class="carousel-control-next custom-hover" href="#myCarousel" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
     </a>
 
 
