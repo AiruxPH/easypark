@@ -195,7 +195,7 @@
                               <br>
                               <p class="lead text-light text-center">Stop circling blocks, start parking smarter</p>
                               <div class="d-flex justify-content-center">
-                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Download App</a>
+                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Try our Service</a>
                               </div>
                               
                             </div>
