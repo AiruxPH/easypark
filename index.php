@@ -122,6 +122,14 @@
       height: auto; /* Adjust height for smaller screens */
     }
   }
+
+  /* Fix for carousel items appearing all at once */
+  .carousel-item {
+    display: none; /* Hide all items by default */
+  }
+  .carousel-item.active {
+    display: flex; /* Show only the active item */
+  }
 </style>
 </head>
 
