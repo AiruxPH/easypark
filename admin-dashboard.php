@@ -342,25 +342,52 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     var sidebarToggle = document.getElementById('sidebarToggle');
     var sidebarClose = document.getElementById('sidebarClose');
     function setSidebar(collapsed) {
-      if (collapsed) {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.remove('sidebar-expanded');
-        mainContent.classList.add('sidebar-collapsed');
+      if (window.innerWidth < 992) {
+        // Mobile: slide sidebar in/out
+        if (collapsed) {
+          sidebar.classList.remove('show');
+        } else {
+          sidebar.classList.add('show');
+        }
       } else {
-        sidebar.classList.remove('collapsed');
-        mainContent.classList.remove('sidebar-collapsed');
-        mainContent.classList.add('sidebar-expanded');
+        // Desktop: collapse/expand
+        if (collapsed) {
+          sidebar.classList.add('collapsed');
+          mainContent.classList.remove('sidebar-expanded');
+          mainContent.classList.add('sidebar-collapsed');
+        } else {
+          sidebar.classList.remove('collapsed');
+          mainContent.classList.remove('sidebar-collapsed');
+          mainContent.classList.add('sidebar-expanded');
+        }
       }
     }
     sidebarToggle.addEventListener('click', function() {
-      var collapsed = !sidebar.classList.contains('collapsed');
-      setSidebar(collapsed);
+      if (window.innerWidth < 992) {
+        // Mobile: open sidebar
+        setSidebar(false);
+      } else {
+        // Desktop: toggle collapse
+        var collapsed = sidebar.classList.contains('collapsed');
+        setSidebar(!collapsed);
+      }
     });
     sidebarClose.addEventListener('click', function() {
       setSidebar(true);
     });
-    // On load, expanded by default
-    setSidebar(false);
+    // On load, expanded by default on desktop, hidden on mobile
+    if (window.innerWidth < 992) {
+      setSidebar(true);
+    } else {
+      setSidebar(false);
+    }
+    window.addEventListener('resize', function() {
+      if (window.innerWidth < 992) {
+        setSidebar(true);
+      } else {
+        setSidebar(false);
+      }
+    });
     // Sidebar highlighting and section toggle
     document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
       link.addEventListener('click', function(e) {
