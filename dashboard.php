@@ -89,33 +89,51 @@ if(!isset($_SESSION['user_id'])) {
       }
 
       @media (max-width: 768px) {
-  .carousel-inner .carousel-item h1 {
-    font-size: 2rem;
-  }
-  .carousel-inner .carousel-item p {
-    font-size: 1rem;
-  }
-  .carousel-inner .carousel-item .btn {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-  }
-}
-  .carousel-inner .carousel-item h1 {
-    font-size: 3rem; /* Use rem for scalable font size */
-  }
-  .carousel-inner .carousel-item p {
-    font-size: 1.5rem; /* Use rem for scalable font size */
-  }
-  .carousel-inner .carousel-item .btn {
-    font-size: 1.2rem; /* Use rem for scalable font size */
-    padding: 0.75rem 1.5rem; /* Adjust button padding */
-  }
+        .carousel-inner .carousel-item h1 {
+          font-size: 2.5rem;
+        }
+        .carousel-inner .carousel-item p {
+          font-size: 1.25rem;
+        }
+        .carousel-inner .carousel-item .btn {
+          font-size: 1rem;
+          padding: 0.5rem 1rem;
+        }
+        .custom-size.display-4 {
+          font-size: 2.5rem;
+        }
+      }
 
-  .carousel-inner .carousel-item {
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* Keep for content centering */
-}
+      @media (max-width: 576px) {
+        .carousel-inner .carousel-item h1 {
+          font-size: 2rem;
+        }
+        .carousel-inner .carousel-item p {
+          font-size: 1rem;
+        }
+        .carousel-inner .carousel-item .btn {
+          font-size: 0.875rem;
+          padding: 0.4rem 0.8rem;
+        }
+        .custom-size.display-4 {
+          font-size: 2rem;
+        }
+      }
+
+      .carousel-inner .carousel-item h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+      }
+      .carousel-inner .carousel-item p {
+        font-size: clamp(1rem, 2.5vw, 1.5rem);
+      }
+      .carousel-inner .carousel-item .btn {
+        font-size: clamp(0.875rem, 1.5vw, 1.2rem);
+      }
+      .carousel-inner .carousel-item {
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
 
 .navbar-nav .nav-item {
   margin-right: 15px;
