@@ -18,7 +18,12 @@
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $password = $_POST['password'];
+
+    if (isset($_POST['password']) && empty($_POST['password'])) {
+        
+    }else {
+
+        $password = $_POST['password'];
     $hashed = password_hash($password, PASSWORD_DEFAULT);
     
     echo "<h1>Hashed Password</h1>";
@@ -27,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
     echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
     echo "<p><a href='hasher.php'>Go Back</a></p>"; 
+    }
+    
 }
 
 
