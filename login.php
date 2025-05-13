@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <!-- Login Form -->
-    <form action="index.php" method="POST">
+    <form action="login.php" method="POST">
       <div class="form-group">
         <label for="email" class="small font-weight-bold text-muted">
           Email Address <span class="text-danger">*</span>
