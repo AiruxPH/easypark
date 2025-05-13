@@ -1,5 +1,10 @@
 <?php
 require_once 'db.php';
+// Handle AJAX request for parking slots table only
+if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
+    include __DIR__ . '/admin-dashboard.php-table.php';
+    exit;
+}
 // Fetch parking slot statistics using PDO
 $totalSlots = $availableSlots = $reservedSlots = $occupiedSlots = 0;
 
