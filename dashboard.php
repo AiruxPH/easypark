@@ -147,13 +147,17 @@ if(!isset($_SESSION['user_id'])) {
       <li class="nav-item">
         <a class="nav-link" href="#">How It Works</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="#"> <i class="fa-solid fa-circle-user"></i> My Account (<?php echo $_SESSION['username'] ?>)</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="logout.php"> Logout</a>
-      </li>
+      <li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle btn btn-primary" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa-solid fa-circle-user"></i> My Account (<?php echo $_SESSION['username'] ?>)
+  </a>
+  <div class="dropdown-menu" aria-labelledby="accountDropdown">
+    <a class="dropdown-item" href="#">Profile</a>
+    <a class="dropdown-item" href="#">Settings</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="logout.php">Logout</a>
+  </div>
+</li>
     </ul>
   </div>  
 </nav>
