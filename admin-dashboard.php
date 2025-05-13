@@ -80,10 +80,23 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       #main-content {
         margin-left: 0 !important;
       }
+      #sidebarClose {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1051;
+      }
+      .sidebar.show #sidebarClose {
+        display: block;
+      }
     }
     @media (min-width: 992px) {
       #main-content {
         margin-left: 220px;
+      }
+      #sidebarClose {
+        display: none !important;
       }
     }
     .navbar {
@@ -102,6 +115,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
 <body>
   <!-- Sidebar -->
   <nav class="sidebar d-flex flex-column position-fixed p-3" id="sidebarMenu">
+    <button class="btn btn-outline-light d-lg-none mb-3 align-self-end" id="sidebarClose" style="display:none;"><i class="fas fa-times"></i></button>
     <a class="navbar-brand mb-4" href="#"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
@@ -310,8 +324,14 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     document.getElementById('sidebarToggle').addEventListener('click', function() {
       var sidebar = document.getElementById('sidebarMenu');
       sidebar.classList.toggle('show');
+      document.getElementById('sidebarClose').style.display = sidebar.classList.contains('show') ? '' : 'none';
     });
-
+    // Sidebar close button for mobile
+    document.getElementById('sidebarClose').addEventListener('click', function() {
+      var sidebar = document.getElementById('sidebarMenu');
+      sidebar.classList.remove('show');
+      this.style.display = 'none';
+    });
     // Sidebar highlighting and section toggle
     document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
       link.addEventListener('click', function(e) {
