@@ -116,7 +116,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   <!-- Sidebar -->
   <nav class="sidebar d-flex flex-column position-fixed p-3" id="sidebarMenu">
     <button class="btn btn-outline-light d-lg-none mb-3 align-self-end" id="sidebarClose" style="display:none;"><i class="fas fa-times"></i></button>
-    <a class="navbar-brand mb-4" href="#"><i class="fas fa-parking"></i> EasyPark</a>
+    <a class="navbar-brand mb-4" href="admin-dashboard.php"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
         <a class="nav-link<?= !$showParkingSlots && !isset($_GET['users']) ? ' active' : '' ?>" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
