@@ -148,7 +148,7 @@ if(!isset($_SESSION['user_id'])) {
         <a class="nav-link" href="#">How It Works</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="#"> <i class="fa-solid fa-circle-user"></i> My Account <?php echo "$_SESSION['user_type']";?></a>
+        <a class="nav-link btn btn-primary" href="#"> <i class="fa-solid fa-circle-user"></i> My Account <?php echo $_SESSION['user_type'] ?> </a>
       </li>
 
       <li class="nav-item">
