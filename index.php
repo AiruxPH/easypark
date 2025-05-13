@@ -92,40 +92,64 @@ if (isset($_SESSION['user_id'])) {
       @media (max-width: 768px) {
   #myCarousel {
     height: 100vh;
-    min-height: 400px;
+    min-height: 300px;
   }
   
   .carousel-inner .carousel-item h1 {
-    font-size: 2rem !important;
+    font-size: 7vw !important;
   }
   .carousel-inner .carousel-item p {
-    font-size: 1.2rem !important;
+    font-size: 4vw !important;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
   .carousel-inner .carousel-item .btn {
-    font-size: 1rem !important;
-    padding: 0.5rem 1rem !important;
+    font-size: 4vw !important;
+    padding: 0.75rem 2rem !important;
   }
   .container.p-5 {
-    padding: 1rem !important;
+    padding: 2rem !important;
   }
   .custom-size.display-4 {
-    font-size: 2.5rem;
+    font-size: 7vw;
   }
   .navbar-brand h1 {
-    font-size: 1.5rem;
+    font-size: 6vw;
   }
 }
+
 @media (max-width: 576px) {
   .carousel-inner .carousel-item h1 {
-    font-size: 1.75rem !important;
+    font-size: 8vw !important;
   }
   .carousel-inner .carousel-item p {
-    font-size: 1rem !important;
+    font-size: 5vw !important;
+  }
+  .carousel-inner .carousel-item .btn {
+    font-size: 4.5vw !important;
+    padding: 0.5rem 1.5rem !important;
   }
   .custom-size.display-4 {
-    font-size: 2rem;
+    font-size: 8vw;
+  }
+  .navbar-brand h1 {
+    font-size: 7vw;
   }
 }
+
+// Remove or comment out these fixed rem sizes as they're overriding the responsive sizes
+/*
+  .carousel-inner .carousel-item h1 {
+    font-size: 3rem;
+  }
+  .carousel-inner .carousel-item p {
+    font-size: 1.5rem;
+  }
+  .carousel-inner .carousel-item .btn {
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
+  }
+*/
   .carousel-inner .carousel-item h1 {
     font-size: 3rem; /* Use rem for scalable font size */
   }
