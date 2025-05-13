@@ -17,7 +17,8 @@
 </html>
 
 <?php
-$password = $_POST['password'] ?? '';
+$password = $_POST['password'];
+
 if (empty($password)) {
     die('Please enter a password.');
 }
