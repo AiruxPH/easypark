@@ -46,9 +46,14 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       background: #f8f9fa;
     }
     .sidebar {
-      min-height: 100vh;
-      background: #343a40;
-      color: #fff;
+      width: 220px;
+      transition: left 0.3s, width 0.3s;
+    }
+    .sidebar.collapsed {
+      width: 0 !important;
+      padding: 0 !important;
+      overflow: hidden;
+      left: 0;
     }
     .sidebar .nav-link, .sidebar .navbar-brand {
       color: #fff;
@@ -67,40 +72,51 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     }
     @media (max-width: 991.98px) {
       .sidebar {
+        left: -220px;
         min-height: auto;
         position: fixed;
         z-index: 1040;
-        left: -220px;
-        width: 220px;
-        transition: left 0.3s;
+      }
+      .sidebar.collapsed {
+        left: -220px !important;
       }
       .sidebar.show {
         left: 0;
+        width: 220px;
       }
-      #main-content {
+      #main-content.sidebar-expanded {
         margin-left: 0 !important;
       }
       #sidebarClose {
-        display: none;
+        display: block;
         position: absolute;
         top: 10px;
         right: 10px;
         z-index: 1051;
       }
-      .sidebar.show #sidebarClose {
-        display: block;
-      }
     }
     @media (min-width: 992px) {
-      #main-content {
-        margin-left: 220px;
+      .sidebar {
+        left: 0;
       }
       #sidebarClose {
-        display: none !important;
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1051;
       }
     }
     .navbar {
       z-index: 1050;
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+    #main-content.sidebar-expanded .navbar {
+      margin-left: 220px;
+    }
+    #main-content.sidebar-collapsed .navbar {
+      margin-left: 0;
     }
     /* Fix pagination overflow */
     .pagination {
@@ -115,7 +131,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
 <body>
   <!-- Sidebar -->
   <nav class="sidebar d-flex flex-column position-fixed p-3" id="sidebarMenu">
-    <button class="btn btn-outline-light d-lg-none mb-3 align-self-end" id="sidebarClose" style="display:none;"><i class="fas fa-times"></i></button>
+    <button class="btn btn-outline-light mb-3 align-self-end" id="sidebarClose"><i class="fas fa-times"></i></button>
     <a class="navbar-brand mb-4" href="admin-dashboard.php"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
@@ -139,10 +155,10 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   </nav>
 
   <!-- Main Content -->
-  <div id="main-content">
+  <div id="main-content" class="sidebar-expanded">
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-      <button class="btn btn-outline-secondary d-lg-none mr-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <button class="btn btn-outline-secondary mr-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
       <a class="navbar-brand d-lg-none" href="#">EasyPark</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -320,18 +336,31 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   <script src="js/jquery.slim.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
-    // Sidebar toggle for mobile
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-      var sidebar = document.getElementById('sidebarMenu');
-      sidebar.classList.toggle('show');
-      document.getElementById('sidebarClose').style.display = sidebar.classList.contains('show') ? '' : 'none';
+    // Sidebar toggle for all screens
+    var sidebar = document.getElementById('sidebarMenu');
+    var mainContent = document.getElementById('main-content');
+    var sidebarToggle = document.getElementById('sidebarToggle');
+    var sidebarClose = document.getElementById('sidebarClose');
+    function setSidebar(collapsed) {
+      if (collapsed) {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.remove('sidebar-expanded');
+        mainContent.classList.add('sidebar-collapsed');
+      } else {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('sidebar-collapsed');
+        mainContent.classList.add('sidebar-expanded');
+      }
+    }
+    sidebarToggle.addEventListener('click', function() {
+      var collapsed = !sidebar.classList.contains('collapsed');
+      setSidebar(collapsed);
     });
-    // Sidebar close button for mobile
-    document.getElementById('sidebarClose').addEventListener('click', function() {
-      var sidebar = document.getElementById('sidebarMenu');
-      sidebar.classList.remove('show');
-      this.style.display = 'none';
+    sidebarClose.addEventListener('click', function() {
+      setSidebar(true);
     });
+    // On load, expanded by default
+    setSidebar(false);
     // Sidebar highlighting and section toggle
     document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
       link.addEventListener('click', function(e) {
@@ -358,6 +387,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'block';
         }
+        // Collapse sidebar after click on desktop/mobile
+        setSidebar(true);
       });
     });
   </script>
