@@ -110,18 +110,7 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
       </li>
     </ul>
     <hr class="bg-secondary">
-    <div class="dropdown">
-      <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <img src="https://ui-avatars.com/api/?name=Admin" alt="admin" width="32" height="32" class="rounded-circle mr-2">
-        <strong>Admin</strong>
-      </a>
-      <div class="dropdown-menu dropdown-menu-dark bg-dark text-light" aria-labelledby="dropdownUser">
-        <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
-      </div>
-    </div>
+    <!-- Removed sidebar user dropdown for Admin -->
   </nav>
 
   <!-- Main Content -->
