@@ -193,12 +193,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="text-center mt-3">
         Already have an account? <a href="login.php" class="text-primary">Sign in</a>
       </p>
-    </form>
-  </div>
 
-  <div class="text-center mt-3 text-muted">
+      <div class="text-center mt-3 text-muted">
    <a href="index.php" class="text-primary">Go back to home</a>
     </div>
+    </form>
+  </div>
 
   <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
