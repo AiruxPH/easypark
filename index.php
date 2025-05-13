@@ -138,7 +138,7 @@ if (isset($_SESSION['user_id'])) {
       <a class="nav-link" href="index.php">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Reserve</a>
+        <a class="nav-link" href="login.php">Reserve</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">How It Works</a>
@@ -167,7 +167,7 @@ if (isset($_SESSION['user_id'])) {
                               <br>
                               <p class="lead text-light text-center">Reserve your spot anytime, anywhere</p>
                               <div class="d-flex justify-content-center">
-                                  <a href="#" role="button" class="hov btn btn-primary btn-lg mt-3">Reserve Now</a>
+                                  <a href="login.php" role="button" class="hov btn btn-primary btn-lg mt-3">Reserve Now</a>
                               </div>
                               
                             </div>
