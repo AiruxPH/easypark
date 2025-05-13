@@ -1,26 +1,26 @@
 <?php
 require_once 'db.php';
-// Fetch parking slot statistics
+// Fetch parking slot statistics using PDO
 $totalSlots = $availableSlots = $reservedSlots = $occupiedSlots = 0;
 
 // Total slots
-$result = $conn->query("SELECT COUNT(*) as total FROM parking_slots");
-if ($row = $result->fetch_assoc()) {
+$stmt = $pdo->query("SELECT COUNT(*) as total FROM parking_slots");
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $totalSlots = $row['total'];
 }
 // Available slots
-$result = $conn->query("SELECT COUNT(*) as available FROM parking_slots WHERE slot_status='available'");
-if ($row = $result->fetch_assoc()) {
+$stmt = $pdo->query("SELECT COUNT(*) as available FROM parking_slots WHERE slot_status='available'");
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $availableSlots = $row['available'];
 }
 // Reserved slots
-$result = $conn->query("SELECT COUNT(*) as reserved FROM parking_slots WHERE slot_status='reserved'");
-if ($row = $result->fetch_assoc()) {
+$stmt = $pdo->query("SELECT COUNT(*) as reserved FROM parking_slots WHERE slot_status='reserved'");
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $reservedSlots = $row['reserved'];
 }
 // Occupied slots
-$result = $conn->query("SELECT COUNT(*) as occupied FROM parking_slots WHERE slot_status='occupied'");
-if ($row = $result->fetch_assoc()) {
+$stmt = $pdo->query("SELECT COUNT(*) as occupied FROM parking_slots WHERE slot_status='occupied'");
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $occupiedSlots = $row['occupied'];
 }
 ?>
