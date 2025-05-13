@@ -9,6 +9,8 @@ if (isset($_SESSION['user_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
+<title>EasyPark - Smart Parking Solutions</title>
+<meta name="description" content="EasyPark - Reserve your parking spot anytime, anywhere. Real-time parking availability and smart parking solutions.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="css/font-awesome.min.css">
 <link rel="stylesheet" href="css/bootstrap.min.css" >
@@ -27,14 +29,9 @@ if (isset($_SESSION['user_id'])) {
         transition: transform 0.5s ease-in-out;
     }
 
-
-    .hov {
-
-    }
-
     .hov:hover {
       transform: scale(1.1);
-        transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out;
     }
 
       .bg-image-dark {
@@ -78,7 +75,7 @@ if (isset($_SESSION['user_id'])) {
 }
       #opp {
         opacity: 1 !important;
-        transition: opacity: 1s ease-in-out;
+        transition: opacity 1s ease-in-out;
       }
       #opp.op1 {
         opacity: 1 !important;
@@ -143,8 +140,8 @@ if (isset($_SESSION['user_id'])) {
       <li class="nav-item">
         <a class="nav-link" href="#">How It Works</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link btn btn-primary" href="login.php">Login/Sign Up</a>
+      <li class="nav-item ml-2">
+        <a class="nav-link btn btn-primary px-4" href="login.php">Login/Sign Up</a>
       </li>
     </ul>
   </div>  
