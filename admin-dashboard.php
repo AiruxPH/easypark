@@ -1,3 +1,29 @@
+<?php
+require_once 'db.php';
+// Fetch parking slot statistics
+$totalSlots = $availableSlots = $reservedSlots = $occupiedSlots = 0;
+
+// Total slots
+$result = $conn->query("SELECT COUNT(*) as total FROM parking_slots");
+if ($row = $result->fetch_assoc()) {
+  $totalSlots = $row['total'];
+}
+// Available slots
+$result = $conn->query("SELECT COUNT(*) as available FROM parking_slots WHERE slot_status='available'");
+if ($row = $result->fetch_assoc()) {
+  $availableSlots = $row['available'];
+}
+// Reserved slots
+$result = $conn->query("SELECT COUNT(*) as reserved FROM parking_slots WHERE slot_status='reserved'");
+if ($row = $result->fetch_assoc()) {
+  $reservedSlots = $row['reserved'];
+}
+// Occupied slots
+$result = $conn->query("SELECT COUNT(*) as occupied FROM parking_slots WHERE slot_status='occupied'");
+if ($row = $result->fetch_assoc()) {
+  $occupiedSlots = $row['occupied'];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,7 +168,7 @@
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                   <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Parking Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">100</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalSlots; ?></div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-parking fa-2x text-gray-300"></i>
@@ -157,25 +183,10 @@
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                   <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Available Slots</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">75</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $availableSlots; ?></div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 mb-4">
-          <div class="card border-left-info shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Users</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">150</div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-users fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
@@ -186,8 +197,23 @@
             <div class="card-body">
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Revenue</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">₱15,000</div>
+                  <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Reserved Slots</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $reservedSlots; ?></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Occupied Slots</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $occupiedSlots; ?></div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
