@@ -259,32 +259,33 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         </div>
       </div>
       <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
-        <div class="card mb-4">
+        <div class="card mb-4 shadow">
           <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-users"></i> Users</span>
+            <span><i class="fas fa-users"></i> User Management</span>
           </div>
           <div class="card-body">
             <?php
-            // Try to fetch users from a likely table name
             $users = [];
             try {
-              $users = $pdo->query("SELECT * FROM users ORDER BY user_id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
+              $users = $pdo->query("SELECT * FROM users ORDER BY id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
             } catch (Exception $e) {
-              echo '<div class="text-danger">Users table not found in database.</div>';
+              echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
             }
             if ($users && count($users) > 0): ?>
             <div class="table-responsive">
-              <table class="table table-bordered table-hover text-center">
+              <table class="table table-striped table-bordered table-hover align-middle">
                 <thead class="thead-dark">
                   <tr>
+                    <th scope="col">#</th>
                     <?php foreach(array_keys($users[0]) as $col): ?>
-                      <th><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
+                      <th scope="col"><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
                     <?php endforeach; ?>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php foreach ($users as $user): ?>
+                  <?php $rownum = 1; foreach ($users as $user): ?>
                     <tr>
+                      <th scope="row"><?= $rownum++ ?></th>
                       <?php foreach($user as $val): ?>
                         <td><?= htmlspecialchars($val) ?></td>
                       <?php endforeach; ?>
