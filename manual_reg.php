@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="alert alert-warning"><?= $message ?></div>
     <?php endif; ?>
 
-    <form id="registerForm" action="register.php" method="POST" novalidate>
+    <form id="registerForm" action="manual_reg.php" method="POST" novalidate>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>First Name <span class="text-danger">*</span></label>
