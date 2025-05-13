@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>EasyPark Admin Dashboard</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
   <style>
     body {
       min-height: 100vh;
@@ -60,22 +60,22 @@
 <body>
   <!-- Sidebar -->
   <nav class="sidebar d-flex flex-column position-fixed p-3" id="sidebarMenu">
-    <a class="navbar-brand mb-4" href="#"><i class="fa fa-parking"></i> EasyPark</a>
+    <a class="navbar-brand mb-4" href="#"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a class="nav-link active" href="#"><i class="fa fa-tachometer"></i> Dashboard</a>
+        <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fa fa-car"></i> Parking Slots</a>
+        <a class="nav-link" href="#"><i class="fas fa-car"></i> Parking Slots</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fa fa-users"></i> Users</a>
+        <a class="nav-link" href="#"><i class="fas fa-users"></i> Users</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fa fa-exchange"></i> Transactions</a>
+        <a class="nav-link" href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fa fa-cogs"></i> Settings</a>
+        <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Settings</a>
       </li>
     </ul>
     <hr class="bg-secondary">
@@ -85,10 +85,10 @@
         <strong>Admin</strong>
       </a>
       <div class="dropdown-menu dropdown-menu-dark bg-dark text-light" aria-labelledby="dropdownUser">
-        <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a>
-        <a class="dropdown-item" href="#"><i class="fa fa-cog"></i> Settings</a>
+        <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
+        <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-danger" href="logout.php"><i class="fa fa-sign-out"></i> Logout</a>
+        <a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
     </div>
   </nav>
@@ -97,7 +97,7 @@
   <div id="main-content">
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-      <button class="btn btn-outline-secondary d-lg-none mr-2" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+      <button class="btn btn-outline-secondary d-lg-none mr-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
       <a class="navbar-brand d-lg-none" href="#">EasyPark</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
@@ -111,12 +111,12 @@
         <ul class="navbar-nav ml-auto">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-bell"></i> <span class="badge badge-danger">3</span>
+              <i class="fas fa-bell"></i> <span class="badge badge-danger">3</span>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-              <a class="dropdown-item" href="#"><i class="fa fa-info-circle text-primary"></i> New user registered</a>
-              <a class="dropdown-item" href="#"><i class="fa fa-car text-success"></i> Slot #12 reserved</a>
-              <a class="dropdown-item" href="#"><i class="fa fa-exclamation-triangle text-warning"></i> Payment pending</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-info-circle text-primary"></i> New user registered</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-car text-success"></i> Slot #12 reserved</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-exclamation-triangle text-warning"></i> Payment pending</a>
             </div>
           </li>
           <li class="nav-item dropdown">
@@ -124,10 +124,10 @@
               <img src="https://ui-avatars.com/api/?name=Admin" alt="admin" width="30" height="30" class="rounded-circle"> Admin
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-              <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a>
-              <a class="dropdown-item" href="#"><i class="fa fa-cog"></i> Settings</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
+              <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="logout.php"><i class="fa fa-sign-out"></i> Logout</a>
+              <a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
           </li>
         </ul>
@@ -145,7 +145,7 @@
                   <div class="h5 mb-0 font-weight-bold text-gray-800">100</div>
                 </div>
                 <div class="col-auto">
-                  <i class="fa fa-parking fa-2x text-gray-300"></i>
+                  <i class="fas fa-parking fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
@@ -160,7 +160,7 @@
                   <div class="h5 mb-0 font-weight-bold text-gray-800">75</div>
                 </div>
                 <div class="col-auto">
-                  <i class="fa fa-check-circle fa-2x text-gray-300"></i>
+                  <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@
                   <div class="h5 mb-0 font-weight-bold text-gray-800">150</div>
                 </div>
                 <div class="col-auto">
-                  <i class="fa fa-users fa-2x text-gray-300"></i>
+                  <i class="fas fa-users fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
@@ -190,7 +190,7 @@
                   <div class="h5 mb-0 font-weight-bold text-gray-800">₱15,000</div>
                 </div>
                 <div class="col-auto">
-                  <i class="fa fa-dollar-sign fa-2x text-gray-300"></i>
+                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
