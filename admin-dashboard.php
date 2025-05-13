@@ -86,6 +86,14 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     .navbar {
       z-index: 1050;
     }
+    /* Fix pagination overflow */
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
@@ -259,14 +267,21 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
       sidebar.classList.toggle('show');
     });
 
-    // Show Parking Slots section when sidebar link is clicked
+    // Sidebar highlighting and section toggle
     document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
       link.addEventListener('click', function(e) {
-        if (this.textContent.trim().includes('Parking Slots')) {
+        var text = this.textContent.trim();
+        // Remove 'active' from all
+        document.querySelectorAll('.sidebar .nav-link').forEach(function(l) {
+          l.classList.remove('active');
+        });
+        // Add 'active' to clicked
+        this.classList.add('active');
+        if (text.includes('Parking Slots')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'block';
-        } else if (this.textContent.trim().includes('Dashboard')) {
+        } else if (text.includes('Dashboard')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'block';
           document.getElementById('parking-slots-container').style.display = 'none';
