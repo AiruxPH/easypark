@@ -146,6 +146,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="text-center mt-3 text-muted">
       Don't have an account? <a href="register.php" class="text-primary">Sign up here</a>
     </div>
+
+    <div class="text-center mt-3 text-muted">
+   <a href="index.php" class="text-primary">Go back to home</a>
+    </div>
   </div>
 
   <script src="js/jquery.slim.min.js"></script>
