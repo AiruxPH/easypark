@@ -17,11 +17,11 @@
 </html>
 
 <?php
-$password = $_POST['password'];
-
-if (empty($password)) {
+if (isset($_POST['password']) && !empty($_POST['password'])) {
     die('Please enter a password.');
 }
+
+$password = $_POST['password'];
 $hashed = password_hash($password, PASSWORD_DEFAULT);
 
 echo "<h1>Hashed Password</h1>";
