@@ -269,10 +269,11 @@
     </div>
   </div>
 </footer>
-<script src="js/ef9baa832e.js"></script>
+
 <script src="js/jquery.slim.min.js"></script>
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/ef9baa832e.js"></script>
 
 <script>
   const navbar = document.getElementById('navbar');
