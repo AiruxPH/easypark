@@ -96,70 +96,57 @@ if (isset($_SESSION['user_id'])) {
   }
   
   .carousel-inner .carousel-item h1 {
-    font-size: 7vw !important;
+    font-size: clamp(1.5rem, 7vw, 3rem) !important;
   }
   .carousel-inner .carousel-item p {
-    font-size: 4vw !important;
+    font-size: clamp(1rem, 4vw, 1.5rem) !important;
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
   .carousel-inner .carousel-item .btn {
-    font-size: 4vw !important;
+    font-size: clamp(0.875rem, 4vw, 1.2rem) !important;
     padding: 0.75rem 2rem !important;
   }
   .container.p-5 {
     padding: 2rem !important;
   }
   .custom-size.display-4 {
-    font-size: 7vw;
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
   }
   .navbar-brand h1 {
-    font-size: 6vw;
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
   }
 }
 
 @media (max-width: 576px) {
   .carousel-inner .carousel-item h1 {
-    font-size: 8vw !important;
+    font-size: clamp(1.25rem, 8vw, 2.5rem) !important;
   }
   .carousel-inner .carousel-item p {
-    font-size: 5vw !important;
+    font-size: clamp(0.875rem, 5vw, 1.25rem) !important;
   }
   .carousel-inner .carousel-item .btn {
-    font-size: 4.5vw !important;
+    font-size: clamp(0.75rem, 4.5vw, 1rem) !important;
     padding: 0.5rem 1.5rem !important;
   }
   .custom-size.display-4 {
-    font-size: 8vw;
+    font-size: clamp(1.5rem, 8vw, 2.25rem);
   }
   .navbar-brand h1 {
-    font-size: 7vw;
+    font-size: clamp(1.25rem, 7vw, 2rem);
   }
 }
 
-// Remove or comment out these fixed rem sizes as they're overriding the responsive sizes
-/*
-  .carousel-inner .carousel-item h1 {
-    font-size: 3rem;
-  }
-  .carousel-inner .carousel-item p {
-    font-size: 1.5rem;
-  }
-  .carousel-inner .carousel-item .btn {
-    font-size: 1.2rem;
-    padding: 0.75rem 1.5rem;
-  }
-*/
-  .carousel-inner .carousel-item h1 {
-    font-size: 3rem; /* Use rem for scalable font size */
-  }
-  .carousel-inner .carousel-item p {
-    font-size: 1.5rem; /* Use rem for scalable font size */
-  }
-  .carousel-inner .carousel-item .btn {
-    font-size: 1.2rem; /* Use rem for scalable font size */
-    padding: 0.75rem 1.5rem; /* Adjust button padding */
-  }
+.carousel-inner .carousel-item h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+.carousel-inner .carousel-item p {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+.carousel-inner .carousel-item .btn {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  padding: 0.75rem 1.5rem;
+}
 
   .carousel-inner .carousel-item {
   align-items: center;
