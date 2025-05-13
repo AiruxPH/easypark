@@ -229,106 +229,25 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           <span><i class="fas fa-car"></i> Parking Slots</span>
         </div>
         <div class="card-body">
-          <?php
-          // Pagination setup
-          $perPage = 20;
-          $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-          $offset = ($page - 1) * $perPage;
-
-          // Filtering by status/type
-          $filterStatus = isset($_GET['status']) ? $_GET['status'] : '';
-          $filterType = isset($_GET['type']) ? $_GET['type'] : '';
-
-          $where = [];
-          $params = [];
-          if ($filterStatus && in_array($filterStatus, ['available','reserved','occupied'])) {
-            $where[] = 'slot_status = :status';
-            $params[':status'] = $filterStatus;
-          }
-          if ($filterType && in_array($filterType, ['two_wheeler','standard','compact'])) {
-            $where[] = 'slot_type = :type';
-            $params[':type'] = $filterType;
-          }
-          $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
-
-          // Get total count for pagination
-          $countSql = "SELECT COUNT(*) FROM parking_slots $whereSql";
-          $countStmt = $pdo->prepare($countSql);
-          $countStmt->execute($params);
-          $totalSlotsFiltered = $countStmt->fetchColumn();
-          $totalPages = ceil($totalSlotsFiltered / $perPage);
-
-          // Fetch slots for current page
-          $sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY parking_slot_id ASC LIMIT :offset, :perPage";
-          $stmt = $pdo->prepare($sql);
-          foreach ($params as $k => $v) {
-            $stmt->bindValue($k, $v);
-          }
-          $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-          $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
-          $stmt->execute();
-          $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          ?>
-          <form class="form-inline mb-3" method="get">
+          <form class="form-inline mb-3" id="slotFilterForm">
             <label class="mr-2">Status:</label>
-            <select name="status" class="form-control mr-3" onchange="this.form.submit()">
+            <select name="status" class="form-control mr-3" id="statusFilter">
               <option value="">All</option>
               <option value="available"<?= $filterStatus==='available'?' selected':'' ?>>Available</option>
               <option value="reserved"<?= $filterStatus==='reserved'?' selected':'' ?>>Reserved</option>
               <option value="occupied"<?= $filterStatus==='occupied'?' selected':'' ?>>Occupied</option>
             </select>
             <label class="mr-2">Type:</label>
-            <select name="type" class="form-control mr-3" onchange="this.form.submit()">
+            <select name="type" class="form-control mr-3" id="typeFilter">
               <option value="">All</option>
               <option value="two_wheeler"<?= $filterType==='two_wheeler'?' selected':'' ?>>Two Wheeler</option>
               <option value="standard"<?= $filterType==='standard'?' selected':'' ?>>Standard</option>
               <option value="compact"<?= $filterType==='compact'?' selected':'' ?>>Compact</option>
             </select>
           </form>
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover text-center">
-              <thead class="thead-dark">
-                <tr>
-                  <th>ID</th>
-                  <th>Slot Number</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($slots as $slot): ?>
-                  <?php
-                    $color = 'secondary';
-                    $label = '';
-                    switch ($slot['slot_status']) {
-                      case 'available': $color = 'success'; $label = 'Available'; break;
-                      case 'reserved': $color = 'warning'; $label = 'Reserved'; break;
-                      case 'occupied': $color = 'danger'; $label = 'Occupied'; break;
-                    }
-                  ?>
-                  <tr>
-                    <td><?= htmlspecialchars($slot['parking_slot_id']) ?></td>
-                    <td><?= htmlspecialchars($slot['slot_number']) ?></td>
-                    <td><span class="badge badge-info text-uppercase"><?= htmlspecialchars(str_replace('_',' ',$slot['slot_type'])) ?></span></td>
-                    <td><span class="badge badge-<?= $color ?>"><?= $label ?></span></td>
-                  </tr>
-                <?php endforeach; ?>
-                <?php if (empty($slots)): ?>
-                  <tr><td colspan="4" class="text-muted">No slots found.</td></tr>
-                <?php endif; ?>
-              </tbody>
-            </table>
+          <div class="table-responsive" id="slotsTableContainer">
+            <?php include __DIR__ . '/admin-dashboard.php-table.php'; ?>
           </div>
-          <!-- Pagination -->
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <li class="page-item<?= $i == $page ? ' active' : '' ?>">
-                  <a class="page-link" href="?page=<?= $i ?><?= $filterStatus ? '&status=' . urlencode($filterStatus) : '' ?><?= $filterType ? '&type=' . urlencode($filterType) : '' ?>"> <?= $i ?> </a>
-                </li>
-              <?php endfor; ?>
-            </ul>
-          </nav>
         </div>
       </div>
     </div>
@@ -341,6 +260,37 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     document.getElementById('sidebarToggle').addEventListener('click', function() {
       var sidebar = document.getElementById('sidebarMenu');
       sidebar.classList.toggle('show');
+    });
+
+    // AJAX filter for parking slots
+    $(function() {
+      $('#slotFilterForm select').on('change', function() {
+        var status = $('#statusFilter').val();
+        var type = $('#typeFilter').val();
+        $.ajax({
+          url: 'admin-dashboard.php',
+          type: 'GET',
+          data: { ajax: 1, status: status, type: type },
+          success: function(data) {
+            $('#slotsTableContainer').html(data);
+          }
+        });
+      });
+      // Pagination click
+      $(document).on('click', '.pagination .page-link', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var status = $('#statusFilter').val();
+        var type = $('#typeFilter').val();
+        $.ajax({
+          url: url,
+          type: 'GET',
+          data: { ajax: 1, status: status, type: type },
+          success: function(data) {
+            $('#slotsTableContainer').html(data);
+          }
+        });
+      });
     });
   </script>
 </body>
