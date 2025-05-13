@@ -92,19 +92,10 @@
   }
 
   .carousel-inner .carousel-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%; /* Ensure the container adjusts dynamically */
-  }
-
-  /* Fix for carousel items appearing all at once */
-  .carousel-item {
-    display: none; /* Hide all items by default */
-  }
-  .carousel-item.active {
-    display: flex; /* Show only the active item */
-  }
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Keep for content centering */
+}
 </style>
 </head>
 
