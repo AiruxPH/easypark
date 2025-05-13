@@ -28,6 +28,9 @@ $stmt = $pdo->query("SELECT COUNT(*) as occupied FROM parking_slots WHERE slot_s
 if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $occupiedSlots = $row['occupied'];
 }
+
+// Determine if parking slots view should be shown
+$showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GET['type']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -163,7 +166,7 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     </nav>
 
     <div class="container-fluid py-4">
-      <div id="dashboard-cards">
+      <div id="dashboard-cards" style="<?= $showParkingSlots ? 'display:none;' : '' ?>">
         <div class="row">
           <div class="col-md-3 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -227,7 +230,7 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           </div>
         </div>
       </div>
-      <div id="parking-slots-container" style="display:none;">
+      <div id="parking-slots-container" style="<?= $showParkingSlots ? '' : 'display:none;' ?>">
         <div class="card mb-4">
           <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <span><i class="fas fa-car"></i> Parking Slots</span>
