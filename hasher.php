@@ -1,19 +1,3 @@
-<?php
-$password = $_POST['password'] ?? '';
-if (empty($password)) {
-    die('Please enter a password.');
-}
-$hashed = password_hash($password, PASSWORD_DEFAULT);
-
-echo "<h1>Hashed Password</h1>";
-echo "<p>Original Password: <strong>" . htmlspecialchars($password) . "</strong></p>";
-echo "<p>Hashed Password: <strong>" . htmlspecialchars($hashed) . "</strong></p>";
-echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
-echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
-echo "<p><a href='hasher.php.php'>Go Back</a></p>"; 
-// index.php
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,3 +15,19 @@ echo "<p><a href='hasher.php.php'>Go Back</a></p>";
 
 </body>
 </html>
+
+<?php
+$password = $_POST['password'] ?? '';
+if (empty($password)) {
+    die('Please enter a password.');
+}
+$hashed = password_hash($password, PASSWORD_DEFAULT);
+
+echo "<h1>Hashed Password</h1>";
+echo "<p>Original Password: <strong>" . htmlspecialchars($password) . "</strong></p>";
+echo "<p>Hashed Password: <strong>" . htmlspecialchars($hashed) . "</strong></p>";
+echo "<p>Hash Algorithm: <strong>" . htmlspecialchars(password_get_info($hashed)['algoName']) . "</strong></p>";
+echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
+echo "<p><a href='hasher.php.php'>Go Back</a></p>"; 
+// index.php
+?>
