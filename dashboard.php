@@ -119,6 +119,10 @@ if(!isset($_SESSION['user_id'])) {
   justify-content: center;
   height: 100%; /* Keep for content centering */
 }
+
+.navbar-nav .nav-item {
+  margin-right: 15px;
+}
 </style>
 </head>
 
