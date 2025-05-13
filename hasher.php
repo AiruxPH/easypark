@@ -33,8 +33,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "<p>Hash Options: <strong>" . htmlspecialchars(json_encode(password_get_info($hashed)['options'])) . "</strong></p>";
     echo "<p><a href='hasher.php'>Go Back</a></p>"; 
     }
-    
 }
-
-
 ?>
