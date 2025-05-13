@@ -147,6 +147,10 @@ if(!isset($_SESSION['user_id'])) {
       <li class="nav-item">
         <a class="nav-link btn btn-primary" href="#"> <i class="fa-solid fa-circle-user"></i> My Account</a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link btn btn-primary" href="logout.php"> Logout</a>
+      </li>
     </ul>
   </div>  
 </nav>

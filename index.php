@@ -152,7 +152,11 @@ if (isset($_SESSION['user_id'])) {
 </nav>
 
 <div class="container-fluid text-warning">
-
+<?php if (isset($_GET['msg']) && $_GET['msg'] == 'loggedout'):?>
+                <script>
+                    alert("You have been logged out successfully.");
+                </script>
+                <?php endif;?>
   <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
 
     
