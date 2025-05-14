@@ -164,16 +164,146 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </ul>
 </nav>
 
+<!-- Edit Modal -->
+<div class="modal fade" id="editSlotModal" tabindex="-1" role="dialog" aria-labelledby="editSlotModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSlotModalLabel">Edit Parking Slot</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="editSlotForm">
+        <div class="modal-body">
+          <input type="hidden" id="edit_parking_slot_id" name="parking_slot_id">
+          <div class="form-group">
+            <label for="edit_slot_number">Slot Number</label>
+            <input type="text" class="form-control" id="edit_slot_number" name="slot_number" required>
+          </div>
+          <div class="form-group">
+            <label for="edit_slot_type">Type</label>
+            <select class="form-control" id="edit_slot_type" name="slot_type" required>
+              <option value="two_wheeler">Two Wheeler</option>
+              <option value="standard">Standard</option>
+              <option value="compact">Compact</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit_slot_status">Status</label>
+            <select class="form-control" id="edit_slot_status" name="slot_status" required>
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+              <option value="occupied">Occupied</</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteSlotModal" tabindex="-1" role="dialog" aria-labelledby="deleteSlotModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteSlotModalLabel">Delete Parking Slot</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this parking slot? This action cannot be undone.
+        <input type="hidden" id="delete_parking_slot_id">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 function editSlot(id) {
-    // Add your edit slot logic here
-    alert('Edit slot ' + id);
+    // Fetch slot data using AJAX
+    fetch(`get_slot.php?id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            // Populate the form
+            document.getElementById('edit_parking_slot_id').value = data.parking_slot_id;
+            document.getElementById('edit_slot_number').value = data.slot_number;
+            document.getElementById('edit_slot_type').value = data.slot_type;
+            document.getElementById('edit_slot_status').value = data.slot_status;
+            
+            // Show the modal
+            $('#editSlotModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error fetching slot data');
+        });
 }
 
+// Handle form submission
+document.getElementById('editSlotForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('update_slot.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#editSlotModal').modal('hide');
+            // Refresh the page to show updated data
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error updating slot');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating slot');
+    });
+});
+
 function deleteSlot(id) {
-    if (confirm('Are you sure you want to delete this parking slot?')) {
-        // Add your delete slot logic here
-        alert('Delete slot ' + id);
-    }
+    document.getElementById('delete_parking_slot_id').value = id;
+    $('#deleteSlotModal').modal('show');
+}
+
+function confirmDelete() {
+    const id = document.getElementById('delete_parking_slot_id').value;
+    
+    fetch('delete_slot.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#deleteSlotModal').modal('hide');
+            // Refresh the page to show updated data
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error deleting slot');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting slot');
+    });
 }
 </script>
