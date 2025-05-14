@@ -2,7 +2,7 @@
 require_once '../db.php';
 // Handle AJAX request for parking slots table only
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
-    include __DIR__ . '/admin-dashboard.php-table.php';
+    include __DIR__ . '../admin-dashboard.php-table.php';
     exit;
 }
 // Fetch parking slot statistics using PDO
@@ -38,8 +38,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>EasyPark Admin Dashboard</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
   <style>
     body {
       min-height: 100vh;
@@ -317,8 +317,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     </div>
   </div>
 
-  <script src="js/jquery.slim.min.js"></script>
-  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="../js/jquery.slim.min.js"></script>
+  <script src="../js/bootstrap.bundle.min.js"></script>
   <script>
     // Sidebar toggle for mobile
     document.getElementById('sidebarToggle').addEventListener('click', function() {
