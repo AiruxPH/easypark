@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../db.php';
 // Filtering by status/type
 $filterStatus = isset($_GET['status']) ? $_GET['status'] : '';
 $filterType = isset($_GET['type']) ? $_GET['type'] : '';
