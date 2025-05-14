@@ -22,7 +22,7 @@ $countStmt = $pdo->prepare($countSql);
 $countStmt->execute($params);
 $totalSlotsFiltered = $countStmt->fetchColumn();
 $totalPages = ceil($totalSlotsFiltered / $perPage);
-$sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY parking_slot_id ASC LIMIT :offset, :perPage";
+$sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY slot_number ASC LIMIT :offset, :perPage";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $k => $v) {
   $stmt->bindValue($k, $v);
@@ -32,42 +32,110 @@ $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
 $stmt->execute();
 $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<div class="table-responsive">
-  <table class="table table-bordered table-hover text-center">
-    <thead class="thead-dark">
-      <tr>
-        <th>ID</th>
-        <th>Slot Number</th>
-        <th>Type</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($slots as $slot): ?>
-        <?php
-          $color = 'secondary';
-          $label = '';
-          switch ($slot['slot_status']) {
-            case 'available': $color = 'success'; $label = 'Available'; break;
-            case 'reserved': $color = 'warning'; $label = 'Reserved'; break;
-            case 'occupied': $color = 'danger'; $label = 'Occupied'; break;
-          }
-        ?>
-        <tr>
-          <td><?= htmlspecialchars($slot['parking_slot_id']) ?></td>
-          <td><?= htmlspecialchars($slot['slot_number']) ?></td>
-          <td><span class="badge badge-info text-uppercase"><?= htmlspecialchars(str_replace('_',' ',$slot['slot_type'])) ?></span></td>
-          <td><span class="badge badge-<?= $color ?>"><?= $label ?></span></td>
-        </tr>
-      <?php endforeach; ?>
-      <?php if (empty($slots)): ?>
-        <tr><td colspan="4" class="text-muted">No slots found.</td></tr>
-      <?php endif; ?>
-    </tbody>
-  </table>
+
+<style>
+.parking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.parking-slot {
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.parking-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.parking-slot.available {
+    background-color: #28a745;
+}
+
+.parking-slot.reserved {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.parking-slot.occupied {
+    background-color: #dc3545;
+}
+
+.parking-slot h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.parking-slot p {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.slot-type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.2);
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.slot-actions {
+    margin-top: 1rem;
+}
+
+.slot-actions button {
+    margin: 0.2rem;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    color: #333;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+}
+
+.slot-actions button:hover {
+    background: rgba(255,255,255,1);
+}
+</style>
+
+<div class="parking-grid">
+    <?php if (count($slots) > 0): ?>
+        <?php foreach ($slots as $slot): ?>
+            <div class="parking-slot <?= htmlspecialchars($slot['slot_status']) ?>">
+                <h3>Slot <?= htmlspecialchars($slot['slot_number']) ?></h3>
+                <p><?= ucfirst(htmlspecialchars($slot['slot_status'])) ?></p>
+                <div class="slot-type-badge">
+                    <?= ucwords(str_replace('_', ' ', htmlspecialchars($slot['slot_type']))) ?>
+                </div>
+                <div class="slot-actions">
+                    <button class="btn btn-sm" onclick="editSlot(<?= htmlspecialchars($slot['parking_slot_id']) ?>)">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm" onclick="deleteSlot(<?= htmlspecialchars($slot['parking_slot_id']) ?>)">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="alert alert-info">No parking slots found.</div>
+    <?php endif; ?>
 </div>
+
 <!-- Pagination -->
-<nav aria-label="Page navigation">
+<nav aria-label="Page navigation" class="mt-4">
   <ul class="pagination justify-content-center">
     <?php
     $window = 2; // how many pages to show on each side
@@ -95,3 +163,17 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
   </ul>
 </nav>
+
+<script>
+function editSlot(id) {
+    // Add your edit slot logic here
+    alert('Edit slot ' + id);
+}
+
+function deleteSlot(id) {
+    if (confirm('Are you sure you want to delete this parking slot?')) {
+        // Add your delete slot logic here
+        alert('Delete slot ' + id);
+    }
+}
+</script>
