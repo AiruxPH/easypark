@@ -40,13 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "⚠️ Email already registered.";
             } else {
                 // Hash password and insert user into the database
-                $hashed = password_hash($password, PASSWORD_DEFAULT);
+                
                 $insert = $pdo->prepare("
                     INSERT INTO users 
                     (first_name, middle_name, last_name, phone, email, password, user_type, security_word) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ");
-                $insert->execute([$firstName, $middleName, $lastName, $fullPhone, $email, $hashed, $user_type, $securityWord]);
+                $insert->execute([$firstName, $middleName, $lastName, $fullPhone, $email, $password, $user_type, $securityWord]);
                 $message = "✅ Registration successful!";
             }
         } catch (\PDOException $e) {

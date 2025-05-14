@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$email]);
             if ($stmt->rowCount() > 0) {
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                if (password_verify($password, $user['password'])) {
+                if ($password === $user['password']) {  // Direct password comparison
                     // Start session and redirect based on user type
                     $_SESSION['user_id'] = $user['user_id'];
                     $_SESSION['user_email'] = $user['email'];
