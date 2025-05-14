@@ -276,6 +276,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         <div class="card mb-4 shadow">
           <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
             <span><i class="fas fa-users"></i> User Management</span>
+            <button class="btn btn-light btn-sm" onclick="showAddUserModal()">
+              <i class="fas fa-plus"></i> Add User
+            </button>
           </div>
           <div class="card-body">
             <?php
@@ -294,15 +297,24 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                     <?php foreach(array_keys($users[0]) as $col): ?>
                       <th scope="col"><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
                     <?php endforeach; ?>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <?php $rownum = 1; foreach ($users as $user): ?>
                     <tr>
                       <th scope="row"><?= $rownum++ ?></th>
-                      <?php foreach($user as $val): ?>
+                      <?php foreach($user as $key => $val): ?>
                         <td><?= htmlspecialchars($val) ?></td>
                       <?php endforeach; ?>
+                      <td>
+                        <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= htmlspecialchars($user['user_id']) ?>)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
@@ -312,6 +324,121 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
               <div class="text-muted">No users found.</div>
             <?php endif; ?>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="addUserForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" class="form-control" name="email" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" class="form-control" name="password" required>
+            </div>
+            <div class="form-group">
+              <label>User Type</label>
+              <select class="form-control" name="user_type" required>
+                <option value="user">User</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Add User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="editUserForm">
+          <div class="modal-body">
+            <input type="hidden" name="user_id" id="edit_user_id">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" name="first_name" id="edit_first_name" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" name="last_name" id="edit_last_name" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" class="form-control" name="email" id="edit_email" required>
+            </div>
+            <div class="form-group">
+              <label>Password (leave blank to keep current)</label>
+              <input type="password" class="form-control" name="password" id="edit_password">
+            </div>
+            <div class="form-group">
+              <label>User Type</label>
+              <select class="form-control" name="user_type" id="edit_user_type" required>
+                <option value="user">User</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete User Modal -->
+  <div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this user? This action cannot be undone.
+          <input type="hidden" id="delete_user_id">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteUser()">Delete</button>
         </div>
       </div>
     </div>
@@ -360,6 +487,98 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         }
       });
     });
+
+    // User Management Functions
+    function showAddUserModal() {
+      $('#addUserModal').modal('show');
+    }
+
+    function editUser(userData) {
+      document.getElementById('edit_user_id').value = userData.user_id;
+      document.getElementById('edit_first_name').value = userData.first_name;
+      document.getElementById('edit_last_name').value = userData.last_name;
+      document.getElementById('edit_email').value = userData.email;
+      document.getElementById('edit_user_type').value = userData.user_type;
+      document.getElementById('edit_password').value = '';
+      $('#editUserModal').modal('show');
+    }
+
+    function deleteUser(userId) {
+      document.getElementById('delete_user_id').value = userId;
+      $('#deleteUserModal').modal('show');
+    }
+
+    // Form Submissions
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      fetch('add_user.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          $('#addUserModal').modal('hide');
+          window.location.reload();
+        } else {
+          alert(data.message || 'Error adding user');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding user');
+      });
+    });
+
+    document.getElementById('editUserForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      fetch('update_user.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          $('#editUserModal').modal('hide');
+          window.location.reload();
+        } else {
+          alert(data.message || 'Error updating user');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating user');
+      });
+    });
+
+    function confirmDeleteUser() {
+      const userId = document.getElementById('delete_user_id').value;
+      
+      fetch('delete_user.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          $('#deleteUserModal').modal('hide');
+          window.location.reload();
+        } else {
+          alert(data.message || 'Error deleting user');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting user');
+      });
+    }
   </script>
 </body>
 </html>
