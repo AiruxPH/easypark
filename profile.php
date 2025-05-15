@@ -48,7 +48,28 @@ $message = '';
         .vehicle-table th, .vehicle-table td { vertical-align: middle; }
     </style>
 </head>
-<body>
+<body class="bg-car">
+<nav id="navbar" class="w-100 navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top">
+  <a id="opp" class="navbar-brand" href="index.php">
+    <h1 class="custom-size 75rem">EASYPARK</h1>
+  </a>
+  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
+    <ul id="opp" class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="index.php">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="dashboard.php">Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="logout.php">Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
 <div class="container py-4">
     <h2 class="mb-4 text-warning">My Profile</h2>
     <div class="profile-section mb-4">
@@ -137,6 +158,9 @@ $message = '';
             </div>
             <button type="submit" name="reserve_slot" class="btn btn-primary">Reserve Slot</button>
         </form>
+    </div>
+    <div class="text-center mt-4">
+      <a href="index.php" class="btn btn-primary">Go back to Home</a>
     </div>
 </div>
 <script src="js/jquery.min.js"></script>
