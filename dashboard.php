@@ -175,7 +175,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       <a class="nav-link" href="index.php">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Reserve</a>
+        <a class="nav-link" href="reservations.php">Reserve</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">How It Works</a>
