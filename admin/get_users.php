@@ -79,7 +79,7 @@ $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check for super admin
-$loggedInEmail = $_SESSION['email'] ?? '';
+$loggedInEmail = $_SESSION['email'];
 $isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
 
 // Prepare HTML response
