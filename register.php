@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .form-container {
       max-width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
+      /* max-height: 80vh; */
+      /* overflow-y: auto; */
       background-color: rgba(255, 255, 255, 0.9);
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
