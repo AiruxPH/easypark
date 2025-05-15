@@ -33,6 +33,42 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
 $message = '';
 // Handle profile update, vehicle add/edit/delete, reservation here (to be implemented)
 
+// Handle profile picture upload
+if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
+    $fileTmp = $_FILES['profile_pic']['tmp_name'];
+    $fileName = basename($_FILES['profile_pic']['name']);
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    if (in_array($fileExt, $allowed)) {
+        $newName = 'profile_' . $user_id . '_' . time() . '.' . $fileExt;
+        $targetPath = 'images/' . $newName;
+        if (move_uploaded_file($fileTmp, $targetPath)) {
+            // Remove old pic if not default
+            if (!empty($user['image']) && $user['image'] !== 'default.jpg' && file_exists('images/' . $user['image'])) {
+                unlink('images/' . $user['image']);
+            }
+            $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
+            $stmt->execute([$newName, $user_id]);
+            header('Location: profile.php');
+            exit();
+        } else {
+            $message = '❌ Failed to upload image.';
+        }
+    } else {
+        $message = '❌ Invalid file type.';
+    }
+}
+// Handle profile picture delete
+if (isset($_POST['delete_pic'])) {
+    if (!empty($user['image']) && $user['image'] !== 'default.jpg' && file_exists('images/' . $user['image'])) {
+        unlink('images/' . $user['image']);
+    }
+    $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
+    $stmt->execute([$user_id]);
+    header('Location: profile.php');
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,6 +107,21 @@ $message = '';
         .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
             color: #ccc;
         }
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #ffc107;
+            background: #fff;
+        }
+        .profile-pic-upload {
+            display: block;
+            margin: 0.5rem auto 0 auto;
+        }
+        .delete-pic-btn {
+            margin-top: 0.5rem;
+        }
         @media (max-width: 768px) {
             .custom-size.display-4 { font-size: 2.5rem; }
         }
@@ -103,6 +154,21 @@ $message = '';
 </nav>
 <div class="container py-4">
     <h2 class="mb-4 text-warning custom-size display-4 text-center">My Profile</h2>
+    <div class="profile-section mb-4 text-center">
+        <?php
+        $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+        ?>
+        <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="profile-pic mb-2">
+        <form method="POST" action="profile.php" enctype="multipart/form-data" class="mb-2">
+            <input type="file" name="profile_pic" accept="image/*" class="profile-pic-upload">
+            <button type="submit" name="upload_pic" class="btn btn-sm btn-warning mt-2">Change Picture</button>
+        </form>
+        <?php if (!empty($user['image'])): ?>
+        <form method="POST" action="profile.php">
+            <button type="submit" name="delete_pic" class="btn btn-sm btn-danger delete-pic-btn">Delete Picture</button>
+        </form>
+        <?php endif; ?>
+    </div>
     <div class="profile-section mb-4">
         <h4>Profile Information</h4>
         <form method="POST" action="profile.php">
