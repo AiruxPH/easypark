@@ -128,6 +128,27 @@ if (isset($_POST['delete_pic'])) {
         @media (max-width: 576px) {
             .custom-size.display-4 { font-size: 2rem; }
         }
+        .fancy-file-label {
+            display: inline-block;
+            cursor: pointer;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px #0002;
+            transition: background 0.2s, color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .fancy-file-label:hover, .fancy-file-label:focus {
+            background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
+            color: #222;
+            text-decoration: none;
+        }
+        .profile-pic {
+            transition: box-shadow 0.2s, border 0.2s;
+            box-shadow: 0 2px 8px #0002;
+        }
     </style>
 </head>
 <body class="bg-car">
@@ -155,9 +176,12 @@ if (isset($_POST['delete_pic'])) {
         <?php
         $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
         ?>
-        <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="profile-pic mb-2">
+        <img id="profilePicPreview" src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="profile-pic mb-2">
         <form method="POST" action="profile.php" enctype="multipart/form-data" class="mb-2">
-            <input type="file" name="profile_pic" accept="image/*" class="profile-pic-upload">
+            <label for="profilePicInput" class="fancy-file-label btn btn-warning btn-sm mt-2 mb-0">
+                <i class="fa fa-camera"></i> Choose New Picture
+            </label>
+            <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">
             <button type="submit" name="upload_pic" class="btn btn-sm btn-warning mt-2">Change Picture</button>
         </form>
         <?php if (!empty($user['image'])): ?>
@@ -274,6 +298,28 @@ if (isset($_POST['delete_pic'])) {
       navbar.classList.remove('scrolled');
     }
     lastScrollTop = st;
+  });
+  // Fancy image picker preview
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('profilePicInput');
+    const previewImg = document.getElementById('profilePicPreview');
+    if (fileInput && previewImg) {
+      fileInput.addEventListener('change', function(e) {
+        if (fileInput.files && fileInput.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            previewImg.src = ev.target.result;
+          };
+          reader.readAsDataURL(fileInput.files[0]);
+        }
+      });
+      // Optional: clicking the image also opens the file picker
+      previewImg.style.cursor = 'pointer';
+      previewImg.addEventListener('click', function() {
+        fileInput.click();
+      });
+      // Clicking the label opens the file picker (handled by label for=)
+    }
   });
 </script>
 </body>
