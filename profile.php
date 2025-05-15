@@ -198,12 +198,19 @@ $message = '';
 <script src="js/bootstrap.bundle.min.js"></script>
 <script>
   const navbar = document.getElementById('navbar');
+  let lastScrollTop = 0;
   window.addEventListener('scroll', function () {
-    if (window.scrollY > 100) {
+    let st = window.scrollY;
+    if (st > lastScrollTop && st > 100) {
+      // Scroll down: collapse navbar if open
+      if (navbar.classList.contains('show')) {
+        $('.navbar-collapse').collapse('hide');
+      }
       navbar.classList.add('scrolled');
     } else {
       navbar.classList.remove('scrolled');
     }
+    lastScrollTop = st;
   });
 </script>
 </body>
