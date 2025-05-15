@@ -60,15 +60,7 @@ $totalUsers = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPages = ceil($totalUsers / $usersPerPage);
 
 // Fetch users
-$sql = "SELECT * FROM users $whereSQL ORDER BY 
-        CASE 
-            WHEN user_type = 'admin' AND email = 'admin@gmail.com' THEN 1
-            WHEN user_type = 'admin' THEN 2
-            WHEN user_type = 'staff' THEN 3
-            ELSE 4
-        END,
-        $sortBy $sortOrder 
-        LIMIT :limit OFFSET :offset";
+$sql = "SELECT * FROM users $whereSQL ORDER BY $sortBy $sortOrder LIMIT :limit OFFSET :offset";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value);
@@ -79,7 +71,7 @@ $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check for super admin
-$loggedInEmail = $_SESSION['email'];
+$loggedInEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 $isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
 
 // Prepare HTML response
