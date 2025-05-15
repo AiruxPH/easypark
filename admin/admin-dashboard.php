@@ -391,7 +391,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                       <option value="all" <?= $filterType === 'all' ? 'selected' : '' ?>>All Types</option>
                       <option value="admin" <?= $filterType === 'admin' ? 'selected' : '' ?>>Admin</option>
                       <option value="staff" <?= $filterType === 'staff' ? 'selected' : '' ?>>Staff</option>
-                      <option value="user" <?= $filterType === 'user' ? 'selected' : '' ?>>User</option>
+                      <option value="client" <?= $filterType === 'client' ? 'selected' : '' ?>>Client</option>
                     </select>
                   </div>
                 </div>
@@ -414,11 +414,6 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                       <option value="ASC" <?= $sortOrder === 'ASC' ? 'selected' : '' ?>>↑</option>
                       <option value="DESC" <?= $sortOrder === 'DESC' ? 'selected' : '' ?>>↓</option>
                     </select>
-                  </div>
-                </div>
-                <div class="col-md-1">
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Apply</button>
                   </div>
                 </div>
               </div>
