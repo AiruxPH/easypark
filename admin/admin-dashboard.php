@@ -157,7 +157,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <img src="https://ui-avatars.com/api/?name=Admin" alt="admin" width="30" height="30" class="rounded-circle"> Admin
+              <img src="https://ui-avatars.com/api/?name=Admin" alt="admin" width="30" height="30" class="rounded-circle"> Admin <?php echo $_SESSION['email']; ?>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
               <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
