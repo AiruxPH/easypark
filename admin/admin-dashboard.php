@@ -163,7 +163,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
               <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
               <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+              <a class="dropdown-item text-danger" href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
           </li>
         </ul>
