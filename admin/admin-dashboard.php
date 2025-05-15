@@ -272,6 +272,26 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           </div>
         </div>
       </div>
+      <?php
+      // Pagination logic for Users
+      $usersPerPage = 10; // Number of users per page
+      $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+      $offset = ($currentPage - 1) * $usersPerPage;
+
+      $totalUsers = $pdo->query("SELECT COUNT(*) as total FROM users")->fetch(PDO::FETCH_ASSOC)['total'];
+      $totalPages = ceil($totalUsers / $usersPerPage);
+
+      $users = [];
+      try {
+        $stmt = $pdo->prepare("SELECT * FROM users ORDER BY user_id ASC LIMIT :limit OFFSET :offset");
+        $stmt->bindValue(':limit', $usersPerPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch (Exception $e) {
+        echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
+      }
+      ?>
       <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
         <div class="card mb-4 shadow">
           <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
@@ -281,16 +301,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             </button>
           </div>
           <div class="card-body">
-            <?php
-            $users = [];
-            try {
-              $users = $pdo->query("SELECT * FROM users ORDER BY user_id ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC);
-            } catch (Exception $e) {
-              echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
-            }
-            if ($users && count($users) > 0): ?>
+            <?php if ($users && count($users) > 0): ?>
             <div class="table-responsive">
-              <table class="table table-striped table-bordered table-hover align-middle">
+              <table class="table table-striped table-bordered table-hover align-middle w-100">
                 <thead class="thead-dark">
                   <tr>
                     <th scope="col">#</th>
@@ -301,13 +314,13 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                   </tr>
                 </thead>
                 <tbody>
-                  <?php $rownum = 1; foreach ($users as $user): ?>
+                  <?php $rownum = $offset + 1; foreach ($users as $user): ?>
                     <tr>
                       <th scope="row"><?= $rownum++ ?></th>
                       <?php foreach($user as $key => $val): ?>
                         <td><?= htmlspecialchars($val) ?></td>
                       <?php endforeach; ?>
-                      <td>
+                      <td class="text-center">
                         <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
                           <i class="fas fa-edit"></i>
                         </button>
@@ -320,6 +333,25 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                 </tbody>
               </table>
             </div>
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item<?= $currentPage == 1 ? ' disabled' : '' ?>">
+                  <a class="page-link" href="?users=1&page=<?= $currentPage - 1 ?>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                  <li class="page-item<?= $i == $currentPage ? ' active' : '' ?>">
+                    <a class="page-link" href="?users=1&page=<?= $i ?>"><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+                <li class="page-item<?= $currentPage == $totalPages ? ' disabled' : '' ?>">
+                  <a class="page-link" href="?users=1&page=<?= $currentPage + 1 ?>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
             <?php else: ?>
               <div class="text-muted">No users found.</div>
             <?php endif; ?>
