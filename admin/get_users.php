@@ -111,23 +111,19 @@ if (count($users) > 0) {    foreach ($users as $user) {
         } else {
             $html .= '<span class="badge badge-secondary">Client</span>';
         }
-        $html .= '</td>';
-
-        // Action Buttons
+        $html .= '</td>';        // Action Buttons
         $html .= '<td class="text-center">';
         
         // Super admin can edit/delete anyone except themselves
         // Regular admin can only edit/delete non-admin users
-        if ($isSuperAdmin) {
-            if ($user['email'] !== 'admin@gmail.com') {
-                $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
-                $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
-            }
-        } else {
-            if ($user['user_type'] !== 'admin') {
-                $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
-                $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
-            }
+        if ($isSuperAdmin && $user['email'] !== 'admin@gmail.com') {
+            // Super admin can edit/delete anyone except themselves
+            $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+            $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
+        } elseif (!$isSuperAdmin && $user['user_type'] !== 'admin' && $user['email'] !== 'admin@gmail.com') {
+            // Regular admin can only edit/delete non-admin users
+            $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+            $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
         }
         
         if ($user['user_type'] === 'user') {
