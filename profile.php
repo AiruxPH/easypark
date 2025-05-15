@@ -2,8 +2,17 @@
 session_start();
 require_once 'db.php';
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
+}
+//check if the user is a non-client
+if ($_SESSION['user_type'] != 'client') {
+    //if admin, redirect to admin dashboard and if a staff, redirect to staff dashboard
+    if ($_SESSION['user_type'] == 'admin') {
+        header('Location: admin_dashboard.php');
+    } elseif ($_SESSION['user_type'] == 'staff') {
+        header('Location: staff_dashboard.php');
+    }
 }
 $user_id = $_SESSION['user_id'];
 
