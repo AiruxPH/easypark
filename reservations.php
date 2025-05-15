@@ -40,11 +40,24 @@ if (isset($_POST['reserve_slot_id']) && $selected_vehicle_id) {
         $reservation_error = 'Selected slot is no longer available.';
     }
 }
+// Pagination setup
+$slots_per_page = 6;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $slots_per_page;
+$total_slots = 0;
 // Fetch available slots for selected vehicle type
 $available_slots = [];
 if ($selected_vehicle_type) {
-    $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE slot_status = "available" AND slot_type = ?');
+    // Get total count for pagination
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM parking_slots WHERE slot_status = "available" AND slot_type = ?');
     $stmt->execute([$selected_vehicle_type]);
+    $total_slots = $stmt->fetchColumn();
+    // Fetch only slots for current page
+    $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE slot_status = "available" AND slot_type = ? LIMIT ? OFFSET ?');
+    $stmt->bindValue(1, $selected_vehicle_type);
+    $stmt->bindValue(2, $slots_per_page, PDO::PARAM_INT);
+    $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $available_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 // Get user profile pic for navbar
@@ -137,6 +150,27 @@ foreach ($vehicles as $veh) {
 <?php endforeach; ?>
 </div>
 </form>
+<?php
+// Pagination controls
+$total_pages = ceil($total_slots / $slots_per_page);
+if ($total_pages > 1):
+?>
+<nav aria-label="Slot pagination">
+  <ul class="pagination justify-content-center">
+    <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
+      <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page-1 ?>" tabindex="-1">Previous</a>
+    </li>
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+      <li class="page-item<?= $i == $page ? ' active' : '' ?>">
+        <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $i ?>"><?= $i ?></a>
+      </li>
+    <?php endfor; ?>
+    <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
+      <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page+1 ?>">Next</a>
+    </li>
+  </ul>
+</nav>
+<?php endif; ?>
 <?php else: ?>
 <div class="alert alert-info mt-3">No available slots for this vehicle type.</div>
 <?php endif; ?>
