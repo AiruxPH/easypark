@@ -3,7 +3,7 @@
 session_start();
 
 // Check if the user is logged in and is an admin
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['user_email'])) {
     header('Location: ../login.php');
     exit;
 } else if ($_SESSION['user_type'] !== 'admin') {
