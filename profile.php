@@ -43,9 +43,40 @@ $message = '';
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css"/>
     <style>
-        body { background: #f8f9fa; }
-        .profile-section { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 2rem; margin-bottom: 2rem; }
+        body.bg-car {
+            background-image: url('bg-car.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .bg-image-dark {
+            background-image: url('nav-bg.jpg');
+            background-size: 100% auto;
+            background-position: top left;
+            background-repeat: repeat-y;
+        }
+        .custom-size {
+            color: #ffc107;
+            transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .custom-size:hover {
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+            color: white;
+        }
+        .profile-section { background: rgba(255,255,255,0.95); border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 2rem; margin-bottom: 2rem; }
         .vehicle-table th, .vehicle-table td { vertical-align: middle; }
+        .navbar-dark .navbar-brand, .navbar-dark .navbar-nav .nav-link {
+            color: #fff;
+        }
+        .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
+            color: #ccc;
+        }
+        @media (max-width: 768px) {
+            .custom-size.display-4 { font-size: 2.5rem; }
+        }
+        @media (max-width: 576px) {
+            .custom-size.display-4 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body class="bg-car">
@@ -71,7 +102,7 @@ $message = '';
   </div>
 </nav>
 <div class="container py-4">
-    <h2 class="mb-4 text-warning">My Profile</h2>
+    <h2 class="mb-4 text-warning custom-size display-4 text-center">My Profile</h2>
     <div class="profile-section mb-4">
         <h4>Profile Information</h4>
         <form method="POST" action="profile.php">
@@ -165,5 +196,15 @@ $message = '';
 </div>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 100) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+</script>
 </body>
 </html>
