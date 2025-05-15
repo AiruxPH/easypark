@@ -5,6 +5,7 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
     exit();
 }
 require_once 'db.php';
+require_once 'constants.php';
 $user_id = $_SESSION['user_id'];
 // Fetch user's vehicles with brand/model/type
 $stmt = $pdo->prepare('SELECT v.vehicle_id, v.plate_number, m.brand, m.model, m.type FROM vehicles v JOIN Vehicle_Models m ON v.model_id = m.model_id WHERE v.user_id = ?');
@@ -23,19 +24,42 @@ if ($selected_vehicle_id) {
 // Handle reservation submission
 $reservation_success = false;
 $reservation_error = '';
+// Step 2: If a slot is selected for reservation, show the reservation form
+$show_reservation_form = false;
+$selected_slot = null;
 if (isset($_POST['reserve_slot_id']) && $selected_vehicle_id) {
     $slot_id = $_POST['reserve_slot_id'];
-    // Double-check slot is available and compatible
+    // Fetch slot info using correct columns
+    $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
+    $stmt->execute([$slot_id, $selected_vehicle_type]);
+    $selected_slot = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($selected_slot) {
+        $show_reservation_form = true;
+    } else {
+        $reservation_error = 'Selected slot is no longer available.';
+    }
+}
+
+// Step 2: Handle reservation confirmation
+if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
+    $slot_id = $_POST['slot_id'];
+    $duration_type = $_POST['duration_type'];
+    $start_datetime = $_POST['start_datetime'];
+    $end_datetime = $_POST['end_datetime'];
+    $price = $_POST['price'];
+    // Double-check slot is still available
     $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
     $stmt->execute([$slot_id, $selected_vehicle_type]);
     $slot = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($slot) {
-        // Reserve: update slot status, insert reservation (assume reservations table exists)
         $pdo->beginTransaction();
         $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, reserved_at) VALUES (?, ?, ?, NOW())')->execute([$user_id, $selected_vehicle_id, $slot_id]);
+        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, reserved_at, start_datetime, end_datetime, price) VALUES (?, ?, ?, NOW(), ?, ?, ?)')->execute([
+            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime, $price
+        ]);
         $pdo->commit();
         $reservation_success = true;
+        $show_reservation_form = false;
     } else {
         $reservation_error = 'Selected slot is no longer available.';
     }
@@ -125,6 +149,64 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </div>
 </form>
 <?php if ($selected_vehicle_id): ?>
+<?php if ($show_reservation_form && $selected_slot): ?>
+<!-- Step 2: Reservation details form -->
+<form method="post" class="bg-dark text-light p-4 rounded">
+  <input type="hidden" name="slot_id" value="<?= $selected_slot['parking_slot_id'] ?>">
+  <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
+  <h4>Reserve Slot <?= htmlspecialchars($selected_slot['slot_number']) ?> (<?= htmlspecialchars($selected_slot['slot_type']) ?>)</h4>
+  <div class="form-group">
+    <label>Duration Type:</label>
+    <select name="duration_type" id="duration_type" class="form-control" required onchange="updatePrice()">
+      <option value="hour">Per Hour</option>
+      <option value="day">Per Day</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Start Date & Time:</label>
+    <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required onchange="updatePrice()">
+  </div>
+  <div class="form-group">
+    <label>End Date & Time:</label>
+    <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required onchange="updatePrice()">
+  </div>
+  <div class="form-group">
+    <label>Price:</label>
+    <input type="text" name="price" id="price" class="form-control" readonly required>
+  </div>
+  <button type="submit" name="confirm_reservation" class="btn btn-warning">Confirm Reservation</button>
+  <a href="reservations.php" class="btn btn-secondary ml-2">Cancel</a>
+</form>
+<script>
+// JS for price calculation
+const rates = <?= json_encode(constant('SLOT_RATES')) ?>;
+const slotType = "<?= $selected_slot['slot_type'] ?>";
+function updatePrice() {
+  const durationType = document.getElementById('duration_type').value;
+  const start = document.getElementById('start_datetime').value;
+  const end = document.getElementById('end_datetime').value;
+  let price = 0;
+  if (start && end && rates[slotType]) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    let diff = (endDate - startDate) / 1000; // seconds
+    if (diff > 0) {
+      if (durationType === 'hour') {
+        const hours = Math.ceil(diff / 3600);
+        price = rates[slotType]['hour'] * hours;
+      } else {
+        const days = Math.ceil(diff / 86400);
+        price = rates[slotType]['day'] * days;
+      }
+    }
+  }
+  document.getElementById('price').value = price > 0 ? '₱' + price.toFixed(2) : '';
+}
+document.getElementById('duration_type').addEventListener('change', updatePrice);
+document.getElementById('start_datetime').addEventListener('change', updatePrice);
+document.getElementById('end_datetime').addEventListener('change', updatePrice);
+</script>
+<?php else: ?>
 <h4 class="text-light">Available Slots for <span class="text-warning"><?php
 foreach ($vehicles as $veh) {
     if ($veh['vehicle_id'] == $selected_vehicle_id) {
@@ -185,6 +267,7 @@ if ($total_pages > 1):
 <?php endif; ?>
 <?php else: ?>
 <div class="alert alert-info mt-3">No available slots for this vehicle type.</div>
+<?php endif; ?>
 <?php endif; ?>
 <?php else: ?>
 <div class="alert alert-warning">You have no registered vehicles. Please add one in your profile.</div>
