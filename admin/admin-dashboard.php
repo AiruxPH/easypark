@@ -280,19 +280,72 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
       $offset = ($currentPage - 1) * $usersPerPage;
 
-      $totalUsers = $pdo->query("SELECT COUNT(*) as total FROM users")->fetch(PDO::FETCH_ASSOC)['total'];
+      // Search, filter and sorting parameters
+      $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+      $searchBy = isset($_GET['searchBy']) ? $_GET['searchBy'] : 'all';
+      $filterType = isset($_GET['filterType']) ? $_GET['filterType'] : 'all';
+      $sortBy = isset($_GET['sortBy']) ? $_GET['sortBy'] : 'user_id';
+      $sortOrder = isset($_GET['sortOrder']) ? $_GET['sortOrder'] : 'ASC';
+      
+      // Build the WHERE clause for search
+      $whereClause = [];
+      $params = [];
+      
+      if ($search !== '') {
+          switch($searchBy) {
+              case 'user_id':
+                  $whereClause[] = "user_id = :search";
+                  $params[':search'] = $search;
+                  break;
+              case 'first_name':
+                  $whereClause[] = "first_name LIKE :search";
+                  $params[':search'] = "%$search%";
+                  break;
+              case 'middle_name':
+                  $whereClause[] = "middle_name LIKE :search";
+                  $params[':search'] = "%$search%";
+                  break;
+              case 'last_name':
+                  $whereClause[] = "last_name LIKE :search";
+                  $params[':search'] = "%$search%";
+                  break;
+              case 'email':
+                  $whereClause[] = "email LIKE :search";
+                  $params[':search'] = "%$search%";
+                  break;
+              case 'all':
+                  $whereClause[] = "(first_name LIKE :search OR middle_name LIKE :search OR last_name LIKE :search OR email LIKE :search OR user_id = :search_id)";
+                  $params[':search'] = "%$search%";
+                  $params[':search_id'] = $search;
+                  break;
+          }
+      }
+      
+      // Add user type filter
+      if ($filterType !== 'all') {
+          $whereClause[] = "user_type = :user_type";
+          $params[':user_type'] = $filterType;
+      }
+      
+      $whereSQL = !empty($whereClause) ? 'WHERE ' . implode(' AND ', $whereClause) : '';
+      
+      // Count total filtered users
+      $countSQL = "SELECT COUNT(*) as total FROM users $whereSQL";
+      $stmt = $pdo->prepare($countSQL);
+      $stmt->execute($params);
+      $totalUsers = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
       $totalPages = ceil($totalUsers / $usersPerPage);
 
-      $users = [];
-      try {
-        $stmt = $pdo->prepare("SELECT * FROM users ORDER BY user_id ASC LIMIT :limit OFFSET :offset");
-        $stmt->bindValue(':limit', $usersPerPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      } catch (Exception $e) {
-        echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
+      // Fetch filtered and sorted users
+      $sql = "SELECT * FROM users $whereSQL ORDER BY $sortBy $sortOrder LIMIT :limit OFFSET :offset";
+      $stmt = $pdo->prepare($sql);
+      foreach ($params as $key => $value) {
+          $stmt->bindValue($key, $value);
       }
+      $stmt->bindValue(':limit', $usersPerPage, PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+      $stmt->execute();
+      $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
       ?>
       <?php
       // Check if the logged-in user is the super admin
@@ -308,6 +361,69 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             </button>
           </div>
           <div class="card-body">
+            <!-- Search and Filter Form -->
+            <form class="mb-4" method="GET">
+              <input type="hidden" name="users" value="1">
+              <div class="row align-items-end">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" class="form-control" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search users...">
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>Search By</label>
+                    <select class="form-control" name="searchBy">
+                      <option value="all" <?= $searchBy === 'all' ? 'selected' : '' ?>>All Fields</option>
+                      <option value="user_id" <?= $searchBy === 'user_id' ? 'selected' : '' ?>>User ID</option>
+                      <option value="first_name" <?= $searchBy === 'first_name' ? 'selected' : '' ?>>First Name</option>
+                      <option value="middle_name" <?= $searchBy === 'middle_name' ? 'selected' : '' ?>>Middle Name</option>
+                      <option value="last_name" <?= $searchBy === 'last_name' ? 'selected' : '' ?>>Last Name</option>
+                      <option value="email" <?= $searchBy === 'email' ? 'selected' : '' ?>>Email</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>Filter Type</label>
+                    <select class="form-control" name="filterType">
+                      <option value="all" <?= $filterType === 'all' ? 'selected' : '' ?>>All Types</option>
+                      <option value="admin" <?= $filterType === 'admin' ? 'selected' : '' ?>>Admin</option>
+                      <option value="staff" <?= $filterType === 'staff' ? 'selected' : '' ?>>Staff</option>
+                      <option value="user" <?= $filterType === 'user' ? 'selected' : '' ?>>User</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>Sort By</label>
+                    <select class="form-control" name="sortBy">
+                      <option value="user_id" <?= $sortBy === 'user_id' ? 'selected' : '' ?>>User ID</option>
+                      <option value="first_name" <?= $sortBy === 'first_name' ? 'selected' : '' ?>>First Name</option>
+                      <option value="last_name" <?= $sortBy === 'last_name' ? 'selected' : '' ?>>Last Name</option>
+                      <option value="email" <?= $sortBy === 'email' ? 'selected' : '' ?>>Email</option>
+                      <option value="user_type" <?= $sortBy === 'user_type' ? 'selected' : '' ?>>User Type</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-1">
+                  <div class="form-group">
+                    <label>Order</label>
+                    <select class="form-control" name="sortOrder">
+                      <option value="ASC" <?= $sortOrder === 'ASC' ? 'selected' : '' ?>>↑</option>
+                      <option value="DESC" <?= $sortOrder === 'DESC' ? 'selected' : '' ?>>↓</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-1">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
             <?php if ($users && count($users) > 0): ?>
             <div class="table-responsive">
               <table class="table table-striped table-bordered table-hover align-middle w-100">
@@ -431,7 +547,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Add User</button>
+            <button type="submit" class="btn btn-primary">Add Staff/Admin</button>
           </div>
         </form>
       </div>
