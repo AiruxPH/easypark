@@ -178,7 +178,7 @@ if($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'staff') {
     <i class="fa-solid fa-circle-user"></i> My Account (<?php echo $_SESSION['username'] ?>)
   </a>
   <div class="dropdown-menu" aria-labelledby="accountDropdown">
-    <a class="dropdown-item" href="#">Profile</a>
+    <a class="dropdown-item" href="profile.php">Profile</a>
     <a class="dropdown-item" href="#">Settings</a>
     <div class="dropdown-divider"></div>
     <a class="dropdown-item" href="logout.php">Logout</a>
