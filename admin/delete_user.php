@@ -23,13 +23,29 @@ if ($user_id === false) {
 }
 
 try {
-    // Check if user exists and is not the last admin
-    $stmt = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    // Check if user exists and get their info
+    $stmt = $pdo->prepare("SELECT user_type, email FROM users WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$user) {
         echo json_encode(['success' => false, 'message' => 'User not found']);
+        exit;
+    }
+
+    // Check if logged in user is super admin
+    $loggedInEmail = $_SESSION['email'] ?? '';
+    $isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
+    
+    // Prevent deletion of super admin
+    if ($user['email'] === 'admin@gmail.com') {
+        echo json_encode(['success' => false, 'message' => 'Cannot delete super admin account']);
+        exit;
+    }
+
+    // Only super admin can delete other admins
+    if (!$isSuperAdmin && $user['user_type'] === 'admin') {
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to delete admin users']);
         exit;
     }
     

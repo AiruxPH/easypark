@@ -30,6 +30,19 @@ if (!in_array($user_type, $valid_types)) {
 }
 
 try {
+    // Check if user has permission to edit this user
+    $loggedInEmail = $_SESSION['email'] ?? '';
+    $stmt = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $targetUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
+    
+    if (!$isSuperAdmin && $targetUser['user_type'] === 'admin') {
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to edit admin users']);
+        exit;
+    }
+
     // Check if email exists for other users
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ? AND user_id != ?");
     $stmt->execute([$email, $user_id]);

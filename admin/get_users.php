@@ -5,7 +5,7 @@ require_once '../db.php';
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $searchBy = isset($_GET['searchBy']) ? $_GET['searchBy'] : 'all';
 $filterType = isset($_GET['filterType']) ? $_GET['filterType'] : 'all';
-$sortBy = isset($_GET['sortBy']) ? $_GET['sortBy'] : 'user_id';
+$sortBy = isset($_GET['sortBy']) ? $_GET['sortBy'] : 'user_type';
 $sortOrder = isset($_GET['sortOrder']) ? $_GET['sortOrder'] : 'ASC';
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $usersPerPage = 10;
@@ -89,11 +89,42 @@ if (count($users) > 0) {
         $html .= '<td>' . htmlspecialchars($user['middle_name'] ?? '') . '</td>';
         $html .= '<td>' . htmlspecialchars($user['last_name']) . '</td>';
         
-        // Email
-        $html .= '<td>' . htmlspecialchars($user['email']) . '</td>';
+        // Email        $html .= '<td>' . htmlspecialchars($user['email']) . '</td>';
         
         // User Type Badge with centered alignment
         $html .= '<td class="text-center">';
+        if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com') {
+            $html .= '<span class="badge badge-danger">Super Admin</span>';
+        } elseif ($user['user_type'] === 'admin') {
+            $html .= '<span class="badge badge-warning">Admin</span>';
+        } elseif ($user['user_type'] === 'staff') {
+            $html .= '<span class="badge badge-info">Staff</span>';
+        } else {
+            $html .= '<span class="badge badge-secondary">Client</span>';
+        }
+        $html .= '</td>';
+
+        // Action Buttons
+        $html .= '<td class="text-center">';
+        
+        // Super admin can edit/delete anyone except themselves
+        // Regular admin can only edit/delete non-admin users
+        if ($isSuperAdmin) {
+            if ($user['email'] !== 'admin@gmail.com') {
+                $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+                $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
+            }
+        } else {
+            if ($user['user_type'] !== 'admin') {
+                $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+                $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
+            }
+        }
+        
+        if ($user['user_type'] === 'user') {
+            $html .= '<button class="btn btn-sm btn-warning" onclick="suspendUser(' . $user['user_id'] . ')"><i class="fas fa-ban"></i></button>';
+        }
+        $html .= '</td>';
         if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com') {
             $html .= '<span class="badge badge-danger">Super Admin</span>';
         } elseif ($user['user_type'] === 'admin') {
