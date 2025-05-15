@@ -177,7 +177,7 @@ if (isset($_POST['delete_pic'])) {
         $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
         ?>
         <img id="profilePicPreview" src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="profile-pic mb-2">
-        <form method="POST" action="profile.php" enctype="multipart/form-data" class="mb-2">
+        <form method="POST" action="profile.php" enctype="multipart/form-data" class="mb-2" id="profilePicForm">
             <label for="profilePicInput" class="fancy-file-label btn btn-warning btn-sm mt-2 mb-0">
                 <i class="fa fa-camera"></i> Choose New Picture
             </label>
@@ -185,7 +185,7 @@ if (isset($_POST['delete_pic'])) {
             <button type="submit" name="upload_pic" class="btn btn-sm btn-warning mt-2">Change Picture</button>
         </form>
         <?php if (!empty($user['image'])): ?>
-        <form method="POST" action="profile.php">
+        <form method="POST" action="profile.php" id="deletePicForm">
             <button type="submit" name="delete_pic" class="btn btn-sm btn-danger delete-pic-btn">Delete Picture</button>
         </form>
         <?php endif; ?>
@@ -303,6 +303,8 @@ if (isset($_POST['delete_pic'])) {
   document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('profilePicInput');
     const previewImg = document.getElementById('profilePicPreview');
+    const picForm = document.getElementById('profilePicForm');
+    const deleteForm = document.getElementById('deletePicForm');
     if (fileInput && previewImg) {
       fileInput.addEventListener('change', function(e) {
         if (fileInput.files && fileInput.files[0]) {
@@ -313,12 +315,28 @@ if (isset($_POST['delete_pic'])) {
           reader.readAsDataURL(fileInput.files[0]);
         }
       });
-      // Optional: clicking the image also opens the file picker
       previewImg.style.cursor = 'pointer';
       previewImg.addEventListener('click', function() {
         fileInput.click();
       });
-      // Clicking the label opens the file picker (handled by label for=)
+    }
+    // Confirmation for profile picture change
+    if (picForm) {
+      picForm.addEventListener('submit', function(e) {
+        if (fileInput.value) {
+          if (!confirm('Are you sure you want to change your profile picture?')) {
+            e.preventDefault();
+          }
+        }
+      });
+    }
+    // Confirmation for profile picture deletion
+    if (deleteForm) {
+      deleteForm.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete your profile picture?')) {
+          e.preventDefault();
+        }
+      });
     }
   });
 </script>
