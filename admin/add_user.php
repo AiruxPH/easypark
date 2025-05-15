@@ -22,7 +22,7 @@ if (!$first_name || !$last_name || !$email || !$password || !$user_type) {
 }
 
 // Validate user type
-$valid_types = ['user', 'staff', 'admin'];
+$valid_types = ['client', 'staff', 'admin'];
 if (!in_array($user_type, $valid_types)) {
     echo json_encode(['success' => false, 'message' => 'Invalid user type']);
     exit;
