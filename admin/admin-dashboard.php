@@ -1,4 +1,15 @@
 <?php
+
+session_start();
+
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION['email'])) {
+    header('Location: ../login.php');
+    exit;
+} else if ($_SESSION['user_type'] !== 'admin') {
+    header('Location: ../dashboard.php');
+    exit;
+}
 require_once '../db.php';
 // Handle AJAX request for parking slots table only
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
