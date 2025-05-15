@@ -130,9 +130,6 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       <li class="nav-item">
         <a class="nav-link" href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Settings</a>
-      </li>
     </ul>
     <hr class="bg-secondary">
     <!-- Removed sidebar user dropdown for Admin -->
@@ -143,15 +140,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
       <button class="btn btn-outline-secondary d-lg-none mr-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-      <a class="navbar-brand d-lg-none" href="#">EasyPark</a>
+      <a class="navbar-brand d-lg-none" href="admin-dashboard.php">EasyPark</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Reports</a>
-          </li>
         </ul>
         <ul class="navbar-nav ml-auto">
           <li class="nav-item dropdown">
