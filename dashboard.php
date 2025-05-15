@@ -180,17 +180,11 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       <li class="nav-item">
         <a class="nav-link" href="#">How It Works</a>
       </li>
-      <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle btn btn-primary d-flex align-items-center" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;"> 
+      <li class="nav-item">
+  <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton" style="padding: 0.375rem 1rem;">
+    <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
     <i class="fa-solid fa-circle-user d-none d-md-inline"></i> My Account (<?php echo $_SESSION['username'] ?>)
   </a>
-  <div class="dropdown-menu" aria-labelledby="accountDropdown">
-    <a class="dropdown-item" href="profile.php">My Profile</a>
-    
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="logout.php">Logout</a>
-  </div>
 </li>
     </ul>
   </div>  
