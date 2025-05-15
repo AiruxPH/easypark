@@ -77,18 +77,23 @@ $isSuperAdmin = $loggedInUserEmail === 'admin@gmail.com';
 // Prepare HTML response
 $html = '';
 if (count($users) > 0) {
-    foreach ($users as $user) {
-        $html .= '<tr>';
-        $html .= '<th scope="row">' . ($offset + 1) . '</th>';
+    foreach ($users as $user) {        $html .= '<tr>';
+        // Row number
+        $html .= '<td class="text-center">' . ($offset + 1) . '</td>';
         
-        foreach ($user as $key => $val) {
-            if (!in_array($key, ['password', 'security_code'])) {
-                $html .= '<td>' . htmlspecialchars($val) . '</td>';
-            }
-        }
-
-        // User Type Badge
-        $html .= '<td>';
+        // User ID
+        $html .= '<td>' . htmlspecialchars($user['user_id']) . '</td>';
+        
+        // Names
+        $html .= '<td>' . htmlspecialchars($user['first_name']) . '</td>';
+        $html .= '<td>' . htmlspecialchars($user['middle_name'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($user['last_name']) . '</td>';
+        
+        // Email
+        $html .= '<td>' . htmlspecialchars($user['email']) . '</td>';
+        
+        // User Type Badge with centered alignment
+        $html .= '<td class="text-center">';
         if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com') {
             $html .= '<span class="badge badge-danger">Super Admin</span>';
         } elseif ($user['user_type'] === 'admin') {

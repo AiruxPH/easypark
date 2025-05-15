@@ -425,17 +425,17 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             </form>
 
             <?php if ($users && count($users) > 0): ?>
-            <div class="table-responsive">
-              <table class="table table-striped table-bordered table-hover align-middle w-100" id="usersTable">
+            <div class="table-responsive">              <table class="table table-striped table-bordered table-hover align-middle w-100" id="usersTable">
                 <thead class="thead-dark">
                   <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">User ID</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">User Type</th>
-                    <th scope="col">Actions</th>
+                    <th scope="col" class="text-center" style="width: 5%">#</th>
+                    <th scope="col" style="width: 10%">ID</th>
+                    <th scope="col" style="width: 15%">First Name</th>
+                    <th scope="col" style="width: 15%">Middle Name</th>
+                    <th scope="col" style="width: 15%">Last Name</th>
+                    <th scope="col" style="width: 20%">Email</th>
+                    <th scope="col" style="width: 10%">Role</th>
+                    <th scope="col" class="text-center" style="width: 10%">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
