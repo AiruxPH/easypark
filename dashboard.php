@@ -186,8 +186,8 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
     <i class="fa-solid fa-circle-user d-none d-md-inline"></i> My Account (<?php echo $_SESSION['username'] ?>)
   </a>
   <div class="dropdown-menu" aria-labelledby="accountDropdown">
-    <a class="dropdown-item" href="profile.php">Profile</a>
-    <a class="dropdown-item" href="#">Settings</a>
+    <a class="dropdown-item" href="profile.php">My Profile</a>
+    
     <div class="dropdown-divider"></div>
     <a class="dropdown-item" href="logout.php">Logout</a>
   </div>
