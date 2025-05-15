@@ -368,13 +368,13 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Search</label>
-                    <input type="text" class="form-control" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search users...">
+                    <input type="text" class="form-control search-control" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search users...">
                   </div>
                 </div>
                 <div class="col-md-2">
                   <div class="form-group">
                     <label>Search By</label>
-                    <select class="form-control" name="searchBy">
+                    <select class="form-control search-control" name="searchBy">
                       <option value="all" <?= $searchBy === 'all' ? 'selected' : '' ?>>All Fields</option>
                       <option value="user_id" <?= $searchBy === 'user_id' ? 'selected' : '' ?>>User ID</option>
                       <option value="first_name" <?= $searchBy === 'first_name' ? 'selected' : '' ?>>First Name</option>
@@ -387,7 +387,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                 <div class="col-md-2">
                   <div class="form-group">
                     <label>Filter Type</label>
-                    <select class="form-control" name="filterType">
+                    <select class="form-control search-control" name="filterType">
                       <option value="all" <?= $filterType === 'all' ? 'selected' : '' ?>>All Types</option>
                       <option value="admin" <?= $filterType === 'admin' ? 'selected' : '' ?>>Admin</option>
                       <option value="staff" <?= $filterType === 'staff' ? 'selected' : '' ?>>Staff</option>
@@ -398,7 +398,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                 <div class="col-md-2">
                   <div class="form-group">
                     <label>Sort By</label>
-                    <select class="form-control" name="sortBy">
+                    <select class="form-control search-control" name="sortBy">
                       <option value="user_id" <?= $sortBy === 'user_id' ? 'selected' : '' ?>>User ID</option>
                       <option value="first_name" <?= $sortBy === 'first_name' ? 'selected' : '' ?>>First Name</option>
                       <option value="last_name" <?= $sortBy === 'last_name' ? 'selected' : '' ?>>Last Name</option>
@@ -410,7 +410,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                 <div class="col-md-1">
                   <div class="form-group">
                     <label>Order</label>
-                    <select class="form-control" name="sortOrder">
+                    <select class="form-control search-control" name="sortOrder">
                       <option value="ASC" <?= $sortOrder === 'ASC' ? 'selected' : '' ?>>↑</option>
                       <option value="DESC" <?= $sortOrder === 'DESC' ? 'selected' : '' ?>>↓</option>
                     </select>
@@ -426,77 +426,25 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
 
             <?php if ($users && count($users) > 0): ?>
             <div class="table-responsive">
-              <table class="table table-striped table-bordered table-hover align-middle w-100">
+              <table class="table table-striped table-bordered table-hover align-middle w-100" id="usersTable">
                 <thead class="thead-dark">
                   <tr>
                     <th scope="col">#</th>
-                    <?php foreach(array_keys($users[0]) as $col): ?>
-                      <?php if (!in_array($col, ['password', 'security_code'])): // Hide sensitive columns ?>
-                        <th scope="col"><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
-                      <?php endif; ?>
-                    <?php endforeach; ?>
+                    <th scope="col">User ID</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
                     <th scope="col">User Type</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php $rownum = $offset + 1; foreach ($users as $user): ?>
-                    <tr>
-                      <th scope="row"><?= $rownum++ ?></th>
-                      <?php foreach($user as $key => $val): ?>
-                        <?php if (!in_array($key, ['password', 'security_code'])): ?>
-                          <td><?= htmlspecialchars($val) ?></td>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
-                      <td>
-                        <?php if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com'): ?>
-                          <span class="badge badge-danger">Super Admin</span>
-                        <?php elseif ($user['user_type'] === 'admin'): ?>
-                          <span class="badge badge-warning">Admin</span>
-                        <?php elseif ($user['user_type'] === 'staff'): ?>
-                          <span class="badge badge-info">Staff</span>
-                        <?php else: ?>
-                          <span class="badge badge-secondary">Client</span>
-                        <?php endif; ?>
-                      </td>
-                      <td class="text-center">
-                        <?php if ($isSuperAdmin || $user['user_type'] !== 'admin'): ?>
-                          <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= htmlspecialchars($user['user_id']) ?>)">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        <?php endif; ?>
-                        <?php if ($user['user_type'] === 'user'): ?>
-                          <button class="btn btn-sm btn-warning" onclick="suspendUser(<?= htmlspecialchars($user['user_id']) ?>)">
-                            <i class="fas fa-ban"></i> Suspend
-                          </button>
-                        <?php endif; ?>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
+                  <!-- Table body will be populated by JavaScript -->
                 </tbody>
               </table>
             </div>
-            <nav>
-              <ul class="pagination justify-content-center">
-                <li class="page-item<?= $currentPage == 1 ? ' disabled' : '' ?>">
-                  <a class="page-link" href="?users=1&page=<?= $currentPage - 1 ?>" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                  <li class="page-item<?= $i == $currentPage ? ' active' : '' ?>">
-                    <a class="page-link" href="?users=1&page=<?= $i ?>"><?= $i ?></a>
-                  </li>
-                <?php endfor; ?>
-                <li class="page-item<?= $currentPage == $totalPages ? ' disabled' : '' ?>">
-                  <a class="page-link" href="?users=1&page=<?= $currentPage + 1 ?>" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              </ul>
+            <nav id="usersPagination">
+              <!-- Pagination will be populated by JavaScript -->
             </nav>
             <?php else: ?>
               <div class="text-muted">No users found.</div>
@@ -671,6 +619,69 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     function showAddUserModal() {
       $('#addUserModal').modal('show');
     }
+
+    // Live Search and Filter Functions
+    let searchTimer;
+    function updateUsers(page = 1) {
+      const searchInput = document.querySelector('input[name="search"]');
+      const searchBy = document.querySelector('select[name="searchBy"]');
+      const filterType = document.querySelector('select[name="filterType"]');
+      const sortBy = document.querySelector('select[name="sortBy"]');
+      const sortOrder = document.querySelector('select[name="sortOrder"]');
+      
+      const params = new URLSearchParams({
+        search: searchInput.value,
+        searchBy: searchBy.value,
+        filterType: filterType.value,
+        sortBy: sortBy.value,
+        sortOrder: sortOrder.value,
+        page: page
+      });
+
+      fetch(`get_users.php?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector('#usersTable tbody');
+          const paginationContainer = document.querySelector('#usersPagination');
+          tbody.innerHTML = data.html;
+          paginationContainer.innerHTML = data.pagination;
+          
+          // Update total users count if you have an element for it
+          if (document.getElementById('totalUsers')) {
+            document.getElementById('totalUsers').textContent = data.totalUsers;
+          }
+
+          // Add event listeners to pagination links
+          document.querySelectorAll('#usersPagination .page-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+              e.preventDefault();
+              updateUsers(this.dataset.page);
+            });
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
+    // Add event listeners for live search
+    document.querySelectorAll('.search-control').forEach(control => {
+      control.addEventListener('change', function() {
+        updateUsers(1);
+      });
+    });
+
+    document.querySelector('input[name="search"]').addEventListener('input', function() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        updateUsers(1);
+      }, 300); // Debounce search for 300ms
+    });
+
+    // Initial load
+    updateUsers(1);
+
+    // Rest of your existing functions...
 
     function editUser(userData) {
       document.getElementById('edit_user_id').value = userData.user_id;
