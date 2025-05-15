@@ -292,7 +292,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         <div class="card mb-4 shadow">
           <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
             <span><i class="fas fa-users"></i> User Management</span>
-            <button class="btn btn-light btn-sm" onclick="showAddUserModal()">
+            <button class="btn btn-light btn-sm" onclick="showAddUserModal()" <?= $isSuperAdmin ? '' : 'disabled' ?>>
               <i class="fas fa-plus"></i> Add User
             </button>
           </div>
@@ -322,7 +322,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                         <?php endif; ?>
                       <?php endforeach; ?>
                       <td>
-                        <?php if ($user['user_type'] === 'admin'): ?>
+                        <?php if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com'): ?>
+                          <span class="badge badge-danger">Super Admin</span>
+                        <?php elseif ($user['user_type'] === 'admin'): ?>
                           <span class="badge badge-warning">Admin</span>
                         <?php elseif ($user['user_type'] === 'staff'): ?>
                           <span class="badge badge-info">Staff</span>
@@ -409,9 +411,10 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             <div class="form-group">
               <label>User Type</label>
               <select class="form-control" name="user_type" required>
-                <option value="user">User</option>
                 <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
+                <?php if ($isSuperAdmin): ?>
+                  <option value="admin">Admin</option>
+                <?php endif; ?>
               </select>
             </div>
           </div>
