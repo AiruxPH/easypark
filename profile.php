@@ -141,9 +141,6 @@ if (isset($_POST['delete_pic'])) {
   <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
     <ul id="opp" class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="index.php">Home</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="dashboard.php">Dashboard</a>
       </li>
       <li class="nav-item">
