@@ -60,7 +60,15 @@ $totalUsers = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPages = ceil($totalUsers / $usersPerPage);
 
 // Fetch users
-$sql = "SELECT * FROM users $whereSQL ORDER BY $sortBy $sortOrder LIMIT :limit OFFSET :offset";
+$sql = "SELECT * FROM users $whereSQL ORDER BY 
+        CASE 
+            WHEN user_type = 'admin' AND email = 'admin@gmail.com' THEN 1
+            WHEN user_type = 'admin' THEN 2
+            WHEN user_type = 'staff' THEN 3
+            ELSE 4
+        END,
+        $sortBy $sortOrder 
+        LIMIT :limit OFFSET :offset";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value);
@@ -71,13 +79,13 @@ $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check for super admin
-$loggedInUserEmail = $_SESSION['email'] ?? '';
-$isSuperAdmin = $loggedInUserEmail === 'admin@gmail.com';
+$loggedInEmail = $_SESSION['email'] ?? '';
+$isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
 
 // Prepare HTML response
 $html = '';
-if (count($users) > 0) {
-    foreach ($users as $user) {        $html .= '<tr>';
+if (count($users) > 0) {    foreach ($users as $user) {
+        $html .= '<tr>';
         // Row number
         $html .= '<td class="text-center">' . ($offset + 1) . '</td>';
         
@@ -89,7 +97,8 @@ if (count($users) > 0) {
         $html .= '<td>' . htmlspecialchars($user['middle_name'] ?? '') . '</td>';
         $html .= '<td>' . htmlspecialchars($user['last_name']) . '</td>';
         
-        // Email        $html .= '<td>' . htmlspecialchars($user['email']) . '</td>';
+        // Email
+        $html .= '<td>' . htmlspecialchars($user['email']) . '</td>';
         
         // User Type Badge with centered alignment
         $html .= '<td class="text-center">';
