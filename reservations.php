@@ -154,17 +154,29 @@ foreach ($vehicles as $veh) {
 // Pagination controls
 $total_pages = ceil($total_slots / $slots_per_page);
 if ($total_pages > 1):
+    $max_links = 5;
+    $start = max(1, $page - floor($max_links/2));
+    $end = min($total_pages, $start + $max_links - 1);
+    if ($end - $start + 1 < $max_links) {
+        $start = max(1, $end - $max_links + 1);
+    }
 ?>
 <nav aria-label="Slot pagination">
   <ul class="pagination justify-content-center">
     <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
       <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page-1 ?>" tabindex="-1">Previous</a>
     </li>
-    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+    <?php if ($start > 1): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
+    <?php for ($i = $start; $i <= $end; $i++): ?>
       <li class="page-item<?= $i == $page ? ' active' : '' ?>">
         <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $i ?>"><?= $i ?></a>
       </li>
     <?php endfor; ?>
+    <?php if ($end < $total_pages): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
     <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
       <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page+1 ?>">Next</a>
     </li>
