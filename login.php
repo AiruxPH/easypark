@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['username'] = $user['first_name'];
 
                     if ($user['user_type'] === 'admin') {
-                        header('Location: dashboard.php');
+                        header('Location: admin/admin-dashboard.php');
                     } elseif ($user['user_type'] === 'staff') {
                         header('Location: dashboard.php');
                     } else {
