@@ -285,7 +285,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       ?>
       <?php
       // Check if the logged-in user is the super admin
-      $loggedInUserEmail = $_SESSION['email'] ?? ''; // Assuming email is stored in session
+      $loggedInUserEmail = $_SESSION['email']; // Assuming email is stored in session
       $isSuperAdmin = $loggedInUserEmail === 'admin@gmail.com';
       ?>
       <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
