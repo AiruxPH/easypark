@@ -15,6 +15,13 @@ if($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'staff') {
     header("Location: /staff/staff-dashboard.php");
     exit();
 }
+
+require_once 'db.php';
+$user_id = $_SESSION['user_id'];
+$stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
+$stmt->execute([$user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -174,8 +181,9 @@ if($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'staff') {
         <a class="nav-link" href="#">How It Works</a>
       </li>
       <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle btn btn-primary" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa-solid fa-circle-user"></i> My Account (<?php echo $_SESSION['username'] ?>)
+  <a class="nav-link dropdown-toggle btn btn-primary d-flex align-items-center" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;"> 
+    <i class="fa-solid fa-circle-user d-none d-md-inline"></i> My Account (<?php echo $_SESSION['username'] ?>)
   </a>
   <div class="dropdown-menu" aria-labelledby="accountDropdown">
     <a class="dropdown-item" href="profile.php">Profile</a>
