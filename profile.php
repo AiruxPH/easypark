@@ -21,8 +21,8 @@ $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Fetch user's vehicles
-$stmt = $pdo->prepare('SELECT * FROM vehicles WHERE user_id = ?');
+// Fetch user's vehicles with brand and type from Vehicle_Models
+$stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.user_id = ?');
 $stmt->execute([$user_id]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -234,8 +234,8 @@ if (isset($_POST['delete_pic'])) {
             <?php foreach ($vehicles as $vehicle): ?>
                 <tr>
                     <td><?= htmlspecialchars($vehicle['plate_number']) ?></td>
-                    <td><?= htmlspecialchars($vehicle['vehicle_type']) ?></td>
-                    <td><?= htmlspecialchars($vehicle['brand']) ?></td>
+                    <td><?= htmlspecialchars($vehicle['type'] ?? $vehicle['vehicle_type']) ?></td>
+                    <td><?= htmlspecialchars($vehicle['brand'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($vehicle['color']) ?></td>
                     <td>
                         <a href="profile.php?edit_vehicle=<?= $vehicle['vehicle_id'] ?>" class="btn btn-sm btn-info">Edit</a>
