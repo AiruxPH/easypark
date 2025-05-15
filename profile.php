@@ -248,32 +248,6 @@ if (isset($_POST['delete_pic'])) {
         <a href="profile.php?add_vehicle=1" class="btn btn-success">Add Vehicle</a>
     </div>
 
-    <div class="profile-section mb-4">
-        <h4>Reserve a Parking Slot</h4>
-        <form method="POST" action="profile.php">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label>Select Vehicle</label>
-                    <select name="vehicle_id" class="form-control" required>
-                        <option value="">-- Select Vehicle --</option>
-                        <?php foreach ($vehicles as $vehicle): ?>
-                            <option value="<?= $vehicle['vehicle_id'] ?>"><?= htmlspecialchars($vehicle['plate_number']) ?> (<?= htmlspecialchars($vehicle['vehicle_type']) ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group col-md-6">
-                    <label>Select Parking Slot</label>
-                    <select name="slot_id" class="form-control" required>
-                        <option value="">-- Select Slot --</option>
-                        <?php foreach ($available_slots as $slot): ?>
-                            <option value="<?= $slot['parking_slot_id'] ?>"><?= htmlspecialchars($slot['slot_number']) ?> (<?= htmlspecialchars($slot['slot_type']) ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" name="reserve_slot" class="btn btn-primary">Reserve Slot</button>
-        </form>
-    </div>
     <div class="text-center mt-4">
       <a href="index.php" class="btn btn-primary">Go back to Home</a>
       <a href="logout.php" class="btn btn-danger ml-2">Logout</a>
