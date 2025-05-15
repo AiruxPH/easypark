@@ -20,6 +20,14 @@ echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($tot
 
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+</head>
+<body>
 <form method="POST" action="reservation_process.php">
     <label>Slot Type:</label>
     <select name="slot_type">
@@ -40,3 +48,5 @@ echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($tot
 
     <button type="submit">Calculate</button>
 </form>
+</body>
+</html>
