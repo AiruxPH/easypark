@@ -71,7 +71,7 @@ $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check for super admin
-$loggedInEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+$loggedInEmail = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : '';
 $isSuperAdmin = $loggedInEmail === 'admin@gmail.com';
 
 // Prepare HTML response
@@ -108,33 +108,21 @@ if (count($users) > 0) {    foreach ($users as $user) {
         
         // Super admin can edit/delete anyone except themselves
         // Regular admin can only edit/delete non-admin users
-// Assume $loggedInEmail = $_SESSION['email'] ?? '';
-$canEditDelete = false;
-
-if ($isSuperAdmin && $user['email'] !== 'admin@gmail.com' && $user['email'] !== $loggedInEmail) {
-    // Super admin can edit/delete anyone except themselves and admin@gmail.com
-    $canEditDelete = true;
-} elseif (!$isSuperAdmin && $user['user_type'] !== 'admin' && $user['email'] !== 'admin@gmail.com' && $user['email'] !== $loggedInEmail) {
-    // Regular admin can edit/delete non-admin users except themselves and admin@gmail.com
-    $canEditDelete = true;
-}
-
-// Generate edit/delete buttons if allowed
-if ($canEditDelete) {
-    $userJson = htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8');
-    $userId = (int)$user['user_id']; // Cast to integer for safety
-    $html .= "<button class=\"btn btn-sm btn-primary\" onclick=\"editUser($userJson)\"><i class=\"fas fa-edit\"></i></button> ";
-    $html .= "<button class=\"btn btn-sm btn-danger\" onclick=\"deleteUser($userId)\"><i class=\"fas fa-trash\"></i></button> ";
-}
-
-// Suspend button for regular users (restrict to super admins if needed)
-if ($user['user_type'] === 'user' && $isSuperAdmin) {
-    $userId = (int)$user['user_id'];
-    $html .= "<button class=\"btn btn-sm btn-warning\" onclick=\"suspendUser($userId)\"><i class=\"fas fa-ban\"></i></button>";
-}
-
-$html .= '</td>';
-$html .= '</tr>';
+        if ($isSuperAdmin && $user['email'] !== 'admin@gmail.com') {
+            // Super admin can edit/delete anyone except themselves
+            $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+            $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
+        } elseif (!$isSuperAdmin && $user['user_type'] !== 'admin' && $user['email'] !== 'admin@gmail.com') {
+            // Regular admin can only edit/delete non-admin users
+            $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
+            $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
+        }
+        
+        if ($user['user_type'] === 'user') {
+            $html .= '<button class="btn btn-sm btn-warning" onclick="suspendUser(' . $user['user_id'] . ')"><i class="fas fa-ban"></i></button>';
+        }        $html .= '</td>';
+        $html .= '</tr>';
+    }
 } else {
     $html = '<tr><td colspan="7" class="text-center">No users found</td></tr>';
 }
