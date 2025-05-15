@@ -183,7 +183,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       <li class="nav-item">
   <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton" style="padding: 0.375rem 1rem;">
     <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
-    <i class="fa-solid fa-circle-user d-none d-md-inline"></i> My Account (<?php echo $_SESSION['username'] ?>)
+     My Account (<?php echo $_SESSION['username'] ?>)
   </a>
 </li>
     </ul>
