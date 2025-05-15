@@ -292,6 +292,11 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         echo '<div class="alert alert-danger mb-0">Users table not found in database.</div>';
       }
       ?>
+      <?php
+      // Check if the logged-in user is the super admin
+      $loggedInUserEmail = $_SESSION['email'] ?? ''; // Assuming email is stored in session
+      $isSuperAdmin = $loggedInUserEmail === 'admin@gmail.com';
+      ?>
       <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
         <div class="card mb-4 shadow">
           <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
@@ -308,8 +313,11 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                   <tr>
                     <th scope="col">#</th>
                     <?php foreach(array_keys($users[0]) as $col): ?>
-                      <th scope="col"><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
+                      <?php if (!in_array($col, ['password', 'security_code'])): // Hide sensitive columns ?>
+                        <th scope="col"><?= htmlspecialchars(ucwords(str_replace('_',' ',$col))) ?></th>
+                      <?php endif; ?>
                     <?php endforeach; ?>
+                    <th scope="col">User Type</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
@@ -318,15 +326,33 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                     <tr>
                       <th scope="row"><?= $rownum++ ?></th>
                       <?php foreach($user as $key => $val): ?>
-                        <td><?= htmlspecialchars($val) ?></td>
+                        <?php if (!in_array($key, ['password', 'security_code'])): ?>
+                          <td><?= htmlspecialchars($val) ?></td>
+                        <?php endif; ?>
                       <?php endforeach; ?>
+                      <td>
+                        <?php if ($user['user_type'] === 'admin'): ?>
+                          <span class="badge badge-warning">Admin</span>
+                        <?php elseif ($user['user_type'] === 'staff'): ?>
+                          <span class="badge badge-info">Staff</span>
+                        <?php else: ?>
+                          <span class="badge badge-secondary">Client</span>
+                        <?php endif; ?>
+                      </td>
                       <td class="text-center">
-                        <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= htmlspecialchars($user['user_id']) ?>)">
-                          <i class="fas fa-trash"></i>
-                        </button>
+                        <?php if ($isSuperAdmin || $user['user_type'] !== 'admin'): ?>
+                          <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= htmlspecialchars($user['user_id']) ?>)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        <?php endif; ?>
+                        <?php if ($user['user_type'] === 'user'): ?>
+                          <button class="btn btn-sm btn-warning" onclick="suspendUser(<?= htmlspecialchars($user['user_id']) ?>)">
+                            <i class="fas fa-ban"></i> Suspend
+                          </button>
+                        <?php endif; ?>
                       </td>
                     </tr>
                   <?php endforeach; ?>
@@ -610,6 +636,32 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         console.error('Error:', error);
         alert('Error deleting user');
       });
+    }
+
+    // Suspend User Function
+    function suspendUser(userId) {
+      if (confirm('Are you sure you want to suspend this user?')) {
+        fetch('suspend_user.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_id: userId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('User suspended successfully.');
+            window.location.reload();
+          } else {
+            alert(data.message || 'Error suspending user.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error suspending user.');
+        });
+      }
     }
   </script>
 </body>
