@@ -164,9 +164,6 @@ if (isset($_POST['delete_pic'])) {
       <li class="nav-item">
         <a class="nav-link" href="dashboard.php">Dashboard</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="logout.php">Logout</a>
-      </li>
     </ul>
   </div>
 </nav>
@@ -279,6 +276,7 @@ if (isset($_POST['delete_pic'])) {
     </div>
     <div class="text-center mt-4">
       <a href="index.php" class="btn btn-primary">Go back to Home</a>
+      <a href="logout.php" class="btn btn-danger ml-2">Logout</a>
     </div>
 </div>
 <script src="js/jquery.min.js"></script>
