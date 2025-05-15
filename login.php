@@ -2,8 +2,13 @@
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-  header("Location: dashboard.php");
-  exit();
+  if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin') {
+    header("Location: admin/admin-dashboard.php");
+    exit();
+  } else {
+    header("Location: dashboard.php");
+    exit();
+  }
 }
 
 require_once 'db.php';
