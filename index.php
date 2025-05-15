@@ -157,7 +157,7 @@ if (isset($_SESSION['user_id'])) {
 </head>
 
 <body class="bg-car">
-<nav id="navbar" class="w-100 navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top">
+<nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
 <a id="opp" class="navbar-brand" href="index.php">
 <h1 class="custom-size 75rem">
         EASYPARK
