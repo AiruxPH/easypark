@@ -132,29 +132,7 @@ if (count($users) > 0) {    foreach ($users as $user) {
         
         if ($user['user_type'] === 'user') {
             $html .= '<button class="btn btn-sm btn-warning" onclick="suspendUser(' . $user['user_id'] . ')"><i class="fas fa-ban"></i></button>';
-        }
-        $html .= '</td>';
-        if ($user['user_type'] === 'admin' && $user['email'] === 'admin@gmail.com') {
-            $html .= '<span class="badge badge-danger">Super Admin</span>';
-        } elseif ($user['user_type'] === 'admin') {
-            $html .= '<span class="badge badge-warning">Admin</span>';
-        } elseif ($user['user_type'] === 'staff') {
-            $html .= '<span class="badge badge-info">Staff</span>';
-        } else {
-            $html .= '<span class="badge badge-secondary">Client</span>';
-        }
-        $html .= '</td>';
-
-        // Action Buttons
-        $html .= '<td class="text-center">';
-        if ($isSuperAdmin || $user['user_type'] !== 'admin') {
-            $html .= '<button class="btn btn-sm btn-primary" onclick="editUser(' . htmlspecialchars(json_encode($user)) . ')"><i class="fas fa-edit"></i></button> ';
-            $html .= '<button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user['user_id'] . ')"><i class="fas fa-trash"></i></button> ';
-        }
-        if ($user['user_type'] === 'user') {
-            $html .= '<button class="btn btn-sm btn-warning" onclick="suspendUser(' . $user['user_id'] . ')"><i class="fas fa-ban"></i> Suspend</button>';
-        }
-        $html .= '</td>';
+        }        $html .= '</td>';
         $html .= '</tr>';
     }
 } else {
