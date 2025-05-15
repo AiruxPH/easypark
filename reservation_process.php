@@ -1,24 +1,4 @@
-<?php
 
-$slot_type = $_POST['slot_type'];      // 'compact'
-$duration_type = $_POST['duration'];   // 'hour' or 'day'
-$duration_value = $_POST['value'];     // 5 (e.g. 5 hours or 5 days)
-
-require_once 'constants.php'; // Load the pricing config
-
-// Validate input
-if (!isset(SLOT_RATES[$slot_type][$duration_type])) {
-    die("Invalid slot type or duration.");
-}
-
-$rate = SLOT_RATES[$slot_type][$duration_type];
-$total_price = $rate * $duration_value;
-
-echo "Rate for {$slot_type} per {$duration_type}: ₱" . number_format($rate, 2) . "<br>";
-echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($total_price, 2);
-
-
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -50,3 +30,25 @@ echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($tot
 </form>
 </body>
 </html>
+
+<?php
+
+$slot_type = $_POST['slot_type'];      // 'compact'
+$duration_type = $_POST['duration'];   // 'hour' or 'day'
+$duration_value = $_POST['value'];     // 5 (e.g. 5 hours or 5 days)
+
+require_once 'constants.php'; // Load the pricing config
+
+// Validate input
+if (!isset(SLOT_RATES[$slot_type][$duration_type])) {
+    die("Invalid slot type or duration.");
+}
+
+$rate = SLOT_RATES[$slot_type][$duration_type];
+$total_price = $rate * $duration_value;
+
+echo "Rate for {$slot_type} per {$duration_type}: ₱" . number_format($rate, 2) . "<br>";
+echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($total_price, 2);
+
+
+?>
