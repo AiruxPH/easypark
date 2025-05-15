@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = "⚠️ Password is required.";
     } else {
         try {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE BINARY email = ?");
             $stmt->execute([$email]);
             if ($stmt->rowCount() > 0) {
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
