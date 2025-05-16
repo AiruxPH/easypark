@@ -71,7 +71,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <div class="container py-5">
 <h2 class="text-warning mb-4">My Bookings</h2>
 <div class="table-responsive bg-dark rounded p-3">
-<table class="table table-hover table-dark table-bordered">
+<table class="table table-hover table-dark table-bordered align-middle text-center">
   <thead>
     <tr>
       <th>Ref #</th>
@@ -83,14 +83,19 @@ My Account (<?php echo $_SESSION['username'] ?>)
       <th>Reservation Status</th>
       <th>Amount</th>
       <th>Payment Status</th>
+      <th>Timer</th>
       <th>Payment Method</th>
       <th>Payment Date</th>
     </tr>
   </thead>
   <tbody>
     <?php if (count($bookings) === 0): ?>
-      <tr><td colspan="11" class="text-center">No bookings found.</td></tr>
-    <?php else: foreach ($bookings as $b): ?>
+      <tr><td colspan="12" class="text-center">No bookings found.</td></tr>
+    <?php else: foreach ($bookings as $b):
+      $isConfirmed = ($b['status'] === 'confirmed');
+      $now = date('Y-m-d H:i:s');
+      $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
+    ?>
       <tr>
         <td><?= htmlspecialchars($b['reservation_id']) ?></td>
         <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
@@ -98,9 +103,36 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['start_time']) ?></td>
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td><?= htmlspecialchars($b['duration']) ?></td>
-        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td> <!-- Reservation status from reservations table (r.status) -->
+        <td>
+          <?php
+            $status = $b['status'];
+            $badge = 'secondary';
+            if ($status === 'pending') $badge = 'warning';
+            elseif ($status === 'confirmed') $badge = 'success';
+            elseif ($status === 'cancelled' || $status === 'void') $badge = 'danger';
+            elseif ($status === 'completed') $badge = 'primary';
+            elseif ($status === 'expired') $badge = 'dark';
+          ?>
+          <span class="badge bg-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
+        </td>
         <td>₱<?= number_format($b['amount'],2) ?></td>
-        <td><?= htmlspecialchars(isset($b['payment_status']) && $b['payment_status'] !== null ? ucfirst($b['payment_status']) : 'N/A') ?></td> <!-- Payment status from payments table (p.status as payment_status) -->
+        <td>
+          <?php
+            $pay = $b['payment_status'];
+            $payBadge = 'secondary';
+            if ($pay === 'pending') $payBadge = 'warning';
+            elseif ($pay === 'successful') $payBadge = 'success';
+            elseif ($pay === 'failed' || $pay === 'refunded') $payBadge = 'danger';
+          ?>
+          <span class="badge bg-<?= $payBadge ?> text-uppercase"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
+        </td>
+        <td>
+          <?php if ($showTimer): ?>
+            <span class="timer" data-end="<?= htmlspecialchars($b['end_time']) ?>" id="timer-<?= $b['reservation_id'] ?>"></span>
+          <?php else: ?>
+            <span class="text-muted">-</span>
+          <?php endif; ?>
+        </td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
@@ -122,6 +154,26 @@ window.addEventListener('scroll', function () {
     navbar.classList.remove('scrolled');
   }
 });
+
+function updateTimers() {
+  const timers = document.querySelectorAll('.timer');
+  timers.forEach(function(timer) {
+    const end = new Date(timer.getAttribute('data-end').replace(' ', 'T'));
+    const now = new Date();
+    let diff = Math.floor((end - now) / 1000);
+    if (diff > 0) {
+      const h = Math.floor(diff / 3600);
+      diff %= 3600;
+      const m = Math.floor(diff / 60);
+      const s = diff % 60;
+      timer.textContent = `${h}h ${m}m ${s}s left`;
+    } else {
+      timer.textContent = 'Expired';
+    }
+  });
+}
+setInterval(updateTimers, 1000);
+document.addEventListener('DOMContentLoaded', updateTimers);
 </script>
 </body>
 </html>
