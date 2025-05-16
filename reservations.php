@@ -14,6 +14,13 @@ $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare('SELECT v.vehicle_id, v.plate_number, m.brand, m.model, m.type FROM vehicles v JOIN Vehicle_Models m ON v.model_id = m.model_id WHERE v.user_id = ?');
 $stmt->execute([$user_id]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch vehicle IDs with active reservations (not cancelled/completed, and end_time > NOW)
+$active_vehicle_ids = [];
+$stmt = $pdo->prepare('SELECT vehicle_id FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
+$stmt->execute([$user_id]);
+foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $vid) {
+    $active_vehicle_ids[$vid] = true;
+}
 $selected_vehicle_id = isset($_POST['vehicle_id']) ? $_POST['vehicle_id'] : ($vehicles[0]['vehicle_id'] ?? null);
 $selected_vehicle_type = null;
 if ($selected_vehicle_id) {
@@ -209,11 +216,13 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <label for="vehicle_id" class="text-light">Select Your Vehicle:</label>
 <select name="vehicle_id" id="vehicle_id" class="form-control" onchange="this.form.submit()" required>
 <?php foreach ($vehicles as $veh): ?>
-<option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?>>
+<option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?> <?= isset($active_vehicle_ids[$veh['vehicle_id']]) ? 'disabled' : '' ?>>
 <?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
+<?= isset($active_vehicle_ids[$veh['vehicle_id']]) ? ' (Currently Reserved)' : '' ?>
 </option>
 <?php endforeach; ?>
 </select>
+<small class="form-text text-warning">Vehicles with an active reservation cannot be selected.</small>
 </div>
 </form>
 <?php if ($selected_vehicle_id): ?>
