@@ -349,13 +349,21 @@ foreach ($vehicles as $veh) {
 <form method="post">
 <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
 <div class="row">
+<?php
+$has_active_reservation = false;
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
+$stmt->execute([$user_id]);
+if ($stmt->fetchColumn() > 0) {
+    $has_active_reservation = true;
+}
+?>
 <?php foreach ($available_slots as $slot): ?>
 <div class="col-md-4 mb-3">
 <div class="card bg-dark text-light">
 <div class="card-body">
 <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
 <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
-<button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>" class="btn btn-warning btn-block" onclick="return confirm('Reserve this slot?');">Reserve</button>
+<button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>" class="btn btn-warning btn-block" <?= $has_active_reservation ? 'disabled title="You already have an active reservation. Complete or cancel it before reserving again."' : 'onclick="return confirm(\'Reserve this slot?\');"' ?>>Reserve</button>
 </div>
 </div>
 </div>
