@@ -46,7 +46,11 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     $duration_type = $_POST['duration_type'];
     $start_datetime = $_POST['start_datetime'];
     $end_datetime = $_POST['end_datetime'];
-    $price = $_POST['price'];
+    $payment_method = $_POST['payment_method'];
+    // Map UI value to DB enum
+    $method = ($payment_method === 'cash') ? 'cash' : 'online';
+    $price = floatval($_POST['price']);
+    $duration_value = intval($_POST['duration_value']);
     // Double-check slot is still available
     $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
     $stmt->execute([$slot_id, $selected_vehicle_type]);
@@ -54,14 +58,14 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     if ($slot) {
         $pdo->beginTransaction();
         $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        // Insert reservation (without price)
-        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_datetime, end_datetime, created_at) VALUES (?, ?, ?, ?, ?, NOW() )')->execute([
-            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime
+        // Insert reservation (with duration)
+        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_datetime, end_datetime, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
+            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime, $duration_value
         ]);
         $reservation_id = $pdo->lastInsertId();
-        // Insert payment record
-        $pdo->prepare('INSERT INTO payments (reservation_id, amount, payment_status, created_at) VALUES (?, ?, ?, NOW())')->execute([
-            $reservation_id, $price, 'pending'
+        // Insert payment record with correct columns
+        $pdo->prepare('INSERT INTO payments (reservation_id, amount, payment_status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
+            $reservation_id, $price, 'pending', $method
         ]);
         $pdo->commit();
         $reservation_success = true;
@@ -157,7 +161,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <?php if ($selected_vehicle_id): ?>
 <?php if ($show_reservation_form && $selected_slot): ?>
 <!-- Step 2: Reservation details form -->
-<form method="post" class="bg-dark text-light p-4 rounded">
+<form method="post" class="bg-dark text-light p-4 rounded" onsubmit="return confirmReservation();">
   <input type="hidden" name="slot_id" value="<?= $selected_slot['parking_slot_id'] ?>">
   <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
   <h4>Reserve Slot <?= htmlspecialchars($selected_slot['slot_number']) ?> (<?= htmlspecialchars($selected_slot['slot_type']) ?>)</h4>
@@ -177,9 +181,18 @@ My Account (<?php echo $_SESSION['username'] ?>)
     <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required onchange="updatePrice()">
   </div>
   <div class="form-group">
+    <label>Payment Method:</label>
+    <select name="payment_method" class="form-control" required>
+      <option value="cash">Cash</option>
+      <option value="gcash" disabled>GCash (Coming Soon)</option>
+      <option value="credit_card" disabled>Credit Card (Coming Soon)</option>
+    </select>
+  </div>
+  <div class="form-group">
     <label>Price:</label>
     <input type="text" name="price" id="price" class="form-control" readonly required>
   </div>
+  <input type="hidden" name="duration_value" id="duration_value">
   <button type="submit" name="confirm_reservation" class="btn btn-warning">Confirm Reservation</button>
   <a href="reservations.php" class="btn btn-secondary ml-2">Cancel</a>
 </form>
@@ -192,6 +205,7 @@ function updatePrice() {
   const start = document.getElementById('start_datetime').value;
   const end = document.getElementById('end_datetime').value;
   let price = 0;
+  let durationVal = 0;
   if (start && end && rates[slotType]) {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -200,17 +214,31 @@ function updatePrice() {
       if (durationType === 'hour') {
         const hours = Math.ceil(diff / 3600);
         price = rates[slotType]['hour'] * hours;
+        durationVal = hours;
       } else {
         const days = Math.ceil(diff / 86400);
         price = rates[slotType]['day'] * days;
+        durationVal = days;
       }
     }
   }
-  document.getElementById('price').value = price > 0 ? '₱' + price.toFixed(2) : '';
+  document.getElementById('price').value = price > 0 ? price.toFixed(2) : '';
+  document.getElementById('duration_value').value = durationVal > 0 ? durationVal : '';
 }
 document.getElementById('duration_type').addEventListener('change', updatePrice);
 document.getElementById('start_datetime').addEventListener('change', updatePrice);
 document.getElementById('end_datetime').addEventListener('change', updatePrice);
+
+function confirmReservation() {
+  const price = document.getElementById('price').value;
+  const durationType = document.getElementById('duration_type').value;
+  const durationVal = document.getElementById('duration_value').value;
+  const start = document.getElementById('start_datetime').value;
+  const end = document.getElementById('end_datetime').value;
+  let msg = `Are you sure you want to reserve this slot?\n\n`;
+  msg += `Start: ${start}\nEnd: ${end}\nDuration: ${durationVal} ${durationType}(s)\nPrice: ₱${price}`;
+  return confirm(msg);
+}
 </script>
 <?php else: ?>
 <h4 class="text-light">Available Slots for <span class="text-warning"><?php
