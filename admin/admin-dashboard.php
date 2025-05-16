@@ -404,7 +404,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
               </form>
 
               <?php if ($users && count($users) > 0): ?>
-              <div class="table-responsive">              <table class="table table-striped table-bordered table-hover align-middle w-100" id="usersTable">
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover align-middle w-100" id="usersTable">
                   <thead class="thead-dark">
                     <tr>
                       <th scope="col" class="text-center" style="width: 5%">#</th>
@@ -418,7 +419,28 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                     </tr>
                   </thead>
                   <tbody>
-                    <!-- Table body will be populated by JavaScript -->
+                    <?php if ($users && count($users) > 0): ?>
+                      <?php $i = 1 + $offset; foreach ($users as $user): ?>
+                        <tr>
+                          <td class="text-center"><?= $i++ ?></td>
+                          <td><?= htmlspecialchars($user['user_id']) ?></td>
+                          <td><?= htmlspecialchars($user['first_name']) ?></td>
+                          <td><?= htmlspecialchars($user['middle_name']) ?></td>
+                          <td><?= htmlspecialchars($user['last_name']) ?></td>
+                          <td><?= htmlspecialchars($user['email']) ?></td>
+                          <td><?= htmlspecialchars(ucfirst($user['user_type'])) ?></td>
+                          <td class="text-center">
+                            <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)'><i class="fas fa-edit"></i></button>
+                            <?php if ($isSuperAdmin || $user['user_type'] !== 'admin'): ?>
+                              <button class="btn btn-sm btn-danger" onclick='deleteUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-trash"></i></button>
+                              <button class="btn btn-sm btn-warning" onclick='suspendUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-user-slash"></i></button>
+                            <?php endif; ?>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <tr><td colspan="8" class="text-center text-muted">No users found.</td></tr>
+                    <?php endif; ?>
                   </tbody>
                 </table>
               </div>
