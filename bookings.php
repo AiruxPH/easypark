@@ -105,11 +105,12 @@ My Account (<?php echo $_SESSION['username'] ?>)
       <th>Payment Status</th>
       <th>Payment Method</th>
       <th>Payment Date</th>
+      <th>Action</th> <!-- New column for actions -->
     </tr>
   </thead>
   <tbody>
     <?php if (count($bookings) === 0): ?>
-      <tr><td colspan="11" class="text-center">No bookings found.</td></tr>
+      <tr><td colspan="12" class="text-center">No bookings found.</td></tr>
     <?php else: foreach ($bookings as $b):
       $isConfirmed = ($b['status'] === 'confirmed' || $b['status'] === 'ongoing');
       $now = date('Y-m-d H:i:s');
@@ -206,6 +207,14 @@ My Account (<?php echo $_SESSION['username'] ?>)
         </td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
+        <td>
+          <?php if ($isConfirmed): ?>
+            <button class="btn btn-sm btn-danger action-cancel" data-id="<?= $b['reservation_id'] ?>">Cancel</button>
+            <button class="btn btn-sm btn-success action-complete" data-id="<?= $b['reservation_id'] ?>">Mark as Complete</button>
+          <?php else: ?>
+            <span class="text-muted">-</span>
+          <?php endif; ?>
+        </td>
       </tr>
     <?php endforeach; endif; ?>
   </tbody>
@@ -225,6 +234,26 @@ My Account (<?php echo $_SESSION['username'] ?>)
       </div>
       <div class="modal-body" id="modalBodyContent">
         <!-- Details will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Action Confirmation Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="actionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionModalLabel">Confirm Action</h5>
+        <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="actionModalBody">
+        <!-- Confirmation text injected here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="actionModalConfirmBtn">Confirm</button>
       </div>
     </div>
   </div>
@@ -390,6 +419,57 @@ table.querySelectorAll('thead th').forEach((th, idx) => {
     rows.forEach(row => table.querySelector('tbody').appendChild(row));
   });
 });
+
+let actionType = null;
+let actionReservationId = null;
+const actionModal = $('#actionModal');
+const actionModalBody = document.getElementById('actionModalBody');
+const actionModalConfirmBtn = document.getElementById('actionModalConfirmBtn');
+
+$(document).on('click', '.action-cancel', function(e) {
+  e.stopPropagation();
+  actionType = 'cancel';
+  actionReservationId = $(this).data('id');
+  actionModalBody.innerHTML = 'Are you sure you want to <span class="text-danger font-weight-bold">cancel</span> this booking? This action cannot be undone.';
+  actionModalConfirmBtn.className = 'btn btn-danger';
+  actionModalConfirmBtn.textContent = 'Yes, Cancel';
+  actionModal.modal('show');
+});
+
+$(document).on('click', '.action-complete', function(e) {
+  e.stopPropagation();
+  actionType = 'complete';
+  actionReservationId = $(this).data('id');
+  actionModalBody.innerHTML = 'Mark this booking as <span class="text-success font-weight-bold">complete</span>?';
+  actionModalConfirmBtn.className = 'btn btn-success';
+  actionModalConfirmBtn.textContent = 'Yes, Complete';
+  actionModal.modal('show');
+});
+
+actionModalConfirmBtn.onclick = function() {
+  if (!actionType || !actionReservationId) return;
+  actionModalConfirmBtn.disabled = true;
+  actionModalConfirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+  $.ajax({
+    url: 'update_reservation_status.php',
+    method: 'POST',
+    data: {
+      reservation_id: actionReservationId,
+      action: actionType
+    },
+    success: function(resp) {
+      actionModal.modal('hide');
+      actionModalConfirmBtn.disabled = false;
+      actionModalConfirmBtn.innerHTML = actionType === 'cancel' ? 'Yes, Cancel' : 'Yes, Complete';
+      location.reload();
+    },
+    error: function() {
+      actionModalBody.innerHTML = '<span class="text-danger">An error occurred. Please try again.</span>';
+      actionModalConfirmBtn.disabled = false;
+      actionModalConfirmBtn.innerHTML = actionType === 'cancel' ? 'Yes, Cancel' : 'Yes, Complete';
+    }
+  });
+};
 </script>
 </body>
 </html>

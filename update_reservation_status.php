@@ -13,11 +13,36 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['reservation_id'])) {
 }
 require_once 'db.php';
 $reservation_id = intval($_POST['reservation_id']);
-// Only allow updating if the reservation is confirmed, ongoing, and end_time has passed
-$stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status IN ('confirmed', 'ongoing') AND end_time <= NOW()");
-$stmt->execute([$reservation_id]);
-if ($stmt->rowCount() > 0) {
-    echo json_encode(['success' => true]);
+$action = isset($_POST['action']) ? $_POST['action'] : '';
+
+if ($action === 'cancel') {
+    // Allow cancel if status is confirmed or ongoing
+    $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE reservation_id = ? AND status IN ('confirmed', 'ongoing')");
+    $stmt->execute([$reservation_id]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Booking cancelled.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Unable to cancel booking.']);
+    }
+    exit();
+} elseif ($action === 'complete') {
+    // Allow complete if status is confirmed or ongoing
+    $stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status IN ('confirmed', 'ongoing')");
+    $stmt->execute([$reservation_id]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Booking marked as complete.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Unable to complete booking.']);
+    }
+    exit();
 } else {
-    echo json_encode(['success' => false, 'message' => 'No update made']);
+    // Fallback: original logic (for timer expiry)
+    $stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status IN ('confirmed', 'ongoing') AND end_time <= NOW()");
+    $stmt->execute([$reservation_id]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No update made']);
+    }
+    exit();
 }
