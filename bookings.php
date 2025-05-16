@@ -98,9 +98,9 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['start_time']) ?></td>
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td><?= htmlspecialchars($b['duration']) ?></td>
-        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td> <!-- Reservation status from reservations table -->
+        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td> <!-- Reservation status from reservations table (r.status) -->
         <td>₱<?= number_format($b['amount'],2) ?></td>
-        <td><?= htmlspecialchars(ucfirst($b['status'] !== null ? $b['status'] : 'N/A')) ?></td> <!-- Payment status from payments table -->
+        <td><?= htmlspecialchars(ucfirst($b['p.status'] ?? $b['status'])) ?></td> <!-- Payment status from payments table (p.status) -->
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
