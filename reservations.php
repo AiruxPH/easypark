@@ -68,8 +68,32 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
             $start_datetime, $end_datetime  // fully within
         ]);
         $overlap_count = $stmt->fetchColumn();
+        // Prevent double booking: check for overlapping reservations for this vehicle
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt->execute([
+            $selected_vehicle_id,
+            $end_datetime, $start_datetime,
+            $end_datetime, $start_datetime,
+            $start_datetime, $end_datetime
+        ]);
+        $vehicle_overlap = $stmt->fetchColumn();
+        // Prevent double booking: check for any overlapping reservations for this user (any vehicle)
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt->execute([
+            $user_id,
+            $end_datetime, $start_datetime,
+            $end_datetime, $start_datetime,
+            $start_datetime, $end_datetime
+        ]);
+        $user_overlap = $stmt->fetchColumn();
         if ($overlap_count > 0) {
             $reservation_error = 'This slot is already reserved for the selected time range. Please choose a different time or slot.';
+            $show_reservation_form = true;
+        } elseif ($vehicle_overlap > 0) {
+            $reservation_error = 'This vehicle already has a reservation that overlaps with the selected time range.';
+            $show_reservation_form = true;
+        } elseif ($user_overlap > 0) {
+            $reservation_error = 'You already have a reservation that overlaps with the selected time range. Please complete or cancel your current booking before making a new one.';
             $show_reservation_form = true;
         } else {
             $pdo->beginTransaction();
