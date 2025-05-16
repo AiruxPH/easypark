@@ -71,7 +71,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <div class="container py-5">
 <h2 class="text-warning mb-4">My Bookings</h2>
 <div class="table-responsive bg-dark rounded p-3">
-<table class="table table-hover table-dark table-bordered align-middle text-center">
+<table class="table table-hover table-dark table-bordered align-middle text-center" id="bookingsTable">
   <thead>
     <tr>
       <th>Ref #</th>
@@ -83,20 +83,20 @@ My Account (<?php echo $_SESSION['username'] ?>)
       <th>Reservation Status</th>
       <th>Amount</th>
       <th>Payment Status</th>
-      <th>Timer</th>
       <th>Payment Method</th>
       <th>Payment Date</th>
     </tr>
   </thead>
   <tbody>
     <?php if (count($bookings) === 0): ?>
-      <tr><td colspan="12" class="text-center">No bookings found.</td></tr>
+      <tr><td colspan="11" class="text-center">No bookings found.</td></tr>
     <?php else: foreach ($bookings as $b):
       $isConfirmed = ($b['status'] === 'confirmed');
       $now = date('Y-m-d H:i:s');
       $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
+      $rowData = htmlspecialchars(json_encode($b));
     ?>
-      <tr>
+      <tr class="booking-row" data-booking='<?= $rowData ?>'>
         <td><?= htmlspecialchars($b['reservation_id']) ?></td>
         <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
         <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
@@ -126,13 +126,6 @@ My Account (<?php echo $_SESSION['username'] ?>)
           ?>
           <span class="badge bg-<?= $payBadge ?> text-uppercase"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
         </td>
-        <td>
-          <?php if ($showTimer): ?>
-            <span class="timer" data-end="<?= htmlspecialchars($b['end_time']) ?>" id="timer-<?= $b['reservation_id'] ?>"></span>
-          <?php else: ?>
-            <span class="text-muted">-</span>
-          <?php endif; ?>
-        </td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
@@ -141,6 +134,22 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </table>
 </div>
 <a href="dashboard.php" class="btn btn-secondary mt-4">Go back to Home</a>
+</div>
+<!-- Reservation Details Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bookingModalLabel">Reservation Details</h5>
+        <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBodyContent">
+        <!-- Details will be injected here -->
+      </div>
+    </div>
+  </div>
 </div>
 <script src="js/jquery.min.js"></script>
 <script src="js/popper.min.js"></script>
@@ -193,6 +202,65 @@ function updateTimers() {
 }
 setInterval(updateTimers, 1000);
 document.addEventListener('DOMContentLoaded', updateTimers);
+
+// Modal and row click logic
+const bookingsTable = document.getElementById('bookingsTable');
+const bookingModal = document.getElementById('bookingModal');
+const modalBodyContent = document.getElementById('modalBodyContent');
+let timerInterval = null;
+
+function formatDateTime(dt) {
+  if (!dt) return '-';
+  const d = new Date(dt.replace(' ', 'T'));
+  return d.toLocaleString();
+}
+
+function showBookingDetails(booking) {
+  let html = `<div><strong>Ref #:</strong> ${booking.reservation_id}</div>`;
+  html += `<div><strong>Slot:</strong> ${booking.slot_number} (${booking.slot_type})</div>`;
+  html += `<div><strong>Vehicle:</strong> ${booking.brand} ${booking.model} - ${booking.plate_number}</div>`;
+  html += `<div><strong>Start:</strong> ${formatDateTime(booking.start_time)}</div>`;
+  html += `<div><strong>End:</strong> ${formatDateTime(booking.end_time)}</div>`;
+  html += `<div><strong>Duration:</strong> ${booking.duration}</div>`;
+  html += `<div><strong>Reservation Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.status}</span></div>`;
+  html += `<div><strong>Amount:</strong> ₱${Number(booking.amount).toFixed(2)}</div>`;
+  html += `<div><strong>Payment Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.payment_status || 'N/A'}</span></div>`;
+  html += `<div><strong>Payment Method:</strong> ${booking.method ? booking.method.charAt(0).toUpperCase() + booking.method.slice(1) : '-'}</div>`;
+  html += `<div><strong>Payment Date:</strong> ${formatDateTime(booking.payment_date)}</div>`;
+  // Timer for confirmed/ongoing
+  if (booking.status === 'confirmed') {
+    html += `<div class='mt-3'><strong>Time Remaining:</strong> <span id='modalTimer'></span></div>`;
+  }
+  modalBodyContent.innerHTML = html;
+  if (timerInterval) clearInterval(timerInterval);
+  if (booking.status === 'confirmed') {
+    function updateModalTimer() {
+      const end = new Date(booking.end_time.replace(' ', 'T'));
+      const now = new Date();
+      let diff = Math.floor((end.getTime() - now.getTime()) / 1000);
+      if (diff > 0) {
+        const h = Math.floor(diff / 3600);
+        diff %= 3600;
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        document.getElementById('modalTimer').textContent = `${h}h ${m}m ${s}s left`;
+      } else {
+        document.getElementById('modalTimer').textContent = 'Expired';
+        clearInterval(timerInterval);
+      }
+    }
+    updateModalTimer();
+    timerInterval = setInterval(updateModalTimer, 1000);
+  }
+}
+
+bookingsTable.querySelectorAll('.booking-row').forEach(function(row) {
+  row.addEventListener('click', function() {
+    const booking = JSON.parse(row.getAttribute('data-booking'));
+    showBookingDetails(booking);
+    $(bookingModal).modal('show');
+  });
+});
 </script>
 </body>
 </html>
