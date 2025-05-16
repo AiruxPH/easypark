@@ -37,7 +37,13 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch active reservations (confirmed, ongoing, not completed/cancelled)
+// Pagination settings
+$per_page = 6;
+// Active Reservations Pagination
+$active_page = isset($_GET['active_page']) ? max(1, intval($_GET['active_page'])) : 1;
+$active_offset = ($active_page - 1) * $per_page;
+$sql_active_count = "SELECT COUNT(*) FROM reservations WHERE status = 'confirmed' AND end_time > NOW()";
+$active_total = $pdo->query($sql_active_count)->fetchColumn();
 $sql_active = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
@@ -45,12 +51,17 @@ JOIN vehicles v ON r.vehicle_id = v.vehicle_id
 JOIN Vehicle_Models m ON v.model_id = m.model_id
 JOIN users u ON r.user_id = u.user_id
 WHERE r.status = 'confirmed' AND r.end_time > NOW()
-ORDER BY r.start_time ASC";
+ORDER BY r.start_time ASC LIMIT $per_page OFFSET $active_offset";
 $stmt = $pdo->prepare($sql_active);
 $stmt->execute();
 $active_reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$active_total_pages = ceil($active_total / $per_page);
 
-// Fetch completed/cancelled reservations (history)
+// History Pagination
+$history_page = isset($_GET['history_page']) ? max(1, intval($_GET['history_page'])) : 1;
+$history_offset = ($history_page - 1) * $per_page;
+$sql_history_count = "SELECT COUNT(*) FROM reservations WHERE status IN ('completed', 'cancelled')";
+$history_total = $pdo->query($sql_history_count)->fetchColumn();
 $sql_history = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
@@ -58,16 +69,22 @@ JOIN vehicles v ON r.vehicle_id = v.vehicle_id
 JOIN Vehicle_Models m ON v.model_id = m.model_id
 JOIN users u ON r.user_id = u.user_id
 WHERE r.status IN ('completed', 'cancelled')
-ORDER BY r.end_time DESC LIMIT 20";
+ORDER BY r.end_time DESC LIMIT $per_page OFFSET $history_offset";
 $stmt = $pdo->prepare($sql_history);
 $stmt->execute();
 $history_reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$history_total_pages = ceil($history_total / $per_page);
 
-// Fetch all parking slots
-$sql_slots = "SELECT * FROM parking_slots ORDER BY slot_number ASC";
+// Parking Slots Pagination
+$slots_page = isset($_GET['slots_page']) ? max(1, intval($_GET['slots_page'])) : 1;
+$slots_offset = ($slots_page - 1) * $per_page;
+$sql_slots_count = "SELECT COUNT(*) FROM parking_slots";
+$slots_total = $pdo->query($sql_slots_count)->fetchColumn();
+$sql_slots = "SELECT * FROM parking_slots ORDER BY slot_number ASC LIMIT $per_page OFFSET $slots_offset";
 $stmt = $pdo->prepare($sql_slots);
 $stmt->execute();
 $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$slots_total_pages = ceil($slots_total / $per_page);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -159,6 +176,23 @@ $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; endif; ?>
   </tbody>
 </table>
+<?php if ($active_total_pages > 1): ?>
+<nav aria-label="Active Reservations pagination">
+  <ul class="pagination justify-content-center">
+    <li class="page-item<?= $active_page <= 1 ? ' disabled' : '' ?>">
+      <a class="page-link" href="?active_page=<?= $active_page-1 ?>" tabindex="-1">Previous</a>
+    </li>
+    <?php for ($i = 1; $i <= $active_total_pages; $i++): ?>
+      <li class="page-item<?= $i == $active_page ? ' active' : '' ?>">
+        <a class="page-link" href="?active_page=<?= $i ?>"><?= $i ?></a>
+      </li>
+    <?php endfor; ?>
+    <li class="page-item<?= $active_page >= $active_total_pages ? ' disabled' : '' ?>">
+      <a class="page-link" href="?active_page=<?= $active_page+1 ?>">Next</a>
+    </li>
+  </ul>
+</nav>
+<?php endif; ?>
 
 <!-- Reservation History Table -->
 <h3 class="mt-5 mb-3">Reservation History (Completed/Cancelled)</h3>
@@ -192,29 +226,59 @@ $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; endif; ?>
   </tbody>
 </table>
+<?php if ($history_total_pages > 1): ?>
+<nav aria-label="Reservation History pagination">
+  <ul class="pagination justify-content-center">
+    <li class="page-item<?= $history_page <= 1 ? ' disabled' : '' ?>">
+      <a class="page-link" href="?history_page=<?= $history_page-1 ?>" tabindex="-1">Previous</a>
+    </li>
+    <?php for ($i = 1; $i <= $history_total_pages; $i++): ?>
+      <li class="page-item<?= $i == $history_page ? ' active' : '' ?>">
+        <a class="page-link" href="?history_page=<?= $i ?>"><?= $i ?></a>
+      </li>
+    <?php endfor; ?>
+    <li class="page-item<?= $history_page >= $history_total_pages ? ' disabled' : '' ?>">
+      <a class="page-link" href="?history_page=<?= $history_page+1 ?>">Next</a>
+    </li>
+  </ul>
+</nav>
+<?php endif; ?>
 
-<!-- Parking Slots Table -->
+<!-- Parking Slots Card Grid -->
 <h3 class="mt-5 mb-3">Parking Slots Overview</h3>
-<table class="table table-bordered table-hover bg-white">
-  <thead class="thead-light">
-    <tr>
-      <th>Slot #</th>
-      <th>Type</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php if (count($all_slots) === 0): ?>
-      <tr><td colspan="3" class="text-center">No parking slots found.</td></tr>
-    <?php else: foreach ($all_slots as $slot): ?>
-      <tr>
-        <td><?= htmlspecialchars($slot['slot_number']) ?></td>
-        <td><?= htmlspecialchars($slot['slot_type']) ?></td>
-        <td><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></td>
-      </tr>
-    <?php endforeach; endif; ?>
-  </tbody>
-</table>
+<div class="row">
+<?php if (count($all_slots) === 0): ?>
+  <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
+<?php else: foreach ($all_slots as $slot): ?>
+  <div class="col-md-4 mb-3">
+    <div class="card bg-dark text-light">
+      <div class="card-body">
+        <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
+        <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
+        <p class="card-text">Status: <span class="font-weight-bold text-warning"><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></span></p>
+      </div>
+    </div>
+  </div>
+<?php endforeach; endif; ?>
+</div>
+<?php if ($slots_total_pages > 1): ?>
+<nav aria-label="Parking Slots pagination">
+  <ul class="pagination justify-content-center">
+    <li class="page-item<?= $slots_page <= 1 ? ' disabled' : '' ?>">
+      <a class="page-link" href="?slots_page=<?= $slots_page-1 ?>" tabindex="-1">Previous</a>
+    </li>
+    <?php for ($i = 1; $i <= $slots_total_pages; $i++): ?>
+      <li class="page-item<?= $i == $slots_page ? ' active' : '' ?>">
+        <a class="page-link" href="?slots_page=<?= $i ?>"><?= $i ?></a>
+      </li>
+    <?php endfor; ?>
+    <li class="page-item<?= $slots_page >= $slots_total_pages ? ' disabled' : '' ?>">
+      <a class="page-link" href="?slots_page=<?= $slots_page+1 ?>">Next</a>
+    </li>
+  </ul>
+</nav>
+<?php endif; ?>
+
 <a href="../logout.php" class="btn btn-secondary mt-4">Logout</a>
 </div>
 <script src="../js/bootstrap.bundle.min.js"></script>
