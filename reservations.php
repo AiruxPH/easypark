@@ -116,6 +116,15 @@ $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+
+// Step indicator for breadcrumb
+$current_step = 1;
+if ($show_reservation_form && $selected_slot) {
+    $current_step = 2;
+}
+if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slot) {
+    $current_step = 3;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -157,6 +166,14 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </div>
 </nav>
 <div class="container py-5">
+<!-- Breadcrumb navigation -->
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb bg-dark text-light p-2 rounded">
+    <li class="breadcrumb-item<?= $current_step === 1 ? ' active' : '' ?>">1. Select Vehicle</li>
+    <li class="breadcrumb-item<?= $current_step === 2 ? ' active' : '' ?>">2. Select Slot & Details</li>
+    <li class="breadcrumb-item<?= $current_step === 3 ? ' active' : '' ?>">3. Confirmation</li>
+  </ol>
+</nav>
 <h2 class="text-warning mb-4">Reserve a Parking Slot</h2>
 <?php if ($reservation_success): ?>
 <div class="alert alert-success">Reservation successful!</div>
@@ -176,9 +193,36 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </div>
 </form>
 <?php if ($selected_vehicle_id): ?>
-<?php if ($show_reservation_form && $selected_slot): ?>
+<?php if ($current_step === 3): ?>
+<!-- Step 3: Confirmation page -->
+<form method="post" class="bg-dark text-light p-4 rounded">
+  <h4>Confirm Your Reservation</h4>
+  <dl class="row">
+    <dt class="col-sm-4">Slot</dt><dd class="col-sm-8">Slot <?= htmlspecialchars($selected_slot['slot_number']) ?> (<?= htmlspecialchars($selected_slot['slot_type']) ?>)</dd>
+    <dt class="col-sm-4">Vehicle</dt><dd class="col-sm-8">
+      <?php foreach ($vehicles as $veh) { if ($veh['vehicle_id'] == $selected_vehicle_id) { echo htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']); break; } } ?>
+    </dd>
+    <dt class="col-sm-4">Start</dt><dd class="col-sm-8"><?= htmlspecialchars($_POST['start_datetime']) ?></dd>
+    <dt class="col-sm-4">End</dt><dd class="col-sm-8"><?= htmlspecialchars($_POST['end_datetime']) ?></dd>
+    <dt class="col-sm-4">Duration</dt><dd class="col-sm-8"><?= htmlspecialchars($_POST['duration_value']) ?> <?= htmlspecialchars($_POST['duration_type']) ?>(s)</dd>
+    <dt class="col-sm-4">Payment Method</dt><dd class="col-sm-8"><?= htmlspecialchars($_POST['payment_method']) ?></dd>
+    <dt class="col-sm-4">Price</dt><dd class="col-sm-8">₱<?= htmlspecialchars($_POST['price']) ?></dd>
+  </dl>
+  <!-- Hidden fields to pass data -->
+  <input type="hidden" name="slot_id" value="<?= $selected_slot['parking_slot_id'] ?>">
+  <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
+  <input type="hidden" name="duration_type" value="<?= htmlspecialchars($_POST['duration_type']) ?>">
+  <input type="hidden" name="start_datetime" value="<?= htmlspecialchars($_POST['start_datetime']) ?>">
+  <input type="hidden" name="end_datetime" value="<?= htmlspecialchars($_POST['end_datetime']) ?>">
+  <input type="hidden" name="payment_method" value="<?= htmlspecialchars($_POST['payment_method']) ?>">
+  <input type="hidden" name="price" value="<?= htmlspecialchars($_POST['price']) ?>">
+  <input type="hidden" name="duration_value" value="<?= htmlspecialchars($_POST['duration_value']) ?>">
+  <button type="submit" name="confirm_reservation" class="btn btn-warning">Confirm Reservation</button>
+  <a href="reservations.php" class="btn btn-secondary ml-2">Cancel</a>
+</form>
+<?php elseif ($show_reservation_form && $selected_slot): ?>
 <!-- Step 2: Reservation details form -->
-<form method="post" class="bg-dark text-light p-4 rounded" onsubmit="return confirmReservation();">
+<form method="post" class="bg-dark text-light p-4 rounded">
   <input type="hidden" name="slot_id" value="<?= $selected_slot['parking_slot_id'] ?>">
   <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
   <h4>Reserve Slot <?= htmlspecialchars($selected_slot['slot_number']) ?> (<?= htmlspecialchars($selected_slot['slot_type']) ?>)</h4>
@@ -210,7 +254,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
     <input type="text" name="price" id="price" class="form-control" readonly required>
   </div>
   <input type="hidden" name="duration_value" id="duration_value">
-  <button type="submit" name="confirm_reservation" class="btn btn-warning">Confirm Reservation</button>
+  <button type="submit" name="review_reservation" class="btn btn-warning">Review & Confirm</button>
   <a href="reservations.php" class="btn btn-secondary ml-2">Cancel</a>
 </form>
 <script>
