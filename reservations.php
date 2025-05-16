@@ -16,7 +16,7 @@ $stmt->execute([$user_id]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Fetch vehicle IDs with active reservations (not cancelled/completed, and end_time > NOW)
 $active_vehicle_ids = [];
-$stmt = $pdo->prepare('SELECT vehicle_id FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
+$stmt = $pdo->prepare('SELECT vehicle_id FROM reservations WHERE user_id = ? AND status IN ("confirmed", "ongoing") AND end_time > NOW()');
 $stmt->execute([$user_id]);
 foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $vid) {
     $active_vehicle_ids[$vid] = true;
@@ -67,7 +67,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     $slot = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($slot) {
         // Prevent double booking: check for overlapping reservations for this slot
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
         $stmt->execute([
             $slot_id,
             $end_datetime, $start_datetime, // overlap at start
@@ -76,7 +76,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         ]);
         $overlap_count = $stmt->fetchColumn();
         // Prevent double booking: check for overlapping reservations for this vehicle
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
         $stmt->execute([
             $selected_vehicle_id,
             $end_datetime, $start_datetime,
@@ -85,7 +85,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         ]);
         $vehicle_overlap = $stmt->fetchColumn();
         // Prevent double booking: check for any overlapping reservations for this user (any vehicle)
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
         $stmt->execute([
             $user_id,
             $end_datetime, $start_datetime,
@@ -351,7 +351,7 @@ foreach ($vehicles as $veh) {
 <div class="row">
 <?php
 $has_active_reservation = false;
-$stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ("confirmed", "ongoing") AND end_time > NOW()');
 $stmt->execute([$user_id]);
 if ($stmt->fetchColumn() > 0) {
     $has_active_reservation = true;

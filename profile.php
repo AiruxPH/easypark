@@ -29,7 +29,7 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // For each vehicle, check if it has an active reservation and fetch details if so
 $vehicle_active_reservations = [];
 foreach ($vehicles as $vehicle) {
-    $stmt = $pdo->prepare('SELECT * FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW() ORDER BY start_time DESC LIMIT 1');
+    $stmt = $pdo->prepare('SELECT * FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND status IN ("confirmed", "ongoing") AND end_time > NOW() ORDER BY start_time DESC LIMIT 1');
     $stmt->execute([$vehicle['vehicle_id']]);
     $active_res = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($active_res) {

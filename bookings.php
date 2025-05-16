@@ -111,7 +111,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
     <?php if (count($bookings) === 0): ?>
       <tr><td colspan="11" class="text-center">No bookings found.</td></tr>
     <?php else: foreach ($bookings as $b):
-      $isConfirmed = ($b['status'] === 'confirmed');
+      $isConfirmed = ($b['status'] === 'confirmed' || $b['status'] === 'ongoing');
       $now = date('Y-m-d H:i:s');
       $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
       $rowData = htmlspecialchars(json_encode($b));
@@ -186,7 +186,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
             $status = $b['status'];
             $badge = 'secondary';
             if ($status === 'pending') $badge = 'warning';
-            elseif ($status === 'confirmed') $badge = 'success';
+            elseif ($status === 'confirmed' || $status === 'ongoing') $badge = 'success';
             elseif ($status === 'cancelled' || $status === 'void') $badge = 'danger';
             elseif ($status === 'completed') $badge = 'primary';
             elseif ($status === 'expired') $badge = 'dark';
@@ -306,12 +306,12 @@ function showBookingDetails(booking) {
   html += `<div><strong>Payment Method:</strong> ${booking.method ? booking.method.charAt(0).toUpperCase() + booking.method.slice(1) : '-'}</div>`;
   html += `<div><strong>Payment Date:</strong> ${formatDateTime(booking.payment_date)}</div>`;
   // Timer for confirmed/ongoing
-  if (booking.status === 'confirmed') {
+  if (booking.status === 'confirmed' || booking.status === 'ongoing') {
     html += `<div class='mt-3'><strong>Time Remaining:</strong> <span id='modalTimer'></span></div>`;
   }
   modalBodyContent.innerHTML = html;
   if (timerInterval) clearInterval(timerInterval);
-  if (booking.status === 'confirmed') {
+  if (booking.status === 'confirmed' || booking.status === 'ongoing') {
     function updateModalTimer() {
       const end = new Date(booking.end_time.replace(' ', 'T'));
       const now = new Date();

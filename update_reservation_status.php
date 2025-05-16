@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['reservation_id'])) {
 }
 require_once 'db.php';
 $reservation_id = intval($_POST['reservation_id']);
-// Only allow updating if the reservation is confirmed and end_time has passed
-$stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status = 'confirmed' AND end_time <= NOW()");
+// Only allow updating if the reservation is confirmed, ongoing, and end_time has passed
+$stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status IN ('confirmed', 'ongoing') AND end_time <= NOW()");
 $stmt->execute([$reservation_id]);
 if ($stmt->rowCount() > 0) {
     echo json_encode(['success' => true]);
