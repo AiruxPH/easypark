@@ -340,7 +340,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           <div class="card mb-4 shadow">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
               <span><i class="fas fa-users"></i> User Management</span>
-              <button class="btn btn-light btn-sm" onclick="showAddUserModal()" <?= $isSuperAdmin ? '' : 'disabled' ?>>
+              <button class="btn btn-light btn-sm" onclick="showAddUserModal()" <?= $isSuperAdmin || $_SESSION['user_type'] === 'admin' ? '' : 'disabled' ?>>
                 <i class="fas fa-plus"></i> Add User
               </button>
             </div>
