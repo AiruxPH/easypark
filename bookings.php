@@ -123,7 +123,27 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['start_time']) ?></td>
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td>
-          <?= htmlspecialchars($b['duration']) ?>
+          <?php
+            // Display original duration with unit
+            $durationText = $b['duration'];
+            // Try to infer unit (hours/days) from the value
+            if (is_numeric($durationText)) {
+              if ($durationText == 1) {
+                $durationText .= ' hour';
+              } elseif ($durationText < 24) {
+                $durationText .= ' hours';
+              } elseif ($durationText % 24 == 0) {
+                $days = $durationText / 24;
+                $durationText = $days . ' day' . ($days > 1 ? 's' : '');
+              } else {
+                $days = floor($durationText / 24);
+                $hours = $durationText % 24;
+                $durationText = $days . ' day' . ($days > 1 ? 's' : '');
+                if ($hours > 0) $durationText .= ' ' . $hours . ' hour' . ($hours > 1 ? 's' : '');
+              }
+            }
+            echo htmlspecialchars($durationText);
+          ?>
           <?php if ($isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now): ?>
             <?php
               $end = new DateTime($b['end_time']);
@@ -137,7 +157,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
               $remaining = $parts ? implode(' ', $parts) . ' left' : '';
             ?>
             <?php if ($remaining): ?>
-              <br><span class="badge bg-info text-dark small"><?= $remaining ?></span>
+              <br><span class="badge bg-info text-dark small">Remaining: <?= $remaining ?></span>
             <?php endif; ?>
           <?php endif; ?>
         </td>
