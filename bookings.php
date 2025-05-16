@@ -9,10 +9,10 @@ $user_id = $_SESSION['user_id'];
 
 // Handle search and sorting
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$sort = isset($_GET['sort']) ? $_GET['sort'] : 'start_datetime';
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'reservation_id';
 $order = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
-$allowedSort = ['start_datetime','end_datetime','duration','slot_number','amount','payment_status'];
-if (!in_array($sort, $allowedSort)) $sort = 'start_datetime';
+$allowedSort = ['reservation_id','start_datetime','end_datetime','duration','slot_number','amount','payment_status'];
+if (!in_array($sort, $allowedSort)) $sort = 'reservation_id';
 
 // Build query
 $sql = "SELECT r.*, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
