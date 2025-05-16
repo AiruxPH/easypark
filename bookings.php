@@ -70,6 +70,24 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </nav>
 <div class="container py-5">
 <h2 class="text-warning mb-4">My Bookings</h2>
+<div class="mb-3 d-flex flex-wrap align-items-center justify-content-between">
+  <div class="form-inline mb-2 mb-md-0">
+    <label for="statusFilter" class="mr-2">Filter by Status:</label>
+    <select id="statusFilter" class="form-control form-control-sm mr-3">
+      <option value="">All</option>
+      <option value="pending">Pending</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+      <option value="expired">Expired</option>
+      <option value="void">Void</option>
+    </select>
+  </div>
+  <div class="form-inline">
+    <input type="text" id="searchInput" class="form-control form-control-sm mr-2" placeholder="Search bookings...">
+    <button class="btn btn-sm btn-outline-light" id="clearSearch">Clear</button>
+  </div>
+</div>
 <div class="table-responsive bg-dark rounded p-3">
 <table class="table table-hover table-dark table-bordered align-middle text-center" id="bookingsTable">
   <thead>
@@ -317,6 +335,57 @@ bookingsTable.querySelectorAll('.booking-row').forEach(function(row) {
     const booking = JSON.parse(row.getAttribute('data-booking'));
     showBookingDetails(booking);
     $(bookingModal).modal('show');
+  });
+});
+
+// Sorting, filtering, and searching
+const table = document.getElementById('bookingsTable');
+const statusFilter = document.getElementById('statusFilter');
+const searchInput = document.getElementById('searchInput');
+const clearSearch = document.getElementById('clearSearch');
+
+function normalizeText(text) {
+  return (text || '').toString().toLowerCase().trim();
+}
+
+function filterAndSearchRows() {
+  const status = statusFilter.value;
+  const search = normalizeText(searchInput.value);
+  table.querySelectorAll('tbody tr.booking-row').forEach(row => {
+    const booking = JSON.parse(row.getAttribute('data-booking'));
+    let show = true;
+    if (status && booking.status !== status) show = false;
+    if (search) {
+      const values = Object.values(booking).map(v => normalizeText(v));
+      if (!values.some(v => v.includes(search))) show = false;
+    }
+    row.style.display = show ? '' : 'none';
+  });
+}
+
+statusFilter.addEventListener('change', filterAndSearchRows);
+searchInput.addEventListener('input', filterAndSearchRows);
+clearSearch.addEventListener('click', function() {
+  searchInput.value = '';
+  filterAndSearchRows();
+});
+
+// Sorting
+let sortCol = null, sortAsc = true;
+table.querySelectorAll('thead th').forEach((th, idx) => {
+  th.addEventListener('click', function() {
+    if (sortCol === idx) sortAsc = !sortAsc;
+    else { sortCol = idx; sortAsc = true; }
+    const rows = Array.from(table.querySelectorAll('tbody tr.booking-row'));
+    rows.sort((a, b) => {
+      const tdA = a.children[idx].textContent.trim().toLowerCase();
+      const tdB = b.children[idx].textContent.trim().toLowerCase();
+      if (!isNaN(tdA) && !isNaN(tdB)) {
+        return sortAsc ? tdA - tdB : tdB - tdA;
+      }
+      return sortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+    });
+    rows.forEach(row => table.querySelector('tbody').appendChild(row));
   });
 });
 </script>
