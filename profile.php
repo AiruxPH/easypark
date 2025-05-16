@@ -200,6 +200,12 @@ if (isset($_POST['add_vehicle'])) {
 </nav>
 <div class="container py-4">
     <h2 class="mb-4 text-warning custom-size display-4 text-center">My Profile</h2>
+    <?php
+    // Show error message if set
+    if (!empty($message)) {
+        echo '<div class="alert alert-danger text-center">' . htmlspecialchars($message) . '</div>';
+    }
+    ?>
     <div class="profile-section mb-4 text-center">
         <?php
         $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
