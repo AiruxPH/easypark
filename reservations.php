@@ -54,8 +54,14 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     if ($slot) {
         $pdo->beginTransaction();
         $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, reserved_at, start_datetime, end_datetime, price) VALUES (?, ?, ?, NOW(), ?, ?, ?)')->execute([
-            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime, $price
+        // Insert reservation (without price)
+        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, reserved_at, start_datetime, end_datetime) VALUES (?, ?, ?, NOW(), ?, ?)')->execute([
+            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime
+        ]);
+        $reservation_id = $pdo->lastInsertId();
+        // Insert payment record
+        $pdo->prepare('INSERT INTO payments (reservation_id, amount, payment_status, created_at) VALUES (?, ?, ?, NOW())')->execute([
+            $reservation_id, $price, 'pending'
         ]);
         $pdo->commit();
         $reservation_success = true;
