@@ -307,3 +307,6 @@ function confirmDelete() {
     });
 }
 </script>
+<script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
+</body>
+</html>

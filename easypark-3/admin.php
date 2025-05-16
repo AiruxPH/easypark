@@ -23,7 +23,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 100; /* Ensure it's above other content */
+            z-index: 100;
+            /* Ensure it's above other content */
         }
 
         .sidebar a {
@@ -40,7 +41,8 @@
         .content {
             padding: 20px;
             /* Add margin to the left to accommodate the sidebar */
-            margin-left: 250px; /* Adjust based on sidebar width */
+            margin-left: 250px;
+            /* Adjust based on sidebar width */
         }
 
         /* Styles from index.php */
@@ -74,7 +76,8 @@
             }
 
             .sidebar.active {
-                width: 250px; /* Adjust based on sidebar width */
+                width: 250px;
+                /* Adjust based on sidebar width */
             }
 
             .content {
@@ -142,7 +145,7 @@
     <!-- Bootstrap JS and dependencies -->
     <script src="js/jquery.slim.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/ef9baa832e.js"></script>
+    <script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
     <script>
         // JavaScript to toggle the sidebar
         $(document).ready(function() {

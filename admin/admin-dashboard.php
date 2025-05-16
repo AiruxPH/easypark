@@ -436,6 +436,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   </div>
   <script src="../js/bootstrap.bundle.min.js"></script>
   <script src="../js/jquery.min.js"></script>
+  <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
   <script>
     // Sidebar toggle for mobile
     document.getElementById('sidebarToggle').addEventListener('click', function() {

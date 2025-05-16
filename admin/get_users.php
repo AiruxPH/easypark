@@ -150,3 +150,7 @@ echo json_encode([
     'pagination' => $pagination,
     'totalUsers' => $totalUsers
 ]);
+?>
+<script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
+</body>
+</html>
