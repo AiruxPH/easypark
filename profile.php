@@ -358,15 +358,27 @@ if (isset($_POST['add_vehicle'])) {
                 <input type="text" name="color" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Model</label>
-                <select name="model_id" class="form-control" required>
-                  <option value="">Select Model</option>
+                <label>Type</label>
+                <select id="vehicleTypeInput" class="form-control" required>
+                  <option value="">Select Type</option>
                   <?php
-                  $models = $pdo->query('SELECT * FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
-                  foreach ($models as $m) {
-                    echo '<option value="' . $m['model_id'] . '">' . htmlspecialchars($m['brand'] . ' ' . $m['model'] . ' (' . $m['type'] . ')') . '</option>';
+                  $types = $pdo->query('SELECT DISTINCT type FROM Vehicle_Models')->fetchAll(PDO::FETCH_COLUMN);
+                  foreach ($types as $type) {
+                    echo '<option value="' . htmlspecialchars($type) . '">' . htmlspecialchars($type) . '</option>';
                   }
                   ?>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Brand</label>
+                <select id="brandInput" class="form-control" required disabled>
+                  <option value="">Select Brand</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Model</label>
+                <select name="model_id" id="modelInput" class="form-control" required disabled>
+                  <option value="">Select Model</option>
                 </select>
               </div>
             </div>
@@ -504,6 +516,112 @@ if (isset($_POST['add_vehicle'])) {
       $('#modelList').empty();
     });
   });
+  // Nested dropdown for type > brand > model
+  $(function() {
+    var allBrands = {};
+    var allModels = {};
+    <?php
+      $models = $pdo->query('SELECT model_id, brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+      $brandTypeMap = [];
+      $modelTypeBrandMap = [];
+      $modelIdMap = [];
+      foreach ($models as $m) {
+        $brandTypeMap[$m['type']][] = $m['brand'];
+        $modelTypeBrandMap[$m['type']][$m['brand']][] = ['model' => $m['model'], 'model_id' => $m['model_id']];
+      }
+      echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
+      echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
+    ?>
+    $('#vehicleTypeInput').on('change', function() {
+      var type = $(this).val();
+      var brandSel = $('#brandInput');
+      var modelSel = $('#modelInput');
+      brandSel.empty().append('<option value="">Select Brand</option>');
+      modelSel.empty().append('<option value="">Select Model</option>').prop('disabled', true);
+      if (type && allBrands[type]) {
+        var uniqueBrands = [...new Set(allBrands[type])];
+        uniqueBrands.forEach(function(brand) {
+          brandSel.append('<option value="'+brand+'">'+brand+'</option>');
+        });
+        brandSel.prop('disabled', false);
+      } else {
+        brandSel.prop('disabled', true);
+      }
+    });
+    $('#brandInput').on('change', function() {
+      var type = $('#vehicleTypeInput').val();
+      var brand = $(this).val();
+      var modelSel = $('#modelInput');
+      modelSel.empty().append('<option value="">Select Model</option>');
+      if (type && brand && allModels[type] && allModels[type][brand]) {
+        allModels[type][brand].forEach(function(obj) {
+          modelSel.append('<option value="'+obj.model_id+'">'+obj.model+'</option>');
+        });
+        modelSel.prop('disabled', false);
+      } else {
+        modelSel.prop('disabled', true);
+      }
+    });
+    // On modal open, reset
+    $('#addVehicleModal').on('show.bs.modal', function() {
+      $('#vehicleTypeInput').val('');
+      $('#brandInput').empty().append('<option value="">Select Brand</option>').prop('disabled', true);
+      $('#modelInput').empty().append('<option value="">Select Model</option>').prop('disabled', true);
+    });
+  });
+</script>
+<script>
+// Fetch all vehicle models for client-side filtering
+let vehicleModels = <?php
+$models = $pdo->query('SELECT model_id, type, brand, model FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+echo json_encode($models);
+?>;
+
+const typeInput = document.getElementById('vehicleTypeInput');
+const brandInput = document.getElementById('brandInput');
+const modelInput = document.getElementById('modelInput');
+
+// Populate Brand dropdown based on selected Type
+function updateBrands() {
+  const selectedType = typeInput.value;
+  brandInput.innerHTML = '<option value="">Select Brand</option>';
+  modelInput.innerHTML = '<option value="">Select Model</option>';
+  modelInput.disabled = true;
+  if (!selectedType) {
+    brandInput.disabled = true;
+    return;
+  }
+  const brands = [...new Set(vehicleModels.filter(vm => vm.type === selectedType).map(vm => vm.brand))];
+  brands.forEach(brand => {
+    const opt = document.createElement('option');
+    opt.value = brand;
+    opt.textContent = brand;
+    brandInput.appendChild(opt);
+  });
+  brandInput.disabled = false;
+}
+
+// Populate Model dropdown based on selected Type and Brand
+function updateModels() {
+  const selectedType = typeInput.value;
+  const selectedBrand = brandInput.value;
+  modelInput.innerHTML = '<option value="">Select Model</option>';
+  if (!selectedBrand) {
+    modelInput.disabled = true;
+    return;
+  }
+  const models = vehicleModels.filter(vm => vm.type === selectedType && vm.brand === selectedBrand);
+  models.forEach(vm => {
+    const opt = document.createElement('option');
+    opt.value = vm.model_id;
+    opt.textContent = vm.model;
+    modelInput.appendChild(opt);
+  });
+  modelInput.disabled = false;
+}
+
+typeInput.addEventListener('change', updateBrands);
+brandInput.addEventListener('change', updateModels);
 </script>
 </body>
 </html>
