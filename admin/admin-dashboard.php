@@ -139,7 +139,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         <a class="nav-link<?= isset($_GET['users']) ? ' active' : '' ?>" href="?users=1"><i class="fas fa-users"></i> Users</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
+        <a class="nav-link<?= isset($_GET['transactions']) ? ' active' : '' ?>" href="?transactions=1"><i class="fas fa-exchange-alt"></i> Transactions</a>
       </li>
     </ul>
     <hr class="bg-secondary">
@@ -464,6 +464,118 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             </div>
           </div>
         </div>
+        <div id="transactions-container" style="<?= isset($_GET['transactions']) ? '' : 'display:none;' ?>">
+          <div class="card mb-4 shadow">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-exchange-alt"></i> Transactions</span>
+            </div>
+            <div class="card-body">
+              <form class="mb-3" id="transactionsSearchForm">
+                <div class="row align-items-end">
+                  <div class="col-md-3">
+                    <label>Search</label>
+                    <input type="text" class="form-control" id="transactionsSearchInput" placeholder="Search by user, slot, plate, ref#...">
+                  </div>
+                  <div class="col-md-2">
+                    <label>Status</label>
+                    <select class="form-control" id="transactionsStatusFilter">
+                      <option value="">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="ongoing">Ongoing</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="expired">Expired</option>
+                      <option value="void">Void</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label>Payment Status</label>
+                    <select class="form-control" id="transactionsPaymentStatusFilter">
+                      <option value="">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="successful">Successful</option>
+                      <option value="failed">Failed</option>
+                      <option value="refunded">Refunded</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label>Payment Method</label>
+                    <select class="form-control" id="transactionsPaymentMethodFilter">
+                      <option value="">All</option>
+                      <option value="cash">Cash</option>
+                      <option value="gcash">GCash</option>
+                      <option value="card">Card</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label>Sort By</label>
+                    <select class="form-control" id="transactionsSortBy">
+                      <option value="reservation_id">Ref #</option>
+                      <option value="user_name">User</option>
+                      <option value="slot_number">Slot</option>
+                      <option value="status">Status</option>
+                      <option value="amount">Amount</option>
+                      <option value="payment_status">Payment Status</option>
+                      <option value="payment_date">Payment Date</option>
+                    </select>
+                  </div>
+                  <div class="col-md-1">
+                    <label>Order</label>
+                    <select class="form-control" id="transactionsSortOrder">
+                      <option value="DESC">↓</option>
+                      <option value="ASC">↑</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover align-middle w-100" id="transactionsTable">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>Ref #</th>
+                      <th>User</th>
+                      <th>Slot</th>
+                      <th>Vehicle</th>
+                      <th>Status</th>
+                      <th>Amount</th>
+                      <th>Payment Status</th>
+                      <th>Payment Method</th>
+                      <th>Payment Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    // Fetch transactions (reservations + payments + user info)
+                    $sql = "SELECT r.reservation_id, CONCAT(u.first_name, ' ', u.last_name) AS user_name, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, r.status, p.amount, p.status AS payment_status, p.method, p.payment_date
+                      FROM reservations r
+                      JOIN users u ON r.user_id = u.user_id
+                      JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
+                      JOIN vehicles v ON r.vehicle_id = v.vehicle_id
+                      JOIN Vehicle_Models m ON v.model_id = m.model_id
+                      LEFT JOIN payments p ON r.reservation_id = p.reservation_id
+                      ORDER BY r.reservation_id DESC LIMIT 200";
+                    $stmt = $pdo->query($sql);
+                    $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($transactions as $t): ?>
+                      <tr data-tx='<?= htmlspecialchars(json_encode($t)) ?>'>
+                        <td><?= htmlspecialchars($t['reservation_id']) ?></td>
+                        <td><?= htmlspecialchars($t['user_name']) ?></td>
+                        <td><?= htmlspecialchars($t['slot_number']) ?> (<?= htmlspecialchars($t['slot_type']) ?>)</td>
+                        <td><?= htmlspecialchars($t['brand'].' '.$t['model'].' - '.$t['plate_number']) ?></td>
+                        <td><span class="badge bg-secondary text-uppercase"><?= htmlspecialchars($t['status']) ?></span></td>
+                        <td>₱<?= number_format($t['amount'],2) ?></td>
+                        <td><span class="badge bg-secondary text-uppercase"><?= $t['payment_status'] ? htmlspecialchars($t['payment_status']) : 'N/A' ?></span></td>
+                        <td><?= htmlspecialchars(ucfirst($t['method'])) ?></td>
+                        <td><?= htmlspecialchars($t['payment_date']) ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -498,16 +610,25 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'block';
           document.getElementById('users-container').style.display = 'none';
+          document.getElementById('transactions-container').style.display = 'none';
         } else if (text.includes('Dashboard')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'block';
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'none';
+          document.getElementById('transactions-container').style.display = 'none';
         } else if (text.includes('Users')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'block';
+          document.getElementById('transactions-container').style.display = 'none';
+        } else if (text.includes('Transactions')) {
+          e.preventDefault();
+          document.getElementById('dashboard-cards').style.display = 'none';
+          document.getElementById('parking-slots-container').style.display = 'none';
+          document.getElementById('users-container').style.display = 'none';
+          document.getElementById('transactions-container').style.display = 'block';
         }
       });
     });
@@ -692,6 +813,57 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
         });
       }
     }
+
+    // Transactions search, filter, sort
+    function normalizeTxText(text) {
+      return (text || '').toString().toLowerCase().trim();
+    }
+    function filterAndSortTransactions() {
+      const search = normalizeTxText(document.getElementById('transactionsSearchInput').value);
+      const status = document.getElementById('transactionsStatusFilter').value;
+      const payStatus = document.getElementById('transactionsPaymentStatusFilter').value;
+      const payMethod = document.getElementById('transactionsPaymentMethodFilter').value;
+      const sortBy = document.getElementById('transactionsSortBy').value;
+      const sortOrder = document.getElementById('transactionsSortOrder').value;
+      const rows = Array.from(document.querySelectorAll('#transactionsTable tbody tr'));
+      rows.forEach(row => {
+        const tx = JSON.parse(row.getAttribute('data-tx'));
+        let show = true;
+        if (status && tx.status !== status) show = false;
+        if (payStatus && tx.payment_status !== payStatus) show = false;
+        if (payMethod && tx.method !== payMethod) show = false;
+        if (search) {
+          const values = [tx.reservation_id, tx.user_name, tx.slot_number, tx.slot_type, tx.plate_number, tx.brand, tx.model].map(normalizeTxText);
+          if (!values.some(v => v.includes(search))) show = false;
+        }
+        row.style.display = show ? '' : 'none';
+      });
+      // Sorting
+      rows.sort((a, b) => {
+        const txA = JSON.parse(a.getAttribute('data-tx'));
+        const txB = JSON.parse(b.getAttribute('data-tx'));
+        let valA = txA[sortBy] || '';
+        let valB = txB[sortBy] || '';
+        if (sortBy === 'amount') {
+          valA = parseFloat(valA) || 0;
+          valB = parseFloat(valB) || 0;
+        } else {
+          valA = normalizeTxText(valA);
+          valB = normalizeTxText(valB);
+        }
+        if (valA < valB) return sortOrder === 'ASC' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'ASC' ? 1 : -1;
+        return 0;
+      });
+      const tbody = document.querySelector('#transactionsTable tbody');
+      rows.forEach(row => tbody.appendChild(row));
+    }
+    document.getElementById('transactionsSearchInput').addEventListener('input', filterAndSortTransactions);
+    document.getElementById('transactionsStatusFilter').addEventListener('change', filterAndSortTransactions);
+    document.getElementById('transactionsPaymentStatusFilter').addEventListener('change', filterAndSortTransactions);
+    document.getElementById('transactionsPaymentMethodFilter').addEventListener('change', filterAndSortTransactions);
+    document.getElementById('transactionsSortBy').addEventListener('change', filterAndSortTransactions);
+    document.getElementById('transactionsSortOrder').addEventListener('change', filterAndSortTransactions);
   </script>
 </body>
 </html>
