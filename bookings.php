@@ -30,7 +30,7 @@ if (!array_key_exists($sort, $sortMap)) $sort = 'reservation_id';
 $orderBy = $sortMap[$sort] . ' ' . $order;
 
 // Build query
-$sql = "SELECT r.*, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
+$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, r.user_id, r.vehicle_id, r.parking_slot_id, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id
