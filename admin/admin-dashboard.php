@@ -420,7 +420,18 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                   </thead>
                   <tbody>
                     <?php if ($users && count($users) > 0): ?>
-                      <?php $i = 1 + $offset; foreach ($users as $user): ?>
+                      <?php $i = 1 + $offset; foreach ($users as $user):
+                        $isSelf = ($user['email'] === $loggedInUserEmail);
+                        $userRole = strtolower($user['user_type']);
+                        $canEdit = false;
+                        if ($isSuperAdmin) {
+                          // Super Admin can edit anyone except themselves
+                          $canEdit = !$isSelf;
+                        } else if ($_SESSION['user_type'] === 'admin') {
+                          // Admin can edit staff and clients, but not themselves or other admins/super admin
+                          $canEdit = !$isSelf && ($userRole === 'staff' || $userRole === 'client');
+                        }
+                      ?>
                         <tr>
                           <td class="text-center"><?= $i++ ?></td>
                           <td><?= htmlspecialchars($user['user_id']) ?></td>
@@ -430,12 +441,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                           <td><?= htmlspecialchars($user['email']) ?></td>
                           <td><?= htmlspecialchars(ucfirst($user['user_type'])) ?></td>
                           <td class="text-center">
-                            <?php if ($isSuperAdmin): ?>
-                              <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)' <?= $user['user_type'] === 'admin' ? '' : 'disabled title="Super Admin can only edit other admins"' ?>><i class="fas fa-edit"></i></button>
-                            <?php else: ?>
-                              <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)' <?= $user['user_type'] === 'admin' ? '' : 'disabled title="Only admins can be edited by Super Admin"' ?>><i class="fas fa-edit"></i></button>
-                            <?php endif; ?>
-                            <?php if ($isSuperAdmin || $user['user_type'] !== 'admin'): ?>
+                            <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)' <?= $canEdit ? '' : 'disabled title="You cannot edit this user"' ?>><i class="fas fa-edit"></i></button>
+                            <?php if ($isSuperAdmin || ($userRole !== 'admin' && !$isSelf)): ?>
                               <button class="btn btn-sm btn-danger" onclick='deleteUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-trash"></i></button>
                               <button class="btn btn-sm btn-warning" onclick='suspendUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-user-slash"></i></button>
                             <?php endif; ?>
