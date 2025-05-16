@@ -7,44 +7,17 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
 require_once 'db.php';
 $user_id = $_SESSION['user_id'];
 
-// Handle search and sorting
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$sort = isset($_GET['sort']) ? $_GET['sort'] : 'reservation_id';
-$order = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
-$allowedSort = ['reservation_id','start_time','end_time','duration','slot_number','amount','payment_status'];
-if (!in_array($sort, $allowedSort)) $sort = 'reservation_id';
-if ($sort === 'start_datetime') $sort = 'start_time';
-if ($sort === 'end_datetime') $sort = 'end_time';
-
-// Map sort keys to their correct table aliases
-$sortMap = [
-    'reservation_id' => 'r.reservation_id',
-    'start_time' => 'r.start_time',
-    'end_time' => 'r.end_time',
-    'duration' => 'r.duration',
-    'slot_number' => 's.slot_number',
-    'amount' => 'p.amount',
-    'payment_status' => 'p.payment_status'
-];
-if (!array_key_exists($sort, $sortMap)) $sort = 'reservation_id';
-$orderBy = $sortMap[$sort] . ' ' . $order;
-
-// Build query
-$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, r.user_id, r.vehicle_id, r.parking_slot_id, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
+// Fetch all bookings for this user
+$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, p.amount, p.payment_status, p.method, p.payment_date
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id
 JOIN Vehicle_Models m ON v.model_id = m.model_id
 LEFT JOIN payments p ON r.reservation_id = p.reservation_id
-WHERE r.user_id = ?";
-$params = [$user_id];
-if ($search !== '') {
-    $sql .= " AND r.reservation_id = ?";
-    $params[] = $search;
-}
-$sql .= " ORDER BY $orderBy";
+WHERE r.user_id = ?
+ORDER BY r.start_time DESC";
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Get user profile pic for navbar
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
@@ -94,25 +67,20 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </nav>
 <div class="container py-5">
 <h2 class="text-warning mb-4">My Bookings</h2>
-<form class="form-inline mb-3" method="get">
-  <input type="text" name="search" class="form-control mr-2" placeholder="Search by Reference #" value="<?= htmlspecialchars($search) ?>">
-  <button type="submit" class="btn btn-primary">Search</button>
-  <a href="bookings.php" class="btn btn-secondary ml-2">Reset</a>
-</form>
 <div class="table-responsive bg-dark rounded p-3">
 <table class="table table-hover table-dark table-bordered">
   <thead>
     <tr>
-      <th onclick="sortTable('reservation_id')">Ref # <?= $sort=='reservation_id' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('slot_number')">Slot <?= $sort=='slot_number' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
+      <th>Ref #</th>
+      <th>Slot</th>
       <th>Vehicle</th>
-      <th onclick="sortTable('start_time')">Start <?= $sort=='start_time' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('end_time')">End <?= $sort=='end_time' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('duration')">Duration <?= $sort=='duration' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('amount')">Amount <?= $sort=='amount' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('payment_status')">Payment <?= $sort=='payment_status' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th>Method</th>
-      <th>Action</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Duration</th>
+      <th>Amount</th>
+      <th>Payment Status</th>
+      <th>Payment Method</th>
+      <th>Payment Date</th>
     </tr>
   </thead>
   <tbody>
@@ -129,17 +97,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td>₱<?= number_format($b['amount'],2) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['payment_status'])) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
-        <td>
-          <!-- Cancel button only if reservation is in the future and not already cancelled/paid -->
-          <?php if (strtotime($b['start_time']) > time() && $b['payment_status'] !== 'paid'): ?>
-            <form method="post" action="bookings.php" style="display:inline;">
-              <input type="hidden" name="cancel_id" value="<?= $b['reservation_id'] ?>">
-              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?');">Cancel</button>
-            </form>
-          <?php else: ?>
-            <span class="text-muted">-</span>
-          <?php endif; ?>
-        </td>
+        <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
     <?php endforeach; endif; ?>
   </tbody>
@@ -151,14 +109,6 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <script src="js/popper.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script>
-function sortTable(col) {
-  const url = new URL(window.location.href);
-  let order = url.searchParams.get('order') === 'ASC' ? 'DESC' : 'ASC';
-  if (url.searchParams.get('sort') !== col) order = 'ASC';
-  url.searchParams.set('sort', col);
-  url.searchParams.set('order', order);
-  window.location.href = url.toString();
-}
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', function () {
   if (window.scrollY > 100) {
