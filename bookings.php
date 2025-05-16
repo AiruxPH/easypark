@@ -11,7 +11,7 @@ require_once 'db.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch all bookings for this user
-$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, p.amount, p.payment_status, p.method, p.payment_date
+$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, p.amount, p.status, p.method, p.payment_date
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id
@@ -98,7 +98,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td><?= htmlspecialchars($b['duration']) ?></td>
         <td>₱<?= number_format($b['amount'],2) ?></td>
-        <td><?= htmlspecialchars(ucfirst($b['payment_status'])) ?></td>
+        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
