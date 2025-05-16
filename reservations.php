@@ -216,10 +216,14 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <label for="vehicle_id" class="text-light">Select Your Vehicle:</label>
 <select name="vehicle_id" id="vehicle_id" class="form-control" onchange="this.form.submit()" required>
 <?php foreach ($vehicles as $veh): ?>
-<option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?> <?= isset($active_vehicle_ids[$veh['vehicle_id']]) ? 'disabled' : '' ?>>
-<?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
-<?= isset($active_vehicle_ids[$veh['vehicle_id']]) ? ' (Currently Reserved)' : '' ?>
-</option>
+  <?php
+    $is_active = isset($active_vehicle_ids[$veh['vehicle_id']]);
+    // Only disable if the reservation is still active (end_time > NOW and status is confirmed/ongoing)
+  ?>
+  <option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?> <?= $is_active ? 'disabled' : '' ?>>
+    <?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
+    <?= $is_active ? ' (Currently Reserved)' : '' ?>
+  </option>
 <?php endforeach; ?>
 </select>
 <small class="form-text text-warning">Vehicles with an active reservation cannot be selected.</small>
