@@ -155,12 +155,14 @@ window.addEventListener('scroll', function () {
   }
 });
 
+let reloadTriggered = false;
 function updateTimers() {
   const timers = document.querySelectorAll('.timer');
   timers.forEach(function(timer) {
+    // Parse as UTC to avoid timezone issues
     const end = new Date(timer.getAttribute('data-end').replace(' ', 'T'));
     const now = new Date();
-    let diff = Math.floor((end - now) / 1000);
+    let diff = Math.floor((end.getTime() - now.getTime()) / 1000);
     if (diff > 0) {
       const h = Math.floor(diff / 3600);
       diff %= 3600;
@@ -168,15 +170,23 @@ function updateTimers() {
       const s = diff % 60;
       timer.textContent = `${h}h ${m}m ${s}s left`;
     } else {
-      if (!timer.classList.contains('expired')) {
+      if (!timer.classList.contains('expired') && !reloadTriggered) {
         timer.textContent = 'Expired';
         timer.classList.add('expired');
-        // AJAX call to update reservation status
+        reloadTriggered = true;
+        // Show spinner
+        timer.innerHTML = '<span class="spinner-border spinner-border-sm text-warning" role="status"></span> Updating...';
+        // Use vanilla JS for AJAX
         const reservationId = timer.id.replace('timer-', '');
-        $.post('update_reservation_status.php', { reservation_id: reservationId }, function(response) {
-          // Optionally, reload the page or update the UI
-          location.reload();
-        });
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'update_reservation_status.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            location.reload();
+          }
+        };
+        xhr.send('reservation_id=' + encodeURIComponent(reservationId));
       }
     }
   });
