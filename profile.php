@@ -69,6 +69,37 @@ if (isset($_POST['delete_pic'])) {
     exit();
 }
 
+// Handle vehicle deletion
+if (isset($_GET['delete_vehicle'])) {
+    $vehicle_id = intval($_GET['delete_vehicle']);
+    // Check for active reservation for this vehicle
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
+    $stmt->execute([$vehicle_id]);
+    $active = $stmt->fetchColumn();
+    if ($active > 0) {
+        $message = '❌ Cannot delete vehicle with an active reservation.';
+    } else {
+        $stmt = $pdo->prepare('DELETE FROM vehicles WHERE vehicle_id = ? AND user_id = ?');
+        $stmt->execute([$vehicle_id, $user_id]);
+        header('Location: profile.php');
+        exit();
+    }
+}
+// Handle add vehicle
+if (isset($_POST['add_vehicle'])) {
+    $plate = trim($_POST['plate_number']);
+    $color = trim($_POST['color']);
+    $model_id = intval($_POST['model_id']);
+    if ($plate && $color && $model_id) {
+        $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$user_id, $model_id, $plate, $color]);
+        header('Location: profile.php');
+        exit();
+    } else {
+        $message = '❌ Please fill all vehicle fields.';
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -240,14 +271,54 @@ if (isset($_POST['delete_pic'])) {
                     <td><?= htmlspecialchars($vehicle['model'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($vehicle['color']) ?></td>
                     <td>
-                        <a href="profile.php?edit_vehicle=<?= $vehicle['vehicle_id'] ?>" class="btn btn-sm btn-info">Edit</a>
                         <a href="profile.php?delete_vehicle=<?= $vehicle['vehicle_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this vehicle?')">Delete</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
-        <a href="profile.php?add_vehicle=1" class="btn btn-success">Add Vehicle</a>
+        <button class="btn btn-success" data-toggle="modal" data-target="#addVehicleModal">Add Vehicle</button>
+    </div>
+    <!-- Add Vehicle Modal -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" action="profile.php">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addVehicleModalLabel">Add Vehicle</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Plate Number</label>
+                <input type="text" name="plate_number" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Color</label>
+                <input type="text" name="color" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Model</label>
+                <select name="model_id" class="form-control" required>
+                  <option value="">Select Model</option>
+                  <?php
+                  $models = $pdo->query('SELECT * FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+                  foreach ($models as $m) {
+                    echo '<option value="' . $m['model_id'] . '">' . htmlspecialchars($m['brand'] . ' ' . $m['model'] . ' (' . $m['type'] . ')') . '</option>';
+                  }
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" name="add_vehicle" class="btn btn-success">Add Vehicle</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <div class="text-center mt-4">
