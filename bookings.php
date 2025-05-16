@@ -95,6 +95,26 @@ My Account (<?php echo $_SESSION['username'] ?>)
       $now = date('Y-m-d H:i:s');
       $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
       $rowData = htmlspecialchars(json_encode($b));
+      // Calculate remaining time for duration column
+      $remaining = '';
+      if ($isConfirmed && $b['end_time'] > $now) {
+        $end = new DateTime($b['end_time']);
+        $nowDT = new DateTime($now);
+        $interval = $nowDT->diff($end);
+        if ($interval->days > 0) {
+          $remaining = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
+          if ($interval->h > 0) {
+            $remaining .= ' ' . $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
+          }
+          $remaining .= ' left';
+        } elseif ($interval->h > 0) {
+          $remaining = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' left';
+        } elseif ($interval->i > 0) {
+          $remaining = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' left';
+        } else {
+          $remaining = $interval->s . ' second' . ($interval->s > 1 ? 's' : '') . ' left';
+        }
+      }
     ?>
       <tr class="booking-row" data-booking='<?= $rowData ?>'>
         <td><?= htmlspecialchars($b['reservation_id']) ?></td>
@@ -102,7 +122,12 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
         <td><?= htmlspecialchars($b['start_time']) ?></td>
         <td><?= htmlspecialchars($b['end_time']) ?></td>
-        <td><?= htmlspecialchars($b['duration']) ?></td>
+        <td>
+          <?= htmlspecialchars($b['duration']) ?>
+          <?php if ($remaining): ?>
+            <br><span class="badge bg-info text-dark small"><?= $remaining ?></span>
+          <?php endif; ?>
+        </td>
         <td>
           <?php
             $status = $b['status'];
