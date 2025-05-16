@@ -59,20 +59,34 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     $stmt->execute([$slot_id, $selected_vehicle_type]);
     $slot = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($slot) {
-        $pdo->beginTransaction();
-        $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        // Insert reservation (with duration)
-        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
-            $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime, $duration_value
+        // Prevent double booking: check for overlapping reservations for this slot
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status NOT IN ("cancelled", "completed") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
+        $stmt->execute([
+            $slot_id,
+            $end_datetime, $start_datetime, // overlap at start
+            $end_datetime, $start_datetime, // overlap at end
+            $start_datetime, $end_datetime  // fully within
         ]);
-        $reservation_id = $pdo->lastInsertId();
-        // Insert payment record with correct columns
-        $pdo->prepare('INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
-            $reservation_id, $price, 'pending', $method
-        ]);
-        $pdo->commit();
-        $reservation_success = true;
-        $show_reservation_form = false;
+        $overlap_count = $stmt->fetchColumn();
+        if ($overlap_count > 0) {
+            $reservation_error = 'This slot is already reserved for the selected time range. Please choose a different time or slot.';
+            $show_reservation_form = true;
+        } else {
+            $pdo->beginTransaction();
+            $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
+            // Insert reservation (with duration)
+            $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
+                $user_id, $selected_vehicle_id, $slot_id, $start_datetime, $end_datetime, $duration_value
+            ]);
+            $reservation_id = $pdo->lastInsertId();
+            // Insert payment record with correct columns
+            $pdo->prepare('INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
+                $reservation_id, $price, 'pending', $method
+            ]);
+            $pdo->commit();
+            $reservation_success = true;
+            $show_reservation_form = false;
+        }
     } else {
         $reservation_error = 'Selected slot is no longer available.';
     }
