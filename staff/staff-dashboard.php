@@ -10,7 +10,11 @@ require_once '../db.php';
 if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
     $reservation_id = intval($_POST['reservation_id']);
     if ($_POST['action'] === 'confirm') {
+        // Confirm reservation
         $stmt = $pdo->prepare("UPDATE reservations SET status = 'confirmed' WHERE reservation_id = ?");
+        $stmt->execute([$reservation_id]);
+        // Confirm payment
+        $stmt = $pdo->prepare("UPDATE payments SET status = 'successful' WHERE reservation_id = ?");
         $stmt->execute([$reservation_id]);
     } elseif ($_POST['action'] === 'cancel') {
         $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE reservation_id = ?");
