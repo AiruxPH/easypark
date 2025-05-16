@@ -100,8 +100,21 @@ if (isset($_GET['delete_vehicle'])) {
 if (isset($_POST['add_vehicle'])) {
     $plate = trim($_POST['plate_number']);
     $color = trim($_POST['color']);
-    $model_id = intval($_POST['model_id']);
-    if ($plate && $color && $model_id) {
+    $type = trim($_POST['type']);
+    $brand = trim($_POST['brand']);
+    $model = trim($_POST['model']);
+    if ($plate && $color && $type && $brand && $model) {
+        // Insert into Vehicle_Models if not exists
+        $stmt = $pdo->prepare('SELECT model_id FROM Vehicle_Models WHERE brand = ? AND model = ? AND type = ?');
+        $stmt->execute([$brand, $model, $type]);
+        $model_row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($model_row) {
+            $model_id = $model_row['model_id'];
+        } else {
+            $stmt = $pdo->prepare('INSERT INTO Vehicle_Models (brand, model, type) VALUES (?, ?, ?)');
+            $stmt->execute([$brand, $model, $type]);
+            $model_id = $pdo->lastInsertId();
+        }
         $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
         $stmt->execute([$user_id, $model_id, $plate, $color]);
         header('Location: profile.php');
@@ -358,16 +371,24 @@ if (isset($_POST['add_vehicle'])) {
                 <input type="text" name="color" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Model</label>
-                <select name="model_id" class="form-control" required>
-                  <option value="">Select Model</option>
-                  <?php
-                  $models = $pdo->query('SELECT * FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
-                  foreach ($models as $m) {
-                    echo '<option value="' . $m['model_id'] . '">' . htmlspecialchars($m['brand'] . ' ' . $m['model'] . ' (' . $m['type'] . ')') . '</option>';
-                  }
-                  ?>
+                <label>Type</label>
+                <select name="type" id="vehicleTypeInput" class="form-control" required>
+                  <option value="">Select Type</option>
+                  <option value="car">Car</option>
+                  <option value="truck">Truck</option>
+                  <option value="motorcycle">Motorcycle</option>
+                  <option value="other">Other</option>
                 </select>
+              </div>
+              <div class="form-group">
+                <label>Brand</label>
+                <input type="text" name="brand" id="brandInput" class="form-control" required autocomplete="off" list="brandList">
+                <datalist id="brandList"></datalist>
+              </div>
+              <div class="form-group">
+                <label>Model</label>
+                <input type="text" name="model" id="modelInput" class="form-control" required autocomplete="off" list="modelList">
+                <datalist id="modelList"></datalist>
               </div>
             </div>
             <div class="modal-footer">
@@ -447,6 +468,63 @@ if (isset($_POST['add_vehicle'])) {
     var msg = document.getElementById('vehicleMsg');
     if (msg) msg.style.display = 'none';
   }, 3000);
+  // Vehicle brand/model suggestion logic
+  $(function() {
+    var allModels = {};
+    var allBrands = {};
+    // Fetch all brands/models by type from PHP
+    <?php
+      $models = $pdo->query('SELECT brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+      $brandTypeMap = [];
+      $modelTypeBrandMap = [];
+      foreach ($models as $m) {
+        $brandTypeMap[$m['type']][] = $m['brand'];
+        $modelTypeBrandMap[$m['type']][$m['brand']][] = $m['model'];
+      }
+      echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
+      echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
+    ?>
+    function updateBrandList() {
+      var type = $('#vehicleTypeInput').val();
+      var brandList = $('#brandList');
+      brandList.empty();
+      if (type && allBrands[type]) {
+        var uniqueBrands = [...new Set(allBrands[type])];
+        uniqueBrands.forEach(function(brand) {
+          brandList.append('<option value="'+brand+'">');
+        });
+      }
+    }
+    function updateModelList() {
+      var type = $('#vehicleTypeInput').val();
+      var brand = $('#brandInput').val();
+      var modelList = $('#modelList');
+      modelList.empty();
+      if (type && brand && allModels[type] && allModels[type][brand]) {
+        var uniqueModels = [...new Set(allModels[type][brand])];
+        uniqueModels.forEach(function(model) {
+          modelList.append('<option value="'+model+'">');
+        });
+      }
+    }
+    $('#vehicleTypeInput').on('change', function() {
+      updateBrandList();
+      $('#brandInput').val('');
+      $('#modelInput').val('');
+      $('#modelList').empty();
+    });
+    $('#brandInput').on('input', function() {
+      updateModelList();
+      $('#modelInput').val('');
+    });
+    // On modal open, reset lists
+    $('#addVehicleModal').on('show.bs.modal', function() {
+      updateBrandList();
+      $('#brandInput').val('');
+      $('#modelInput').val('');
+      $('#modelList').empty();
+    });
+  });
 </script>
 </body>
 </html>
