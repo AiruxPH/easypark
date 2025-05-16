@@ -100,21 +100,8 @@ if (isset($_GET['delete_vehicle'])) {
 if (isset($_POST['add_vehicle'])) {
     $plate = trim($_POST['plate_number']);
     $color = trim($_POST['color']);
-    $type = trim($_POST['type']);
-    $brand = trim($_POST['brand']);
-    $model = trim($_POST['model']);
-    if ($plate && $color && $type && $brand && $model) {
-        // Insert into Vehicle_Models if not exists
-        $stmt = $pdo->prepare('SELECT model_id FROM Vehicle_Models WHERE brand = ? AND model = ? AND type = ?');
-        $stmt->execute([$brand, $model, $type]);
-        $model_row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($model_row) {
-            $model_id = $model_row['model_id'];
-        } else {
-            $stmt = $pdo->prepare('INSERT INTO Vehicle_Models (brand, model, type) VALUES (?, ?, ?)');
-            $stmt->execute([$brand, $model, $type]);
-            $model_id = $pdo->lastInsertId();
-        }
+    $model_id = intval($_POST['model_id']);
+    if ($plate && $color && $model_id) {
         $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
         $stmt->execute([$user_id, $model_id, $plate, $color]);
         header('Location: profile.php');
@@ -371,24 +358,16 @@ if (isset($_POST['add_vehicle'])) {
                 <input type="text" name="color" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Type</label>
-                <select name="type" id="vehicleTypeInput" class="form-control" required>
-                  <option value="">Select Type</option>
-                  <option value="car">Car</option>
-                  <option value="truck">Truck</option>
-                  <option value="motorcycle">Motorcycle</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Brand</label>
-                <input type="text" name="brand" id="brandInput" class="form-control" required autocomplete="off" list="brandList">
-                <datalist id="brandList"></datalist>
-              </div>
-              <div class="form-group">
                 <label>Model</label>
-                <input type="text" name="model" id="modelInput" class="form-control" required autocomplete="off" list="modelList">
-                <datalist id="modelList"></datalist>
+                <select name="model_id" class="form-control" required>
+                  <option value="">Select Model</option>
+                  <?php
+                  $models = $pdo->query('SELECT * FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+                  foreach ($models as $m) {
+                    echo '<option value="' . $m['model_id'] . '">' . htmlspecialchars($m['brand'] . ' ' . $m['model'] . ' (' . $m['type'] . ')') . '</option>';
+                  }
+                  ?>
+                </select>
               </div>
             </div>
             <div class="modal-footer">
