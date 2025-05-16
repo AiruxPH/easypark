@@ -1,8 +1,8 @@
 <?php
 // Use environment variables for sensitive credentials
 $host = getenv('DB_HOST') ?: '194.59.164.68';
-$db   = getenv('DB_NAME') ?: 'u130348899_easypark_db2';
-$user = getenv('DB_USER') ?: 'u130348899_randythegreat2';
+$db   = getenv('DB_NAME') ?: 'u130348899_easypark_db';
+$user = getenv('DB_USER') ?: 'u130348899_randythegreat';
 $pass = getenv('DB_PASS') ?: 'RandyBOY999999@';
 $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
