@@ -124,8 +124,21 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td>
           <?= htmlspecialchars($b['duration']) ?>
-          <?php if ($remaining): ?>
-            <br><span class="badge bg-info text-dark small"><?= $remaining ?></span>
+          <?php if ($isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now): ?>
+            <?php
+              $end = new DateTime($b['end_time']);
+              $nowDT = new DateTime($now);
+              $interval = $nowDT->diff($end);
+              $parts = [];
+              if ($interval->days > 0) $parts[] = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
+              if ($interval->h > 0) $parts[] = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
+              if ($interval->i > 0) $parts[] = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '');
+              if ($interval->days == 0 && $interval->h == 0 && $interval->i == 0 && $interval->s > 0) $parts[] = $interval->s . ' second' . ($interval->s > 1 ? 's' : '');
+              $remaining = $parts ? implode(' ', $parts) . ' left' : '';
+            ?>
+            <?php if ($remaining): ?>
+              <br><span class="badge bg-info text-dark small"><?= $remaining ?></span>
+            <?php endif; ?>
           <?php endif; ?>
         </td>
         <td>
