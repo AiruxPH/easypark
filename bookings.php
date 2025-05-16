@@ -11,8 +11,10 @@ $user_id = $_SESSION['user_id'];
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'reservation_id';
 $order = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
-$allowedSort = ['reservation_id','start_datetime','end_datetime','duration','slot_number','amount','payment_status'];
+$allowedSort = ['reservation_id','start_time','end_time','duration','slot_number','amount','payment_status'];
 if (!in_array($sort, $allowedSort)) $sort = 'reservation_id';
+if ($sort === 'start_datetime') $sort = 'start_time';
+if ($sort === 'end_datetime') $sort = 'end_time';
 
 // Build query
 $sql = "SELECT r.*, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
@@ -91,8 +93,8 @@ My Account (<?php echo $_SESSION['username'] ?>)
       <th onclick="sortTable('reservation_id')">Ref # <?= $sort=='reservation_id' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
       <th onclick="sortTable('slot_number')">Slot <?= $sort=='slot_number' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
       <th>Vehicle</th>
-      <th onclick="sortTable('start_datetime')">Start <?= $sort=='start_datetime' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
-      <th onclick="sortTable('end_datetime')">End <?= $sort=='end_datetime' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
+      <th onclick="sortTable('start_time')">Start <?= $sort=='start_time' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
+      <th onclick="sortTable('end_time')">End <?= $sort=='end_time' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
       <th onclick="sortTable('duration')">Duration <?= $sort=='duration' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
       <th onclick="sortTable('amount')">Amount <?= $sort=='amount' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
       <th onclick="sortTable('payment_status')">Payment <?= $sort=='payment_status' ? ($order=='ASC'?'▲':'▼') : '' ?></th>
@@ -108,15 +110,15 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['reservation_id']) ?></td>
         <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
         <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
-        <td><?= htmlspecialchars($b['start_datetime']) ?></td>
-        <td><?= htmlspecialchars($b['end_datetime']) ?></td>
+        <td><?= htmlspecialchars($b['start_time']) ?></td>
+        <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td><?= htmlspecialchars($b['duration']) ?></td>
         <td>₱<?= number_format($b['amount'],2) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['payment_status'])) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td>
           <!-- Cancel button only if reservation is in the future and not already cancelled/paid -->
-          <?php if (strtotime($b['start_datetime']) > time() && $b['payment_status'] !== 'paid'): ?>
+          <?php if (strtotime($b['start_time']) > time() && $b['payment_status'] !== 'paid'): ?>
             <form method="post" action="bookings.php" style="display:inline;">
               <input type="hidden" name="cancel_id" value="<?= $b['reservation_id'] ?>">
               <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?');">Cancel</button>
