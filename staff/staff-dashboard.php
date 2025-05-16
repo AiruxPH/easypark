@@ -85,6 +85,26 @@ $stmt = $pdo->prepare($sql_slots);
 $stmt->execute();
 $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $slots_total_pages = ceil($slots_total / $per_page);
+
+// Helper for slot color class
+function getSlotColorClass($status) {
+    switch (strtolower($status)) {
+        case 'available': return 'border-success';
+        case 'reserved': return 'border-warning';
+        case 'occupied': return 'border-danger';
+        default: return 'border-secondary';
+    }
+}
+
+// Helper for pagination range
+function getPaginationRange($current, $total, $max = 5) {
+    $start = max(1, $current - floor($max/2));
+    $end = min($total, $start + $max - 1);
+    if ($end - $start + 1 < $max) {
+        $start = max(1, $end - $max + 1);
+    }
+    return [$start, $end];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,17 +118,18 @@ $slots_total_pages = ceil($slots_total / $per_page);
 <div class="container py-5">
 <h2 class="mb-4">Staff Dashboard - Manage Expected Bookings</h2>
 <p class="mb-3">Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.</p>
-<table class="table table-bordered table-hover bg-white">
+<input type="text" id="bookingsSearch" class="form-control mb-2" placeholder="Search bookings...">
+<table id="bookingsTable" class="table table-bordered table-hover bg-white">
   <thead class="thead-dark">
     <tr>
-      <th>Ref #</th>
-      <th>Client</th>
-      <th>Slot</th>
-      <th>Vehicle</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Duration</th>
-      <th>Status</th>
+      <th class="sortable">Ref #</th>
+      <th class="sortable">Client</th>
+      <th class="sortable">Slot</th>
+      <th class="sortable">Vehicle</th>
+      <th class="sortable">Start</th>
+      <th class="sortable">End</th>
+      <th class="sortable">Duration</th>
+      <th class="sortable">Status</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -146,17 +167,18 @@ $slots_total_pages = ceil($slots_total / $per_page);
 
 <!-- Active Reservations Table -->
 <h3 class="mt-5 mb-3">Active Reservations (Confirmed & Ongoing)</h3>
-<table class="table table-bordered table-hover bg-white">
+<input type="text" id="activeSearch" class="form-control mb-2" placeholder="Search active reservations...">
+<table id="activeTable" class="table table-bordered table-hover bg-white">
   <thead class="thead-light">
     <tr>
-      <th>Ref #</th>
-      <th>Client</th>
-      <th>Slot</th>
-      <th>Vehicle</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Duration</th>
-      <th>Status</th>
+      <th class="sortable">Ref #</th>
+      <th class="sortable">Client</th>
+      <th class="sortable">Slot</th>
+      <th class="sortable">Vehicle</th>
+      <th class="sortable">Start</th>
+      <th class="sortable">End</th>
+      <th class="sortable">Duration</th>
+      <th class="sortable">Status</th>
     </tr>
   </thead>
   <tbody>
@@ -177,16 +199,23 @@ $slots_total_pages = ceil($slots_total / $per_page);
   </tbody>
 </table>
 <?php if ($active_total_pages > 1): ?>
+<?php list($active_start, $active_end) = getPaginationRange($active_page, $active_total_pages); ?>
 <nav aria-label="Active Reservations pagination">
   <ul class="pagination justify-content-center">
     <li class="page-item<?= $active_page <= 1 ? ' disabled' : '' ?>">
       <a class="page-link" href="?active_page=<?= $active_page-1 ?>" tabindex="-1">Previous</a>
     </li>
-    <?php for ($i = 1; $i <= $active_total_pages; $i++): ?>
+    <?php if ($active_start > 1): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
+    <?php for ($i = $active_start; $i <= $active_end; $i++): ?>
       <li class="page-item<?= $i == $active_page ? ' active' : '' ?>">
         <a class="page-link" href="?active_page=<?= $i ?>"><?= $i ?></a>
       </li>
     <?php endfor; ?>
+    <?php if ($active_end < $active_total_pages): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
     <li class="page-item<?= $active_page >= $active_total_pages ? ' disabled' : '' ?>">
       <a class="page-link" href="?active_page=<?= $active_page+1 ?>">Next</a>
     </li>
@@ -196,17 +225,18 @@ $slots_total_pages = ceil($slots_total / $per_page);
 
 <!-- Reservation History Table -->
 <h3 class="mt-5 mb-3">Reservation History (Completed/Cancelled)</h3>
-<table class="table table-bordered table-hover bg-white">
+<input type="text" id="historySearch" class="form-control mb-2" placeholder="Search reservation history...">
+<table id="historyTable" class="table table-bordered table-hover bg-white">
   <thead class="thead-light">
     <tr>
-      <th>Ref #</th>
-      <th>Client</th>
-      <th>Slot</th>
-      <th>Vehicle</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Duration</th>
-      <th>Status</th>
+      <th class="sortable">Ref #</th>
+      <th class="sortable">Client</th>
+      <th class="sortable">Slot</th>
+      <th class="sortable">Vehicle</th>
+      <th class="sortable">Start</th>
+      <th class="sortable">End</th>
+      <th class="sortable">Duration</th>
+      <th class="sortable">Status</th>
     </tr>
   </thead>
   <tbody>
@@ -227,16 +257,23 @@ $slots_total_pages = ceil($slots_total / $per_page);
   </tbody>
 </table>
 <?php if ($history_total_pages > 1): ?>
+<?php list($history_start, $history_end) = getPaginationRange($history_page, $history_total_pages); ?>
 <nav aria-label="Reservation History pagination">
   <ul class="pagination justify-content-center">
     <li class="page-item<?= $history_page <= 1 ? ' disabled' : '' ?>">
       <a class="page-link" href="?history_page=<?= $history_page-1 ?>" tabindex="-1">Previous</a>
     </li>
-    <?php for ($i = 1; $i <= $history_total_pages; $i++): ?>
+    <?php if ($history_start > 1): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
+    <?php for ($i = $history_start; $i <= $history_end; $i++): ?>
       <li class="page-item<?= $i == $history_page ? ' active' : '' ?>">
         <a class="page-link" href="?history_page=<?= $i ?>"><?= $i ?></a>
       </li>
     <?php endfor; ?>
+    <?php if ($history_end < $history_total_pages): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
     <li class="page-item<?= $history_page >= $history_total_pages ? ' disabled' : '' ?>">
       <a class="page-link" href="?history_page=<?= $history_page+1 ?>">Next</a>
     </li>
@@ -244,14 +281,14 @@ $slots_total_pages = ceil($slots_total / $per_page);
 </nav>
 <?php endif; ?>
 
-<!-- Parking Slots Card Grid -->
+<!-- Parking Slots Card Grid with Color Identifier -->
 <h3 class="mt-5 mb-3">Parking Slots Overview</h3>
 <div class="row">
 <?php if (count($all_slots) === 0): ?>
   <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
 <?php else: foreach ($all_slots as $slot): ?>
   <div class="col-md-4 mb-3">
-    <div class="card bg-dark text-light">
+    <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>" style="border-width:3px;">
       <div class="card-body">
         <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
         <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
@@ -262,16 +299,23 @@ $slots_total_pages = ceil($slots_total / $per_page);
 <?php endforeach; endif; ?>
 </div>
 <?php if ($slots_total_pages > 1): ?>
+<?php list($slots_start, $slots_end) = getPaginationRange($slots_page, $slots_total_pages); ?>
 <nav aria-label="Parking Slots pagination">
   <ul class="pagination justify-content-center">
     <li class="page-item<?= $slots_page <= 1 ? ' disabled' : '' ?>">
       <a class="page-link" href="?slots_page=<?= $slots_page-1 ?>" tabindex="-1">Previous</a>
     </li>
-    <?php for ($i = 1; $i <= $slots_total_pages; $i++): ?>
+    <?php if ($slots_start > 1): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
+    <?php for ($i = $slots_start; $i <= $slots_end; $i++): ?>
       <li class="page-item<?= $i == $slots_page ? ' active' : '' ?>">
         <a class="page-link" href="?slots_page=<?= $i ?>"><?= $i ?></a>
       </li>
     <?php endfor; ?>
+    <?php if ($slots_end < $slots_total_pages): ?>
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    <?php endif; ?>
     <li class="page-item<?= $slots_page >= $slots_total_pages ? ' disabled' : '' ?>">
       <a class="page-link" href="?slots_page=<?= $slots_page+1 ?>">Next</a>
     </li>
@@ -282,5 +326,45 @@ $slots_total_pages = ceil($slots_total / $per_page);
 <a href="../logout.php" class="btn btn-secondary mt-4">Logout</a>
 </div>
 <script src="../js/bootstrap.bundle.min.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script>
+// Table search and sort for all tables
+function tableSearch(inputId, tableSelector) {
+  $(inputId).on('keyup', function() {
+    var value = $(this).val().toLowerCase();
+    $(tableSelector + ' tbody tr').filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+}
+$(function() {
+  tableSearch('#activeSearch', '#activeTable');
+  tableSearch('#historySearch', '#historyTable');
+  tableSearch('#bookingsSearch', '#bookingsTable');
+  // Simple column sort
+  $('th.sortable').on('click', function() {
+    var table = $(this).closest('table');
+    var rows = table.find('tbody > tr').toArray();
+    var idx = $(this).index();
+    var asc = !$(this).hasClass('asc');
+    rows.sort(function(a, b) {
+      var A = $(a).children().eq(idx).text().toUpperCase();
+      var B = $(b).children().eq(idx).text().toUpperCase();
+      if($.isNumeric(A) && $.isNumeric(B)) {
+        return asc ? A - B : B - A;
+      }
+      return asc ? A.localeCompare(B) : B.localeCompare(A);
+    });
+    table.find('tbody').empty().append(rows);
+    table.find('th').removeClass('asc desc');
+    $(this).addClass(asc ? 'asc' : 'desc');
+  });
+});
+</script>
+<style>
+th.sortable { cursor:pointer; }
+th.asc:after { content:' \25B2'; }
+th.desc:after { content:' \25BC'; }
+</style>
 </body>
 </html>
