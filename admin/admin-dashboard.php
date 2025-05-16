@@ -144,6 +144,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       <li class="nav-item">
         <a class="nav-link<?= isset($_GET['vehicles']) ? ' active' : '' ?>" href="?vehicles=1"><i class="fas fa-car-side"></i> Vehicles</a>
       </li>
+      <li class="nav-item">
+        <a href="../logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      </li>
     </ul>
     <hr class="bg-secondary">
     <!-- Removed sidebar user dropdown for Admin -->
