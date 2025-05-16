@@ -430,7 +430,11 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                           <td><?= htmlspecialchars($user['email']) ?></td>
                           <td><?= htmlspecialchars(ucfirst($user['user_type'])) ?></td>
                           <td class="text-center">
-                            <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)'><i class="fas fa-edit"></i></button>
+                            <?php if ($isSuperAdmin): ?>
+                              <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)' <?= $user['user_type'] === 'admin' ? '' : 'disabled title="Super Admin can only edit other admins"' ?>><i class="fas fa-edit"></i></button>
+                            <?php else: ?>
+                              <button class="btn btn-sm btn-info" onclick='editUser(<?= json_encode($user) ?>)' <?= $user['user_type'] === 'admin' ? '' : 'disabled title="Only admins can be edited by Super Admin"' ?>><i class="fas fa-edit"></i></button>
+                            <?php endif; ?>
                             <?php if ($isSuperAdmin || $user['user_type'] !== 'admin'): ?>
                               <button class="btn btn-sm btn-danger" onclick='deleteUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-trash"></i></button>
                               <button class="btn btn-sm btn-warning" onclick='suspendUser(<?= json_encode($user['user_id']) ?>)'><i class="fas fa-user-slash"></i></button>
