@@ -36,6 +36,38 @@ ORDER BY r.start_time ASC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch active reservations (confirmed, ongoing, not completed/cancelled)
+$sql_active = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
+FROM reservations r
+JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
+JOIN vehicles v ON r.vehicle_id = v.vehicle_id
+JOIN Vehicle_Models m ON v.model_id = m.model_id
+JOIN users u ON r.user_id = u.user_id
+WHERE r.status = 'confirmed' AND r.end_time > NOW()
+ORDER BY r.start_time ASC";
+$stmt = $pdo->prepare($sql_active);
+$stmt->execute();
+$active_reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch completed/cancelled reservations (history)
+$sql_history = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
+FROM reservations r
+JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
+JOIN vehicles v ON r.vehicle_id = v.vehicle_id
+JOIN Vehicle_Models m ON v.model_id = m.model_id
+JOIN users u ON r.user_id = u.user_id
+WHERE r.status IN ('completed', 'cancelled')
+ORDER BY r.end_time DESC LIMIT 20";
+$stmt = $pdo->prepare($sql_history);
+$stmt->execute();
+$history_reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all parking slots
+$sql_slots = "SELECT * FROM parking_slots ORDER BY slot_number ASC";
+$stmt = $pdo->prepare($sql_slots);
+$stmt->execute();
+$all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,6 +122,95 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <span class="text-muted">No actions</span>
           <?php endif; ?>
         </td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
+
+<!-- Active Reservations Table -->
+<h3 class="mt-5 mb-3">Active Reservations (Confirmed & Ongoing)</h3>
+<table class="table table-bordered table-hover bg-white">
+  <thead class="thead-light">
+    <tr>
+      <th>Ref #</th>
+      <th>Client</th>
+      <th>Slot</th>
+      <th>Vehicle</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Duration</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (count($active_reservations) === 0): ?>
+      <tr><td colspan="8" class="text-center">No active reservations.</td></tr>
+    <?php else: foreach ($active_reservations as $b): ?>
+      <tr>
+        <td><?= htmlspecialchars($b['reservation_id']) ?></td>
+        <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
+        <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
+        <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
+        <td><?= htmlspecialchars($b['start_time']) ?></td>
+        <td><?= htmlspecialchars($b['end_time']) ?></td>
+        <td><?= htmlspecialchars($b['duration']) ?></td>
+        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
+
+<!-- Reservation History Table -->
+<h3 class="mt-5 mb-3">Reservation History (Completed/Cancelled)</h3>
+<table class="table table-bordered table-hover bg-white">
+  <thead class="thead-light">
+    <tr>
+      <th>Ref #</th>
+      <th>Client</th>
+      <th>Slot</th>
+      <th>Vehicle</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Duration</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (count($history_reservations) === 0): ?>
+      <tr><td colspan="8" class="text-center">No completed or cancelled reservations found.</td></tr>
+    <?php else: foreach ($history_reservations as $b): ?>
+      <tr>
+        <td><?= htmlspecialchars($b['reservation_id']) ?></td>
+        <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
+        <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
+        <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
+        <td><?= htmlspecialchars($b['start_time']) ?></td>
+        <td><?= htmlspecialchars($b['end_time']) ?></td>
+        <td><?= htmlspecialchars($b['duration']) ?></td>
+        <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
+
+<!-- Parking Slots Table -->
+<h3 class="mt-5 mb-3">Parking Slots Overview</h3>
+<table class="table table-bordered table-hover bg-white">
+  <thead class="thead-light">
+    <tr>
+      <th>Slot #</th>
+      <th>Type</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (count($all_slots) === 0): ?>
+      <tr><td colspan="3" class="text-center">No parking slots found.</td></tr>
+    <?php else: foreach ($all_slots as $slot): ?>
+      <tr>
+        <td><?= htmlspecialchars($slot['slot_number']) ?></td>
+        <td><?= htmlspecialchars($slot['slot_type']) ?></td>
+        <td><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></td>
       </tr>
     <?php endforeach; endif; ?>
   </tbody>
