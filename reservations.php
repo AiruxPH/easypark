@@ -186,7 +186,7 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
 <ul class="navbar-nav">
 <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
 <li class="nav-item"><a class="nav-link active" href="reservations.php">Reserve</a></li>
-<li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
+<li class="nav-item"><a class="nav-link" href="how-it-works.php">How It Works</a></li>
 <li class="nav-item">
 <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton" style="padding: 0.375rem 1rem;">
 <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
