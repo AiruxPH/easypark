@@ -43,6 +43,12 @@ if (isset($_POST['reserve_slot_id']) && $selected_vehicle_id) {
     $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
     $stmt->execute([$slot_id, $selected_vehicle_type]);
     $selected_slot = $stmt->fetch(PDO::FETCH_ASSOC);
+    $duration_type = $_POST['duration_type'] ?? '';
+    $start_datetime = $_POST['start_datetime'] ?? '';
+    $end_datetime = $_POST['end_datetime'] ?? '';
+    $payment_method = $_POST['payment_method'] ?? '';
+    $price = $_POST['price'] ?? '';
+    $duration_value = $_POST['duration_value'] ?? '';
     if ($selected_slot) {
         $show_reservation_form = true;
     } else {
