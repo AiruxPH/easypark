@@ -20,7 +20,7 @@ LEFT JOIN payments p ON r.reservation_id = p.reservation_id
 WHERE r.user_id = ?
 ORDER BY r.start_time DESC";
 $stmt = $pdo->prepare($sql);
-stmt->execute([$user_id]);
+$stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Get user profile pic for navbar
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
