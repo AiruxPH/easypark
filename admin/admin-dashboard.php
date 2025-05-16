@@ -50,138 +50,95 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>EasyPark Admin Dashboard</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../css/font-awesome.min.css">
   <style>
     body {
+      background: url('../bg-car.jpg') no-repeat center center fixed;
+      background-size: cover;
       min-height: 100vh;
-      background: #f8f9fa;
     }
-    .sidebar {
+    .bg-overlay {
+      background: rgba(20, 20, 20, 0.85);
       min-height: 100vh;
+      padding-bottom: 40px;
+    }
+    .header-bar {
+      background: rgba(0,0,0,0.7);
+      color: #ffc107;
+      padding: 1.5rem 2rem 1rem 2rem;
+      border-radius: 0 0 1rem 1rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-bar h2 {
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 2.2rem;
+    }
+    .header-bar .fa {
+      margin-right: 10px;
+    }
+    .section-card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      margin-bottom: 2rem;
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+    .table {
+      background: #fff;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    .table thead {
       background: #343a40;
-      color: #fff;
-    }
-    .sidebar .nav-link, .sidebar .navbar-brand {
-      color: #fff;
-    }
-    .sidebar .nav-link.active, .sidebar .nav-link:hover {
-      background: #495057;
       color: #ffc107;
     }
-    .sidebar .navbar-brand {
-      font-weight: bold;
-      font-size: 1.5rem;
-      letter-spacing: 1px;
+    .table-hover tbody tr:hover {
+      background: #ffe082;
     }
-    .sidebar .fa {
-      margin-right: 8px;
+    .card.bg-dark {
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      border-radius: 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .card-title, .card-text {
+      color: #ffc107;
+    }
+    .btn-warning, .btn-success, .btn-danger, .btn-secondary {
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    input.form-control, select.form-control {
+      border-radius: 0.5rem;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      background: #eee;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
     }
     @media (max-width: 991.98px) {
-      .sidebar {
-        min-height: auto;
-        position: fixed;
-        z-index: 1040;
-        left: -220px;
-        width: 220px;
-        transition: left 0.3s;
-      }
-      .sidebar.show {
-        left: 0;
-      }
-      #main-content {
-        margin-left: 0 !important;
-      }
-      #sidebarClose {
-        display: none;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 1051;
-      }
-      .sidebar.show #sidebarClose {
-        display: block;
-      }
-    }
-    @media (min-width: 992px) {
-      #main-content {
-        margin-left: 220px;
-      }
-      #sidebarClose {
-        display: none !important;
-      }
-    }
-    .navbar {
-      z-index: 1050;
-    }
-    /* Fix pagination overflow */
-    .pagination {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .table-responsive {
-      overflow-x: auto;
+      .header-bar { flex-direction: column; align-items: flex-start; padding: 1rem; }
+      .section-card { padding: 1rem; }
     }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <nav class="sidebar d-flex flex-column position-fixed p-3" id="sidebarMenu">
-    <button class="btn btn-outline-light d-lg-none mb-3 align-self-end" id="sidebarClose" style="display:none;"><i class="fas fa-times"></i></button>
-    <a class="navbar-brand mb-4" href="admin-dashboard.php"><i class="fas fa-parking"></i> EasyPark</a>
-    <ul class="nav flex-column mb-auto">
-      <li class="nav-item">
-        <a class="nav-link<?= !$showParkingSlots && !isset($_GET['users']) ? ' active' : '' ?>" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link<?= $showParkingSlots ? ' active' : '' ?>" href="#"><i class="fas fa-car"></i> Parking Slots</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link<?= isset($_GET['users']) ? ' active' : '' ?>" href="?users=1"><i class="fas fa-users"></i> Users</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
-      </li>
-    </ul>
-    <hr class="bg-secondary">
-    <!-- Removed sidebar user dropdown for Admin -->
-  </nav>
-
-  <!-- Main Content -->
-  <div id="main-content">
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-      <button class="btn btn-outline-secondary d-lg-none mr-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-      <a class="navbar-brand d-lg-none" href="admin-dashboard.php">EasyPark</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav mr-auto">
-        </ul>
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-bell"></i> <span class="badge badge-danger">3</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown">
-              <a class="dropdown-item" href="#"><i class="fas fa-info-circle text-primary"></i> New user registered</a>
-              <a class="dropdown-item" href="#"><i class="fas fa-car text-success"></i> Slot #12 reserved</a>
-              <a class="dropdown-item" href="#"><i class="fas fa-exclamation-triangle text-warning"></i> Payment pending</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <img src="https://ui-avatars.com/api/?name=Admin" alt="admin" width="30" height="30" class="rounded-circle"> Admin (<?php echo $_SESSION['user_email'];?>)
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-              <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
-              <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <div class="container-fluid py-4">
+<div class="bg-overlay">
+  <div class="header-bar mb-4">
+    <h2><i class="fa fa-user-cog"></i> Admin Dashboard</h2>
+    <a href="../logout.php" class="btn btn-secondary"><i class="fa fa-sign-out"></i> Logout</a>
+  </div>
+  <div class="container-fluid py-4">
+    <div class="section-card">
+      <!-- ...existing dashboard cards/statistics... -->
       <div id="dashboard-cards" style="<?= $showParkingSlots || isset($_GET['users']) ? 'display:none;' : '' ?>">
         <div class="row">
           <div class="col-md-3 mb-4">
@@ -449,6 +406,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       </div>
     </div>
   </div>
+</div>
 
   <!-- Add User Modal -->
   <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
@@ -566,8 +524,8 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     </div>
   </div>
 
-  <script src="../js/jquery.slim.min.js"></script>
   <script src="../js/bootstrap.bundle.min.js"></script>
+  <script src="../js/jquery.min.js"></script>
   <script>
     // Sidebar toggle for mobile
     document.getElementById('sidebarToggle').addEventListener('click', function() {
