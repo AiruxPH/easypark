@@ -9,7 +9,6 @@
     <form action="hasher.php" method = "POST">
         <input type="text" name="password" placeholder="Enter Password" required>
         <input type="submit" value="Submit">
-
     </form>
 
 

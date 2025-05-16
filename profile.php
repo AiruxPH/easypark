@@ -26,6 +26,17 @@ $stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v L
 $stmt->execute([$user_id]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// For each vehicle, check if it has an active reservation and fetch details if so
+$vehicle_active_reservations = [];
+foreach ($vehicles as $vehicle) {
+    $stmt = $pdo->prepare('SELECT * FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW() ORDER BY start_time DESC LIMIT 1');
+    $stmt->execute([$vehicle['vehicle_id']]);
+    $active_res = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($active_res) {
+        $vehicle_active_reservations[$vehicle['vehicle_id']] = $active_res;
+    }
+}
+
 // Fetch available parking slots
 $slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
 $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -257,6 +268,9 @@ if (isset($_POST['add_vehicle'])) {
 
     <div class="profile-section mb-4">
         <h4>My Vehicles</h4>
+        <?php if (!empty($message)) {
+            echo '<div class="alert alert-danger text-center" id="vehicleMsg">' . htmlspecialchars($message) . '</div>';
+        } ?>
         <table class="table table-bordered vehicle-table">
             <thead class="thead-light">
                 <tr>
@@ -265,6 +279,7 @@ if (isset($_POST['add_vehicle'])) {
                     <th>Brand</th>
                     <th>Model</th>
                     <th>Color</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -277,9 +292,46 @@ if (isset($_POST['add_vehicle'])) {
                     <td><?= htmlspecialchars($vehicle['model'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($vehicle['color']) ?></td>
                     <td>
+                        <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): ?>
+                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#reservationModal<?= $vehicle['vehicle_id'] ?>">In Reservation</button>
+                        <?php else: ?>
+                            <span class="badge badge-success">Available</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if (!isset($vehicle_active_reservations[$vehicle['vehicle_id']])): ?>
                         <a href="profile.php?delete_vehicle=<?= $vehicle['vehicle_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this vehicle?')">Delete</a>
+                        <?php else: ?>
+                        <button class="btn btn-sm btn-secondary" disabled>Delete</button>
+                        <?php endif; ?>
                     </td>
                 </tr>
+                <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): 
+                    $res = $vehicle_active_reservations[$vehicle['vehicle_id']]; ?>
+                <!-- Reservation Modal -->
+                <div class="modal fade" id="reservationModal<?= $vehicle['vehicle_id'] ?>" tabindex="-1" role="dialog" aria-labelledby="reservationModalLabel<?= $vehicle['vehicle_id'] ?>" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="reservationModalLabel<?= $vehicle['vehicle_id'] ?>">Active Reservation Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p><b>Reference #:</b> <?= htmlspecialchars($res['reservation_id']) ?></p>
+                        <p><b>Slot:</b> <?= htmlspecialchars($res['parking_slot_id']) ?></p>
+                        <p><b>Start:</b> <?= htmlspecialchars($res['start_time']) ?></p>
+                        <p><b>End:</b> <?= htmlspecialchars($res['end_time']) ?></p>
+                        <p><b>Status:</b> <?= htmlspecialchars($res['status']) ?></p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <?php endif; ?>
             <?php endforeach; ?>
             </tbody>
         </table>
@@ -390,6 +442,11 @@ if (isset($_POST['add_vehicle'])) {
       });
     }
   });
+  // Hide vehicle error message after 3 seconds
+  setTimeout(function() {
+    var msg = document.getElementById('vehicleMsg');
+    if (msg) msg.style.display = 'none';
+  }, 3000);
 </script>
 </body>
 </html>
