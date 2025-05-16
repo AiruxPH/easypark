@@ -141,6 +141,9 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
       <li class="nav-item">
         <a class="nav-link<?= isset($_GET['transactions']) ? ' active' : '' ?>" href="?transactions=1"><i class="fas fa-exchange-alt"></i> Transactions</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link<?= isset($_GET['vehicles']) ? ' active' : '' ?>" href="?vehicles=1"><i class="fas fa-car-side"></i> Vehicles</a>
+      </li>
     </ul>
     <hr class="bg-secondary">
     <!-- Removed sidebar user dropdown for Admin -->
@@ -576,6 +579,81 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
             </div>
           </div>
         </div>
+        <div id="vehicles-container" style="<?= isset($_GET['vehicles']) ? '' : 'display:none;' ?>">
+          <div class="card mb-4 shadow">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-car-side"></i> Vehicles</span>
+            </div>
+            <div class="card-body">
+              <form class="mb-3" id="vehiclesSearchForm">
+                <div class="row align-items-end">
+                  <div class="col-md-3">
+                    <label>Search</label>
+                    <input type="text" class="form-control" id="vehiclesSearchInput" placeholder="Search by owner, plate, brand, model...">
+                  </div>
+                  <div class="col-md-2">
+                    <label>Type</label>
+                    <select class="form-control" id="vehiclesTypeFilter">
+                      <option value="">All</option>
+                      <option value="two_wheeler">Two Wheeler</option>
+                      <option value="standard">Standard</option>
+                      <option value="compact">Compact</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label>Sort By</label>
+                    <select class="form-control" id="vehiclesSortBy">
+                      <option value="plate_number">Plate #</option>
+                      <option value="owner_name">Owner</option>
+                      <option value="brand">Brand</option>
+                      <option value="model">Model</option>
+                      <option value="type">Type</option>
+                    </select>
+                  </div>
+                  <div class="col-md-1">
+                    <label>Order</label>
+                    <select class="form-control" id="vehiclesSortOrder">
+                      <option value="ASC">↑</option>
+                      <option value="DESC">↓</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover align-middle w-100" id="vehiclesTable">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>Plate #</th>
+                      <th>Owner</th>
+                      <th>Brand</th>
+                      <th>Model</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    $sql = "SELECT v.plate_number, CONCAT(u.first_name, ' ', u.last_name) AS owner_name, m.brand, m.model, v.type
+                      FROM vehicles v
+                      JOIN users u ON v.user_id = u.user_id
+                      JOIN Vehicle_Models m ON v.model_id = m.model_id
+                      ORDER BY v.plate_number ASC LIMIT 200";
+                    $stmt = $pdo->query($sql);
+                    $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($vehicles as $veh): ?>
+                      <tr data-veh='<?= htmlspecialchars(json_encode($veh)) ?>'>
+                        <td><?= htmlspecialchars($veh['plate_number']) ?></td>
+                        <td><?= htmlspecialchars($veh['owner_name']) ?></td>
+                        <td><?= htmlspecialchars($veh['brand']) ?></td>
+                        <td><?= htmlspecialchars($veh['model']) ?></td>
+                        <td><?= htmlspecialchars(ucfirst(str_replace('_',' ',$veh['type']))) ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -611,24 +689,35 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
           document.getElementById('parking-slots-container').style.display = 'block';
           document.getElementById('users-container').style.display = 'none';
           document.getElementById('transactions-container').style.display = 'none';
+          document.getElementById('vehicles-container').style.display = 'none';
         } else if (text.includes('Dashboard')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'block';
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'none';
           document.getElementById('transactions-container').style.display = 'none';
+          document.getElementById('vehicles-container').style.display = 'none';
         } else if (text.includes('Users')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'block';
           document.getElementById('transactions-container').style.display = 'none';
+          document.getElementById('vehicles-container').style.display = 'none';
         } else if (text.includes('Transactions')) {
           e.preventDefault();
           document.getElementById('dashboard-cards').style.display = 'none';
           document.getElementById('parking-slots-container').style.display = 'none';
           document.getElementById('users-container').style.display = 'none';
           document.getElementById('transactions-container').style.display = 'block';
+          document.getElementById('vehicles-container').style.display = 'none';
+        } else if (text.includes('Vehicles')) {
+          e.preventDefault();
+          document.getElementById('dashboard-cards').style.display = 'none';
+          document.getElementById('parking-slots-container').style.display = 'none';
+          document.getElementById('users-container').style.display = 'none';
+          document.getElementById('transactions-container').style.display = 'none';
+          document.getElementById('vehicles-container').style.display = 'block';
         }
       });
     });
@@ -864,6 +953,46 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     document.getElementById('transactionsPaymentMethodFilter').addEventListener('change', filterAndSortTransactions);
     document.getElementById('transactionsSortBy').addEventListener('change', filterAndSortTransactions);
     document.getElementById('transactionsSortOrder').addEventListener('change', filterAndSortTransactions);
+
+    // Vehicles search, filter, sort
+    function normalizeVehText(text) {
+      return (text || '').toString().toLowerCase().trim();
+    }
+    function filterAndSortVehicles() {
+      const search = normalizeVehText(document.getElementById('vehiclesSearchInput').value);
+      const type = document.getElementById('vehiclesTypeFilter').value;
+      const sortBy = document.getElementById('vehiclesSortBy').value;
+      const sortOrder = document.getElementById('vehiclesSortOrder').value;
+      const rows = Array.from(document.querySelectorAll('#vehiclesTable tbody tr'));
+      rows.forEach(row => {
+        const veh = JSON.parse(row.getAttribute('data-veh'));
+        let show = true;
+        if (type && veh.type !== type) show = false;
+        if (search) {
+          const values = [veh.plate_number, veh.owner_name, veh.brand, veh.model, veh.type].map(normalizeVehText);
+          if (!values.some(v => v.includes(search))) show = false;
+        }
+        row.style.display = show ? '' : 'none';
+      });
+      // Sorting
+      rows.sort((a, b) => {
+        const vehA = JSON.parse(a.getAttribute('data-veh'));
+        const vehB = JSON.parse(b.getAttribute('data-veh'));
+        let valA = vehA[sortBy] || '';
+        let valB = vehB[sortBy] || '';
+        valA = normalizeVehText(valA);
+        valB = normalizeVehText(valB);
+        if (valA < valB) return sortOrder === 'ASC' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'ASC' ? 1 : -1;
+        return 0;
+      });
+      const tbody = document.querySelector('#vehiclesTable tbody');
+      rows.forEach(row => tbody.appendChild(row));
+    }
+    document.getElementById('vehiclesSearchInput').addEventListener('input', filterAndSortVehicles);
+    document.getElementById('vehiclesTypeFilter').addEventListener('change', filterAndSortVehicles);
+    document.getElementById('vehiclesSortBy').addEventListener('change', filterAndSortVehicles);
+    document.getElementById('vehiclesSortOrder').addEventListener('change', filterAndSortVehicles);
   </script>
 </body>
 </html>
