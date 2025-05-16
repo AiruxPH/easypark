@@ -16,9 +16,24 @@ if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
         // Confirm payment
         $stmt = $pdo->prepare("UPDATE payments SET status = 'successful' WHERE reservation_id = ?");
         $stmt->execute([$reservation_id]);
+        // Set slot to reserved
+        $stmt = $pdo->prepare("UPDATE parking_slots SET slot_status = 'reserved' WHERE parking_slot_id = (SELECT parking_slot_id FROM reservations WHERE reservation_id = ?)");
+        $stmt->execute([$reservation_id]);
     } elseif ($_POST['action'] === 'cancel') {
         $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE reservation_id = ?");
         $stmt->execute([$reservation_id]);
+        // Set slot to available only if there are no other active reservations for this slot
+        $stmt = $pdo->prepare("SELECT parking_slot_id FROM reservations WHERE reservation_id = ?");
+        $stmt->execute([$reservation_id]);
+        $slot_id = $stmt->fetchColumn();
+        // Exclude the just-cancelled reservation from the count
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status = 'confirmed' AND end_time > NOW() AND reservation_id != ?");
+        $stmt->execute([$slot_id, $reservation_id]);
+        $active_count = $stmt->fetchColumn();
+        if ($active_count == 0) {
+            $stmt = $pdo->prepare("UPDATE parking_slots SET slot_status = 'available' WHERE parking_slot_id = ?");
+            $stmt->execute([$slot_id]);
+        }
     }
     header("Location: staff-dashboard.php");
     exit();
