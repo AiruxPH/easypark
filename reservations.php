@@ -64,7 +64,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         ]);
         $reservation_id = $pdo->lastInsertId();
         // Insert payment record with correct columns
-        $pdo->prepare('INSERT INTO payments (reservation_id, amount, payment_status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
+        $pdo->prepare('INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
             $reservation_id, $price, 'pending', $method
         ]);
         $pdo->commit();
