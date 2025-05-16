@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
     header("Location: index.php");
@@ -241,14 +244,16 @@ function confirmReservation() {
 }
 </script>
 <?php else: ?>
-<h4 class="text-light">Available Slots for <span class="text-warning"><?php
+<h4 class="text-light">Available Slots for <span class="text-warning">
+<?php
 foreach ($vehicles as $veh) {
     if ($veh['vehicle_id'] == $selected_vehicle_id) {
         echo htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ')');
         break;
     }
 }
-?></span>:</h4>
+?>
+</span>:</h4>
 <?php if (count($available_slots) > 0): ?>
 <form method="post">
 <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
