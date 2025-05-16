@@ -70,22 +70,24 @@ My Account (<?php echo $_SESSION['username'] ?>)
 </nav>
 <div class="container py-5">
 <h2 class="text-warning mb-4">My Bookings</h2>
-<div class="mb-3 d-flex flex-wrap align-items-center justify-content-between">
-  <div class="form-inline mb-2 mb-md-0">
-    <label for="statusFilter" class="mr-2">Filter by Status:</label>
-    <select id="statusFilter" class="form-control form-control-sm mr-3">
-      <option value="">All</option>
-      <option value="pending">Pending</option>
-      <option value="confirmed">Confirmed</option>
-      <option value="completed">Completed</option>
-      <option value="cancelled">Cancelled</option>
-      <option value="expired">Expired</option>
-      <option value="void">Void</option>
-    </select>
-  </div>
-  <div class="form-inline">
-    <input type="text" id="searchInput" class="form-control form-control-sm mr-2" placeholder="Search bookings...">
-    <button class="btn btn-sm btn-outline-light" id="clearSearch">Clear</button>
+<div class="mb-3 p-3 rounded shadow-sm" style="background:#fff; color:#222; border:1px solid #ddd;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between">
+    <div class="form-inline mb-2 mb-md-0">
+      <label for="statusFilter" class="mr-2 font-weight-bold" style="color:#222;">Filter by Status:</label>
+      <select id="statusFilter" class="form-control form-control-sm mr-3">
+        <option value="">All</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="expired">Expired</option>
+        <option value="void">Void</option>
+      </select>
+    </div>
+    <div class="form-inline">
+      <input type="text" id="searchInput" class="form-control form-control-sm mr-2" placeholder="Search bookings...">
+      <button class="btn btn-sm btn-outline-dark" id="clearSearch">Clear</button>
+    </div>
   </div>
 </div>
 <div class="table-responsive bg-dark rounded p-3">
