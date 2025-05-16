@@ -10,10 +10,12 @@
       <!-- Quick Links -->
       <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
         <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Quick Links</h5>
-        <p><a href="#about" class="text-light" style="text-decoration: none;">About Us</a></p>
-        <p><a href="#terms" class="text-light" style="text-decoration: none;">Terms of Service</a></p>
-        <p><a href="#privacy" class="text-light" style="text-decoration: none;">Privacy Policy</a></p>
-        <p><a href="#contact" class="text-light" style="text-decoration: none;">Contact</a></p>
+        <p><a href="about.php" class="text-light" style="text-decoration: none;">About Us</a></p>
+        <p><a href="how-it-works.php" class="text-light" style="text-decoration: none;">How It Works</a></p>
+        <p><a href="faq.php" class="text-light" style="text-decoration: none;">FAQ</a></p>
+        <p><a href="contact.php" class="text-light" style="text-decoration: none;">Contact</a></p>
+        <p><a href="terms.php" class="text-light" style="text-decoration: none;">Terms of Service</a></p>
+        <p><a href="privacy.php" class="text-light" style="text-decoration: none;">Privacy Policy</a></p>
       </div>
 
       <!-- Social Links -->

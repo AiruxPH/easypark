@@ -175,7 +175,16 @@ if (isset($_SESSION['user_id'])) {
         <a class="nav-link" href="login.php">Reserve</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">How It Works</a>
+        <a class="nav-link" href="how-it-works.php">How It Works</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="faq.php">FAQ</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="about.php">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="contact.php">Contact</a>
       </li>
       <li class="nav-item ml-2">
         <a class="nav-link btn btn-primary px-4" href="login.php">Login/Sign Up</a>

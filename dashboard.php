@@ -181,7 +181,16 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         <a class="nav-link" href="bookings.php">My Bookings</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">How It Works</a>
+        <a class="nav-link" href="how-it-works.php">How It Works</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="faq.php">FAQ</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="about.php">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="contact.php">Contact</a>
       </li>
       <li class="nav-item">
   <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton" style="padding: 0.375rem 1rem;">
