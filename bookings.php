@@ -168,7 +168,16 @@ function updateTimers() {
       const s = diff % 60;
       timer.textContent = `${h}h ${m}m ${s}s left`;
     } else {
-      timer.textContent = 'Expired';
+      if (!timer.classList.contains('expired')) {
+        timer.textContent = 'Expired';
+        timer.classList.add('expired');
+        // AJAX call to update reservation status
+        const reservationId = timer.id.replace('timer-', '');
+        $.post('update_reservation_status.php', { reservation_id: reservationId }, function(response) {
+          // Optionally, reload the page or update the UI
+          location.reload();
+        });
+      }
     }
   });
 }
