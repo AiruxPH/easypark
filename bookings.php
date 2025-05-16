@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
     header("Location: index.php");
@@ -17,7 +20,7 @@ LEFT JOIN payments p ON r.reservation_id = p.reservation_id
 WHERE r.user_id = ?
 ORDER BY r.start_time DESC";
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$user_id]);
+stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Get user profile pic for navbar
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
