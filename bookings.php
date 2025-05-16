@@ -80,6 +80,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
       <th>Start</th>
       <th>End</th>
       <th>Duration</th>
+      <th>Reservation Status</th>
       <th>Amount</th>
       <th>Payment Status</th>
       <th>Payment Method</th>
@@ -88,7 +89,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
   </thead>
   <tbody>
     <?php if (count($bookings) === 0): ?>
-      <tr><td colspan="10" class="text-center">No bookings found.</td></tr>
+      <tr><td colspan="11" class="text-center">No bookings found.</td></tr>
     <?php else: foreach ($bookings as $b): ?>
       <tr>
         <td><?= htmlspecialchars($b['reservation_id']) ?></td>
@@ -97,8 +98,9 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars($b['start_time']) ?></td>
         <td><?= htmlspecialchars($b['end_time']) ?></td>
         <td><?= htmlspecialchars($b['duration']) ?></td>
-        <td>₱<?= number_format($b['amount'],2) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+        <td>₱<?= number_format($b['amount'],2) ?></td>
+        <td><?= htmlspecialchars(ucfirst($b['status_2'] ?? $b['status'])) ?></td>
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
       </tr>
