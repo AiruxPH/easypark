@@ -43,17 +43,26 @@ if (isset($_POST['reserve_slot_id']) && $selected_vehicle_id) {
     $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
     $stmt->execute([$slot_id, $selected_vehicle_type]);
     $selected_slot = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($selected_slot) {
+        $show_reservation_form = true;
+    } else {
+        $reservation_error = 'Selected slot is no longer available.';
+    }
+}
+
+if (isset($_POST['review_reservation']) && $selected_vehicle_id && isset($_POST['slot_id'])) {
+    $slot_id = $_POST['slot_id'];
+    // Fetch slot info for confirmation step (regardless of status, since user already picked it)
+    $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_type = ?');
+    $stmt->execute([$slot_id, $selected_vehicle_type]);
+    $selected_slot = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Repopulate reservation details from POST for confirmation step
     $duration_type = $_POST['duration_type'] ?? '';
     $start_datetime = $_POST['start_datetime'] ?? '';
     $end_datetime = $_POST['end_datetime'] ?? '';
     $payment_method = $_POST['payment_method'] ?? '';
     $price = $_POST['price'] ?? '';
     $duration_value = $_POST['duration_value'] ?? '';
-    if ($selected_slot) {
-        $show_reservation_form = true;
-    } else {
-        $reservation_error = 'Selected slot is no longer available.';
-    }
 }
 
 // Step 2: Handle reservation confirmation
