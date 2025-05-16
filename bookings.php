@@ -16,6 +16,19 @@ if (!in_array($sort, $allowedSort)) $sort = 'reservation_id';
 if ($sort === 'start_datetime') $sort = 'start_time';
 if ($sort === 'end_datetime') $sort = 'end_time';
 
+// Map sort keys to their correct table aliases
+$sortMap = [
+    'reservation_id' => 'r.reservation_id',
+    'start_time' => 'r.start_time',
+    'end_time' => 'r.end_time',
+    'duration' => 'r.duration',
+    'slot_number' => 's.slot_number',
+    'amount' => 'p.amount',
+    'payment_status' => 'p.payment_status'
+];
+if (!array_key_exists($sort, $sortMap)) $sort = 'reservation_id';
+$orderBy = $sortMap[$sort] . ' ' . $order;
+
 // Build query
 $sql = "SELECT r.*, p.amount, p.payment_status, p.method, p.payment_date, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
 FROM reservations r
@@ -29,7 +42,7 @@ if ($search !== '') {
     $sql .= " AND r.reservation_id = ?";
     $params[] = $search;
 }
-$sql .= " ORDER BY r.$sort $order";
+$sql .= " ORDER BY $orderBy";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
