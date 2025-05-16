@@ -29,7 +29,7 @@ if ($search !== '') {
     $sql .= " AND r.reservation_id = ?";
     $params[] = $search;
 }
-$sql .= " ORDER BY $sort $order";
+$sql .= " ORDER BY r.$sort $order";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
