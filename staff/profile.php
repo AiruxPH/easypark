@@ -230,6 +230,9 @@ body {
           <button type="submit" name="change_password" class="btn btn-warning w-100">Change Password</button>
         </div>
       </form>
+      <div class="text-center mt-2">
+  <a href="#" class="text-warning small" onclick="showResetOverlay();return false;">Forgot password?</a>
+</div>
     </div>
   </div>
 </div>
@@ -282,9 +285,7 @@ $(function(){
   });
 });
 </script>
-<div class="text-center mt-2">
-  <a href="#" class="text-warning small" onclick="showResetOverlay();return false;">Forgot password?</a>
-</div>
+
 <script src="../js/bootstrap.bundle.min.js"></script>
 <script src="../js/jquery.min.js"></script>
 <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
