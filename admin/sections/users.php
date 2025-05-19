@@ -115,6 +115,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
         echo '<div class="alert alert-success" id="user-success-msg">User deleted successfully.</div>';
     }
 }
+
+// Fetch current admin info
+$currentAdmin = null;
+if ($currentAdminEmail) {
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$currentAdminEmail]);
+    $currentAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 ?>
 
 <div class="container-fluid">
@@ -285,6 +293,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
             <?php endif; ?>
         </div>
     </div>
+
+    <div class="mb-3">
+        <?php if ($currentAdmin): ?>
+            <button class="btn btn-info" onclick="showProfileModal()">My Profile</button>
+        <?php endif; ?>
+    </div>
 </div>
 
 <!-- Add User Modal -->
@@ -401,6 +415,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     </div>
 </div>
 
+<!-- My Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" id="profileForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="profile_user_id" value="<?= htmlspecialchars($currentAdmin['user_id']) ?>">
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input name="profile_first_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['first_name']) ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Middle Name</label>
+                        <input name="profile_middle_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['middle_name']) ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input name="profile_last_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['last_name']) ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input name="profile_email" type="email" class="form-control" value="<?= htmlspecialchars($currentAdmin['email']) ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input name="profile_phone" class="form-control" value="<?= htmlspecialchars($currentAdmin['phone']) ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password <small>(leave blank to keep current)</small></label>
+                        <input name="profile_password" type="password" class="form-control" autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 function editUser(user) {
     $('#edit_user_id').val(user.user_id);
@@ -452,4 +510,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1200);
     }
 });
+
+function showProfileModal() {
+    $('#profileModal').modal('show');
+}
 </script>
