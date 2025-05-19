@@ -28,7 +28,7 @@ $per_page = 6;
 // Active Reservations Pagination
 $active_page = isset($_GET['active_page']) ? max(1, intval($_GET['active_page'])) : 1;
 $active_offset = ($active_page - 1) * $per_page;
-$sql_active_count = "SELECT COUNT(*) FROM reservations WHERE status IN ('confirmed', 'ongoing') AND end_time > NOW()";
+$sql_active_count = "SELECT COUNT(*) FROM reservations WHERE status IN ('confirmed', 'ongoing')";
 $active_total = $pdo->query($sql_active_count)->fetchColumn();
 $sql_active = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
 FROM reservations r
@@ -36,7 +36,7 @@ JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id
 JOIN Vehicle_Models m ON v.model_id = m.model_id
 JOIN users u ON r.user_id = u.user_id
-WHERE r.status IN ('confirmed', 'ongoing') AND r.end_time > NOW()
+WHERE r.status IN ('confirmed', 'ongoing')
 ORDER BY r.start_time ASC LIMIT $per_page OFFSET $active_offset";
 $stmt = $pdo->prepare($sql_active);
 $stmt->execute();
