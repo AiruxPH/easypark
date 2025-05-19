@@ -638,7 +638,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                     $sql = "SELECT v.plate_number, CONCAT(u.first_name, ' ', u.last_name) AS owner_name, m.brand, m.model, v.type
                       FROM vehicles v
                       JOIN users u ON v.user_id = u.user_id
-                      JOIN Vehicle_Models m ON v.model_id = m.model_id
+                      LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
                       ORDER BY v.plate_number ASC LIMIT 200";
                     $stmt = $pdo->query($sql);
                     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
