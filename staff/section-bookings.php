@@ -7,20 +7,6 @@ require_once __DIR__ . '/section-common.php';
   <p class="mb-3" style="color:#212529;background:rgba(255,255,255,0.85);padding:0.5rem 1rem;border-radius:0.5rem;">
     Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.
   </p>
-  <div class="row mb-2">
-    <div class="col-md-4 mb-2">
-      <input type="text" id="bookingsSearch" class="form-control" placeholder="Search bookings...">
-    </div>
-    <div class="col-md-3 mb-2">
-      <select id="bookingsStatusFilter" class="form-control">
-        <option value="">All Statuses</option>
-        <option value="pending">Pending</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
-  </div>
   <div class="table-responsive">
     <table id="bookingsTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-dark">
@@ -69,21 +55,3 @@ require_once __DIR__ . '/section-common.php';
     </table>
   </div>
 </div>
-<script>
-$(document).ready(function() {
-  function filterBookings() {
-    var search = $('#bookingsSearch').val().toLowerCase();
-    var status = $('#bookingsStatusFilter').val();
-    $('#bookingsTable tbody tr').each(function() {
-      var tds = $(this).children('td');
-      var rowStatus = tds.eq(7).text().toLowerCase();
-      var rowText = $(this).text().toLowerCase();
-      var show = true;
-      if (search && rowText.indexOf(search) === -1) show = false;
-      if (status && rowStatus !== status) show = false;
-      $(this).toggle(show);
-    });
-  }
-  $('#bookingsSearch, #bookingsStatusFilter').on('input change', filterBookings);
-});
-</script>
