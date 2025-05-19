@@ -4,7 +4,9 @@ require_once __DIR__ . '/section-common.php';
 ?>
 <div class="section-card">
   <h4 class="mb-3 text-primary"><i class="fa fa-calendar-check-o"></i> Manage Expected Bookings</h4>
-  <p class="mb-3">Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.</p>
+  <p class="mb-3" style="color:#212529;background:rgba(255,255,255,0.85);padding:0.5rem 1rem;border-radius:0.5rem;">
+    Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.
+  </p>
   <input type="text" id="bookingsSearch" class="form-control mb-2" placeholder="Search bookings...">
   <div class="table-responsive">
     <table id="bookingsTable" class="table table-bordered table-hover">
