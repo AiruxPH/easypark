@@ -130,19 +130,19 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
     <a class="navbar-brand mb-4" href="admin-dashboard.php"><i class="fas fa-parking"></i> EasyPark</a>
     <ul class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a class="nav-link<?= !$showParkingSlots && !isset($_GET['users']) ? ' active' : '' ?>" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a class="nav-link<?= !$showParkingSlots && !isset($_GET['users']) && !isset($_GET['transactions']) && !isset($_GET['vehicles']) ? ' active' : '' ?>" href="admin-dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link<?= $showParkingSlots ? ' active' : '' ?>" href="#"><i class="fas fa-car"></i> Parking Slots</a>
+        <a class="nav-link<?= $showParkingSlots ? ' active' : '' ?>" href="admin-dashboard.php?page=1"><i class="fas fa-car"></i> Parking Slots</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link<?= isset($_GET['users']) ? ' active' : '' ?>" href="?users=1"><i class="fas fa-users"></i> Users</a>
+        <a class="nav-link<?= isset($_GET['users']) ? ' active' : '' ?>" href="admin-dashboard.php?users=1"><i class="fas fa-users"></i> Users</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link<?= isset($_GET['transactions']) ? ' active' : '' ?>" href="?transactions=1"><i class="fas fa-exchange-alt"></i> Transactions</a>
+        <a class="nav-link<?= isset($_GET['transactions']) ? ' active' : '' ?>" href="admin-dashboard.php?transactions=1"><i class="fas fa-exchange-alt"></i> Transactions</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link<?= isset($_GET['vehicles']) ? ' active' : '' ?>" href="?vehicles=1"><i class="fas fa-car-side"></i> Vehicles</a>
+        <a class="nav-link<?= isset($_GET['vehicles']) ? ' active' : '' ?>" href="admin-dashboard.php?vehicles=1"><i class="fas fa-car-side"></i> Vehicles</a>
       </li>
       <li class="nav-item">
         <a href="../logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
