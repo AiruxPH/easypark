@@ -67,11 +67,6 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'reservations' ? ' active' : '' ?>" href="?section=reservations">
-                    <i class="fa fa-calendar"></i> Reservations
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'vehicles' ? ' active' : '' ?>" href="?section=vehicles">
                     <i class="fa fa-car"></i> Vehicles
                 </a>
