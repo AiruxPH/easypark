@@ -256,9 +256,7 @@ body {
       </div>
     </nav>
     <!-- Section Content Loader -->
-    <div id="section-content">
-      <?php include __DIR__ . '/section-profile.php'; ?>
-    </div>
+    <div id="section-content"></div>
   </div>
 </div>
 <script src="../js/bootstrap.bundle.min.js"></script>
@@ -273,14 +271,10 @@ const sectionFiles = {
   slots: 'section-slots.php'
 };
 $(function() {
-  $('.staff-navbar .nav-link').on('click', function(e) {
-    e.preventDefault();
-    var section = $(this).data('section');
-    if (!section) return;
+  function loadSection(section) {
     $('.staff-navbar .nav-link').removeClass('active');
-    $(this).addClass('active');
+    $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
     $('#section-content').fadeOut(100, function() {
-      // Always use relative path from staff-dashboard.php
       $('#section-content').load(sectionFiles[section], function(response, status, xhr) {
         if (status === "error") {
           $('#section-content').html(
@@ -291,7 +285,15 @@ $(function() {
         }
       });
     });
+  }
+  $('.staff-navbar .nav-link').on('click', function(e) {
+    e.preventDefault();
+    var section = $(this).data('section');
+    if (!section) return;
+    loadSection(section);
   });
+  // Load profile section by default on page load
+  loadSection('profile');
 });
 </script>
 <style>
