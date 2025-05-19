@@ -4,7 +4,18 @@ require_once __DIR__ . '/section-common.php';
 ?>
 <div class="section-card">
   <h4 class="mb-3 text-success"><i class="fa fa-play-circle"></i> Active Reservations (Confirmed & Ongoing)</h4>
-  <input type="text" id="activeSearch" class="form-control mb-2" placeholder="Search active reservations...">
+  <div class="row mb-2">
+    <div class="col-md-4 mb-2">
+      <input type="text" id="activeSearch" class="form-control" placeholder="Search active reservations...">
+    </div>
+    <div class="col-md-3 mb-2">
+      <select id="activeStatusFilter" class="form-control">
+        <option value="">All Statuses</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="ongoing">Ongoing</option>
+      </select>
+    </div>
+  </div>
   <div class="table-responsive">
     <table id="activeTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-dark">
@@ -47,12 +58,45 @@ require_once __DIR__ . '/section-common.php';
 </div>
 <script>
 $(document).ready(function() {
-  $('#activeSearch').on('input', function() {
-    var search = $(this).val().toLowerCase();
-    $('#activeTable tbody tr').each(function() {
-      var rowText = $(this).text().toLowerCase();
-      $(this).toggle(rowText.indexOf(search) !== -1);
+  function filterAndSortActive() {
+    var search = $('#activeSearch').val().toLowerCase();
+    var status = $('#activeStatusFilter').val();
+    var rows = $('#activeTable tbody tr').get();
+    rows.forEach(function(row) {
+      var tds = $(row).children('td');
+      var rowStatus = tds.eq(7).text().toLowerCase();
+      var rowText = $(row).text().toLowerCase();
+      var show = true;
+      if (search && rowText.indexOf(search) === -1) show = false;
+      if (status && rowStatus !== status) show = false;
+      $(row).toggle(show);
     });
+    // Sorting
+    if (window.activeSortCol !== undefined) {
+      rows = rows.filter(function(row) { return $(row).css('display') !== 'none'; });
+      rows.sort(function(a, b) {
+        var tdA = $(a).children('td').eq(window.activeSortCol).text().toLowerCase();
+        var tdB = $(b).children('td').eq(window.activeSortCol).text().toLowerCase();
+        if (!isNaN(tdA) && !isNaN(tdB)) {
+          return window.activeSortAsc ? tdA - tdB : tdB - tdA;
+        }
+        return window.activeSortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+      });
+      $.each(rows, function(i, row) {
+        $('#activeTable tbody').append(row);
+      });
+    }
+  }
+  $('#activeSearch, #activeStatusFilter').on('input change', filterAndSortActive);
+  window.activeSortCol = undefined;
+  window.activeSortAsc = true;
+  $('#activeTable thead th.sortable').on('click', function() {
+    var idx = $(this).index();
+    if (window.activeSortCol === idx) window.activeSortAsc = !window.activeSortAsc;
+    else { window.activeSortCol = idx; window.activeSortAsc = true; }
+    filterAndSortActive();
+    $('#activeTable thead th').removeClass('asc desc');
+    $(this).addClass(window.activeSortAsc ? 'asc' : 'desc');
   });
 });
 </script>
