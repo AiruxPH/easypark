@@ -247,11 +247,11 @@ body {
       </button>
       <div class="collapse navbar-collapse" id="staffNav">
         <ul class="navbar-nav w-100 justify-content-between">
-          <li class="nav-item"><a class="nav-link active" href="#" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="history"><i class="fa fa-history"></i> History</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="slots"><i class="fa fa-car"></i> Slots</a></li>
+          <li class="nav-item"><a class="nav-link active" href="section-profile.php" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="section-booking.php" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="section-active.php" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
+          <li class="nav-item"><a class="nav-link" href="section-history.php" data-section="history"><i class="fa fa-history"></i> History</a></li>
+          <li class="nav-item"><a class="nav-link" href="section-slots.php" data-section="slots"><i class="fa fa-car"></i> Slots</a></li>
         </ul>
       </div>
     </nav>
