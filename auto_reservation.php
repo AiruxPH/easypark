@@ -1,6 +1,7 @@
 <?php
 include 'db.php'; // your PDO connection file
 
+
 try {
     $now = date('Y-m-d H:i:s');
 
