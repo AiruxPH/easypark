@@ -73,11 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     if (!$isSuperAdmin && $userType === 'admin') {
         echo '<div class="alert alert-danger">You do not have permission to add admin accounts.</div>';
     } else {
-        // ...validate other fields...
+        // Basic validation (add more as needed)
         $stmt = $pdo->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, phone, user_type, security_word, created_at, is_active, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
         $stmt->execute([
-            $_POST['first_name'], $_POST['middle_name'], $_POST['last_name'], $_POST['email'],
-            $_POST['password'], $_POST['phone'], $userType, $_POST['security_word'] ?? '', 1, 'default.jpg'
+            $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
+            $_POST['password'] ?? '', $_POST['phone'] ?? '', $userType, $_POST['security_word'] ?? '', 1, 'default.jpg'
         ]);
         echo '<div class="alert alert-success">User added successfully.</div>';
     }
@@ -86,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
 // Handle Edit User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $editUserId = intval($_POST['user_id']);
-    // Fetch target user type
     $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
     $target->execute([$editUserId]);
     $targetType = $target->fetchColumn();
@@ -95,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     } else {
         $stmt = $pdo->prepare("UPDATE users SET first_name=?, middle_name=?, last_name=?, email=?, phone=?, user_type=?, is_active=? WHERE user_id=?");
         $stmt->execute([
-            $_POST['first_name'], $_POST['middle_name'], $_POST['last_name'], $_POST['email'],
-            $_POST['phone'], $_POST['user_type'], $_POST['is_active'], $editUserId
+            $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
+            $_POST['phone'] ?? '', $_POST['user_type'] ?? '', $_POST['is_active'] ?? 1, $editUserId
         ]);
         echo '<div class="alert alert-success">User updated successfully.</div>';
     }
@@ -105,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 // Handle Delete User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     $deleteUserId = intval($_POST['user_id']);
-    // Fetch target user type
     $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
     $target->execute([$deleteUserId]);
     $targetType = $target->fetchColumn();
