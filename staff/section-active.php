@@ -45,3 +45,14 @@ require_once __DIR__ . '/section-common.php';
     </table>
   </div>
 </div>
+<script>
+$(document).ready(function() {
+  $('#activeSearch').on('input', function() {
+    var search = $(this).val().toLowerCase();
+    $('#activeTable tbody tr').each(function() {
+      var rowText = $(this).text().toLowerCase();
+      $(this).toggle(rowText.indexOf(search) !== -1);
+    });
+  });
+});
+</script>
