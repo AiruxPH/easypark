@@ -125,6 +125,43 @@ if ($currentAdminEmail) {
 }
 ?>
 
+<!-- Navbar (example, adjust selector as needed) -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">EasyPark Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="?section=dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="?section=users">Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="?section=transactions">Transactions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="?section=reports">Reports</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <!-- ...other nav items... -->
+                <?php if ($currentAdmin): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showProfileModal(); return false;">My Profile</a>
+                    </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="?logout=1">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Users Management</h2>
@@ -294,167 +331,161 @@ if ($currentAdminEmail) {
         </div>
     </div>
 
-    <div class="mb-3">
-        <?php if ($currentAdmin): ?>
-            <button class="btn btn-info" onclick="showProfileModal()">My Profile</button>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Add User Modal -->
-<div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" id="addUserForm">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" name="first_name" required>
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="addUserForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="form-group">
-                        <label>Middle Name</label>
-                        <input type="text" class="form-control" name="middle_name">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Middle Name</label>
+                            <input type="text" class="form-control" name="middle_name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_user_type" class="form-label">User Type</label>
+                            <select name="user_type" id="add_user_type" class="form-select" required>
+                                <?php if ($isSuperAdmin): ?>
+                                    <option value="admin">Admin</option>
+                                <?php endif; ?>
+                                <option value="staff">Staff</option>
+                                <option value="client">Client</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" name="last_name" required>
+                    <div class="modal-footer">
+                        <button type="submit" name="add_user" class="btn btn-primary">Add User</button>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="tel" class="form-control" name="phone" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="add_user_type" class="form-label">User Type</label>
-                        <select name="user_type" id="add_user_type" class="form-select" required>
-                            <?php if ($isSuperAdmin): ?>
-                                <option value="admin">Admin</option>
-                            <?php endif; ?>
-                            <option value="staff">Staff</option>
-                            <option value="client">Client</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" class="form-control" name="password" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="add_user" class="btn btn-primary">Add User</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" id="editUserForm">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="user_id" id="edit_user_id">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" id="edit_first_name" name="first_name" required>
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="editUserForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="form-group">
-                        <label>Middle Name</label>
-                        <input type="text" class="form-control" id="edit_middle_name" name="middle_name">
+                    <div class="modal-body">
+                        <input type="hidden" name="user_id" id="edit_user_id">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" id="edit_first_name" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Middle Name</label>
+                            <input type="text" class="form-control" id="edit_middle_name" name="middle_name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" id="edit_last_name" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" class="form-control" id="edit_phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_user_type" class="form-label">User Type</label>
+                            <select name="user_type" id="edit_user_type" class="form-select" required>
+                                <?php if ($isSuperAdmin): ?>
+                                    <option value="admin">Admin</option>
+                                <?php endif; ?>
+                                <option value="staff">Staff</option>
+                                <option value="client">Client</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="edit_active" name="active" required>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password (leave blank to keep current)</label>
+                            <input type="password" class="form-control" name="password">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" id="edit_last_name" name="last_name" required>
+                    <div class="modal-footer">
+                        <button type="submit" name="edit_user" id="editUserBtn" class="btn btn-primary">Update User</button>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" class="form-control" id="edit_email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="tel" class="form-control" id="edit_phone" name="phone" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_user_type" class="form-label">User Type</label>
-                        <select name="user_type" id="edit_user_type" class="form-select" required>
-                            <?php if ($isSuperAdmin): ?>
-                                <option value="admin">Admin</option>
-                            <?php endif; ?>
-                            <option value="staff">Staff</option>
-                            <option value="client">Client</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select class="form-control" id="edit_active" name="active" required>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>New Password (leave blank to keep current)</label>
-                        <input type="password" class="form-control" name="password">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="edit_user" id="editUserBtn" class="btn btn-primary">Update User</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- My Profile Modal -->
-<div class="modal fade" id="profileModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" id="profileForm">
-                <div class="modal-header">
-                    <h5 class="modal-title">My Profile</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="profile_user_id" value="<?= htmlspecialchars($currentAdmin['user_id']) ?>">
-                    <div class="mb-3">
-                        <label class="form-label">First Name</label>
-                        <input name="profile_first_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['first_name']) ?>" required>
+    <!-- My Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="profileForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">My Profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Middle Name</label>
-                        <input name="profile_middle_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['middle_name']) ?>">
+                    <div class="modal-body">
+                        <input type="hidden" name="profile_user_id" value="<?= htmlspecialchars($currentAdmin['user_id']) ?>">
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input name="profile_first_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['first_name']) ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Middle Name</label>
+                            <input name="profile_middle_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['middle_name']) ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input name="profile_last_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['last_name']) ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input name="profile_email" type="email" class="form-control" value="<?= htmlspecialchars($currentAdmin['email']) ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input name="profile_phone" class="form-control" value="<?= htmlspecialchars($currentAdmin['phone']) ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password <small>(leave blank to keep current)</small></label>
+                            <input name="profile_password" type="password" class="form-control" autocomplete="new-password">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Last Name</label>
-                        <input name="profile_last_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['last_name']) ?>" required>
+                    <div class="modal-footer">
+                        <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input name="profile_email" type="email" class="form-control" value="<?= htmlspecialchars($currentAdmin['email']) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Phone</label>
-                        <input name="profile_phone" class="form-control" value="<?= htmlspecialchars($currentAdmin['phone']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password <small>(leave blank to keep current)</small></label>
-                        <input name="profile_password" type="password" class="form-control" autocomplete="new-password">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>
