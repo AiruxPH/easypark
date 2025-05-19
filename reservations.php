@@ -14,14 +14,25 @@ $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare('SELECT v.vehicle_id, v.plate_number, m.brand, m.model, m.type FROM vehicles v JOIN Vehicle_Models m ON v.model_id = m.model_id WHERE v.user_id = ?');
 $stmt->execute([$user_id]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// Fetch vehicle IDs with active reservations (not cancelled/completed, and end_time > NOW)
+// Fetch vehicle IDs with active or pending reservations (not cancelled/completed, and end_time > NOW or status = 'pending')
 $active_vehicle_ids = [];
-$stmt = $pdo->prepare('SELECT vehicle_id FROM reservations WHERE user_id = ? AND status IN ("confirmed", "ongoing") AND end_time > NOW()');
+$stmt = $pdo->prepare('SELECT vehicle_id FROM reservations WHERE user_id = ? AND status IN ("pending", "confirmed", "ongoing")');
 $stmt->execute([$user_id]);
 foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $vid) {
     $active_vehicle_ids[$vid] = true;
 }
+// Check if user has any active or pending reservation
+$user_has_active_reservation = false;
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ("pending", "confirmed", "ongoing")');
+$stmt->execute([$user_id]);
+if ($stmt->fetchColumn() > 0) {
+    $user_has_active_reservation = true;
+}
 $selected_vehicle_id = isset($_POST['vehicle_id']) ? $_POST['vehicle_id'] : ($vehicles[0]['vehicle_id'] ?? null);
+// If selected vehicle is not allowed, set to null
+if ($selected_vehicle_id && isset($active_vehicle_ids[$selected_vehicle_id])) {
+    $selected_vehicle_id = null;
+}
 $selected_vehicle_type = null;
 if ($selected_vehicle_id) {
     foreach ($vehicles as $veh) {
@@ -229,21 +240,29 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <form method="post" class="mb-4">
 <div class="form-group">
 <label for="vehicle_id" class="text-light">Select Your Vehicle:</label>
-<select name="vehicle_id" id="vehicle_id" class="form-control" onchange="this.form.submit()" required>
+<select name="vehicle_id" id="vehicle_id" class="form-control" onchange="this.form.submit()" required <?= $user_has_active_reservation ? 'disabled' : '' ?>>
 <?php foreach ($vehicles as $veh): ?>
   <?php
     $is_active = isset($active_vehicle_ids[$veh['vehicle_id']]);
   ?>
   <option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?> <?= $is_active ? 'disabled' : '' ?>>
     <?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
-    <?= $is_active ? ' (Currently Reserved)' : '' ?>
+    <?= $is_active ? ' (Has Active/Pending Reservation)' : '' ?>
   </option>
 <?php endforeach; ?>
 </select>
-<small class="form-text text-warning">Vehicles with an active reservation cannot be selected.</small>
+<small class="form-text text-warning">
+  Vehicles with an active or pending reservation cannot be selected.<br>
+  <?php if ($user_has_active_reservation): ?>
+    You have a pending, confirmed, or ongoing reservation. You cannot reserve another slot until it is completed or cancelled.
+  <?php endif; ?>
+</small>
 </div>
 </form>
-<?php if ($selected_vehicle_id && empty($active_vehicle_ids[$selected_vehicle_id])): ?>
+<?php if ($user_has_active_reservation): ?>
+  <div class="alert alert-info mt-3">You have a pending, confirmed, or ongoing reservation. You cannot reserve another slot until it is completed or cancelled.</div>
+<?php endif; ?>
+<?php if ($selected_vehicle_id && empty($active_vehicle_ids[$selected_vehicle_id]) && !$user_has_active_reservation): ?>
 <?php if ($current_step === 3): ?>
 <!-- Step 3: Confirmation page -->
 <form method="post" class="bg-dark text-light p-4 rounded">
