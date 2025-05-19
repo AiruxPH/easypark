@@ -36,8 +36,7 @@ $offset = ($page - 1) * $per_page;
 $where = [];
 $params = [];
 
-// Fix: Check if slot_number, slot_type columns exist before using them in search/filter/sort
-// Use COALESCE to avoid SQL errors if columns are missing (for legacy rows)
+// Use known columns for search
 $searchableCols = ['slot_number', 'slot_type', 'slot_status'];
 
 // Build search condition dynamically
