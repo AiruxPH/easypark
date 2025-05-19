@@ -292,8 +292,13 @@ if (isset($_POST['add_vehicle'])) {
                     <td><?= htmlspecialchars($vehicle['model'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($vehicle['color']) ?></td>
                     <td>
-                        <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): ?>
-                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#reservationModal<?= $vehicle['vehicle_id'] ?>">In Reservation</button>
+                        <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): 
+                            $res = $vehicle_active_reservations[$vehicle['vehicle_id']];
+                            $status = ucfirst($res['status']);
+                        ?>
+                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#reservationModal<?= $vehicle['vehicle_id'] ?>">
+                                <?= htmlspecialchars($status) ?>
+                            </button>
                         <?php else: ?>
                             <span class="badge badge-success">Available</span>
                         <?php endif; ?>
