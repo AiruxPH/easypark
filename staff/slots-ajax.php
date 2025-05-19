@@ -38,10 +38,7 @@ $params = [];
 
 // Fix: Check if slot_number, slot_type columns exist before using them in search/filter/sort
 // Use COALESCE to avoid SQL errors if columns are missing (for legacy rows)
-$searchableCols = [];
-if (in_array('slot_number', array_keys($slots[0] ?? []))) $searchableCols[] = 'slot_number';
-if (in_array('slot_type', array_keys($slots[0] ?? []))) $searchableCols[] = 'slot_type';
-if (in_array('slot_status', array_keys($slots[0] ?? []))) $searchableCols[] = 'slot_status';
+$searchableCols = ['slot_number', 'slot_type', 'slot_status'];
 
 // Build search condition dynamically
 if ($search !== '' && $searchableCols) {
