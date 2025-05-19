@@ -45,7 +45,7 @@ $(document).ready(function() {
     var status = $('#slotStatusFilter').val();
     var sortBy = $('#slotSort').val();
     $.ajax({
-      url: '/slots-ajax.php',
+      url: 'slots-ajax.php',
       method: 'GET',
       data: {
         search: search,
