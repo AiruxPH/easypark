@@ -281,8 +281,14 @@ $(function() {
     $(this).addClass('active');
     $('#section-content').fadeOut(100, function() {
       // Always use relative path from staff-dashboard.php
-      $('#section-content').load(sectionFiles[section], function() {
-        $('#section-content').fadeIn(100);
+      $('#section-content').load(sectionFiles[section], function(response, status, xhr) {
+        if (status === "error") {
+          $('#section-content').html(
+            "<div class='alert alert-danger'>Failed to load section: " + xhr.status + " " + xhr.statusText + "</div>"
+          ).fadeIn(100);
+        } else {
+          $('#section-content').fadeIn(100);
+        }
       });
     });
   });
