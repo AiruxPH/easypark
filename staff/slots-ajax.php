@@ -51,13 +51,16 @@ $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
 $countSql = "SELECT COUNT(*) FROM parking_slots $whereSql";
 $countStmt = $pdo->prepare($countSql);
-$countStmt->execute($params);
+foreach ($params as $k => $v) {
+    $countStmt->bindValue($k, $v);
+}
+$countStmt->execute();
 $total = $countStmt->fetchColumn();
 $total_pages = ceil($total / $per_page);
 
 $allowedSort = ['slot_number', 'slot_type', 'slot_status'];
 $sortCol = in_array($sort, $allowedSort) ? $sort : 'slot_number';
-$sql = "SELECT * FROM parking_slots $whereSql ORDER BY $sortCol ASC LIMIT :offset, :per_page";
+$sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY $sortCol ASC LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $k => $v) {
     $stmt->bindValue($k, $v);
