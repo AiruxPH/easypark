@@ -86,10 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
 // Handle Edit User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $editUserId = intval($_POST['user_id']);
-    $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $target = $pdo->prepare("SELECT user_type, email FROM users WHERE user_id = ?");
     $target->execute([$editUserId]);
-    $targetType = $target->fetchColumn();
-    if (!$isSuperAdmin && $targetType === 'admin') {
+    $targetRow = $target->fetch(PDO::FETCH_ASSOC);
+    $targetType = $targetRow['user_type'] ?? null;
+    $targetEmail = $targetRow['email'] ?? null;
+    if ($targetEmail === 'admin@gmail.com') {
+        echo '<div class="alert alert-danger">You cannot edit the Super Admin account.</div>';
+    } elseif (!$isSuperAdmin && $targetType === 'admin') {
         echo '<div class="alert alert-danger">You do not have permission to edit admin accounts.</div>';
     } else {
         $stmt = $pdo->prepare("UPDATE users SET first_name=?, middle_name=?, last_name=?, email=?, phone=?, user_type=?, is_active=? WHERE user_id=?");
@@ -104,10 +108,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 // Handle Delete User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     $deleteUserId = intval($_POST['user_id']);
-    $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $target = $pdo->prepare("SELECT user_type, email FROM users WHERE user_id = ?");
     $target->execute([$deleteUserId]);
-    $targetType = $target->fetchColumn();
-    if (!$isSuperAdmin && $targetType === 'admin') {
+    $targetRow = $target->fetch(PDO::FETCH_ASSOC);
+    $targetType = $targetRow['user_type'] ?? null;
+    $targetEmail = $targetRow['email'] ?? null;
+    if ($targetEmail === 'admin@gmail.com') {
+        echo '<div class="alert alert-danger">You cannot delete the Super Admin account.</div>';
+    } elseif (!$isSuperAdmin && $targetType === 'admin') {
         echo '<div class="alert alert-danger">You do not have permission to delete admin accounts.</div>';
     } else {
         $stmt = $pdo->prepare("DELETE FROM users WHERE user_id=?");
@@ -214,6 +222,11 @@ if ($currentAdminEmail) {
                     </thead>
                     <tbody>
                         <?php foreach ($users as $user): ?>
+                        <?php
+                            $isTargetAdmin = ($user['user_type'] === 'admin');
+                            $isSuperAdminUser = ($user['email'] === 'admin@gmail.com');
+                            $canEditDelete = ($isSuperAdmin && !$isSuperAdminUser) || (!$isTargetAdmin && !$isSuperAdminUser);
+                        ?>
                         <tr>
                             <td><?= htmlspecialchars($user['user_id']) ?></td>
                             <td>
@@ -222,24 +235,23 @@ if ($currentAdminEmail) {
                             <td><?= htmlspecialchars($user['email']) ?></td>
                             <td><?= htmlspecialchars($user['phone']) ?></td>
                             <td>
-                                <span class="badge badge-<?= $user['user_type'] === 'admin' ? 'danger' : ($user['user_type'] === 'staff' ? 'warning' : 'info') ?>">
-                                    <?= ucfirst(htmlspecialchars($user['user_type'])) ?>
-                                </span>
+                                <?php if ($isSuperAdminUser): ?>
+                                    <span class="badge bg-dark">Super Admin</span>
+                                <?php else: ?>
+                                    <span class="badge badge-<?= $user['user_type'] === 'admin' ? 'danger' : ($user['user_type'] === 'staff' ? 'warning' : 'info') ?>">
+                                        <?= ucfirst(htmlspecialchars($user['user_type'])) ?>
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?= $user['is_active'] == 1 ? 'Active' : 'Inactive' ?>
                             </td>
                             <td>
-                                <?php
-                                // Determine if action buttons should be shown
-                                $isTargetAdmin = ($user['user_type'] === 'admin');
-                                $canEditDelete = $isSuperAdmin || !$isTargetAdmin;
-                                ?>
                                 <button class="btn btn-sm btn-primary"
                                     onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)"
                                     <?= !$canEditDelete ? 'disabled' : '' ?>>Edit</button>
                                 <button class="btn btn-sm btn-danger"
-                                    onclick="deleteUser(<?= $user['user_id'] ?>, '<?= $user['user_type'] ?>')"
+                                    onclick="deleteUser(<?= $user['user_id'] ?>, '<?= $user['user_type'] ?>', '<?= $user['email'] ?>')"
                                     <?= !$canEditDelete ? 'disabled' : '' ?>>Delete</button>
                             </td>
                         </tr>
@@ -433,10 +445,10 @@ function editUser(user) {
     $('#editUserModal').modal('show');
 }
 
-function deleteUser(userId, userType) {
-    // Block delete for admin if not super admin
-    if (userType === 'admin' && <?= json_encode(!$isSuperAdmin) ?>) {
-        alert('You do not have permission to delete admin accounts.');
+function deleteUser(userId, userType, userEmail) {
+    // Block delete for admin if not super admin, or if super admin user
+    if ((userType === 'admin' && <?= json_encode(!$isSuperAdmin) ?>) || userEmail === 'admin@gmail.com') {
+        alert('You do not have permission to delete this account.');
         return;
     }
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
