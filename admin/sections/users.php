@@ -151,8 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-<?= $user['active'] ? 'success' : 'danger' ?>">
-                                    <?= $user['active'] ? 'Active' : 'Inactive' ?>
+                                <span class="badge badge-<?= $user['active'] == '1' ? 'success' : 'danger' ?>">
+                                    <?= $user['active'] == '1' ? 'Active' : 'Inactive' ?>
                                 </span>
                             </td>
                             <td>
