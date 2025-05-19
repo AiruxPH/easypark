@@ -448,7 +448,11 @@ if ($total_pages > 1):
 <?php endif; ?>
 <?php endif; ?>
 <?php else: ?>
-<div class="alert alert-warning">You have no registered vehicles. Please add one in your profile.</div>
+  <?php if (count($vehicles) > 0 && count($active_vehicle_ids) === count($vehicles)): ?>
+    <div class="alert alert-warning">You have no vehicles available for reservation. All your vehicles have a pending, confirmed, or ongoing reservation.</div>
+  <?php else: ?>
+    <div class="alert alert-warning">You have no registered vehicles. Please add one in your profile.</div>
+  <?php endif; ?>
 <?php endif; ?>
 <a href="dashboard.php" class="btn btn-secondary mt-4">Go back to Home</a>
 </div>
