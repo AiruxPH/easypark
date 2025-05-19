@@ -280,7 +280,11 @@ $(function() {
     $('.staff-navbar .nav-link').removeClass('active');
     $(this).addClass('active');
     $('#section-content').fadeOut(100, function() {
-      $('#section-content').load(sectionFiles[section], function() {
+      // Always use absolute path from root for AJAX load
+      var path = window.location.pathname;
+      var base = path.substring(0, path.lastIndexOf('/staff/') + 6); // includes '/staff/'
+      var file = sectionFiles[section];
+      $('#section-content').load(base + file, function() {
         $('#section-content').fadeIn(100);
       });
     });
