@@ -6,6 +6,55 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'staff') {
 }
 require_once '../db.php';
 
+// Fetch staff profile info
+$staff_id = $_SESSION['user_id'];
+$stmt = $pdo->prepare('SELECT first_name, middle_name, last_name, email, phone, image FROM users WHERE user_id = ?');
+$stmt->execute([$staff_id]);
+$staff = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Handle profile update
+if (isset($_POST['update_profile'])) {
+    $first_name = trim($_POST['first_name']);
+    $middle_name = trim($_POST['middle_name']);
+    $last_name = trim($_POST['last_name']);
+    $phone = trim($_POST['phone']);
+    $update_stmt = $pdo->prepare('UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, phone = ? WHERE user_id = ?');
+    $update_stmt->execute([$first_name, $middle_name, $last_name, $phone, $staff_id]);
+    header('Location: staff-dashboard.php?profile_updated=1');
+    exit();
+}
+// Handle profile picture upload (optional)
+if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
+    $fileTmp = $_FILES['profile_pic']['tmp_name'];
+    $fileName = basename($_FILES['profile_pic']['name']);
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    if (in_array($fileExt, $allowed)) {
+        $newName = 'profile_staff_' . $staff_id . '_' . time() . '.' . $fileExt;
+        $targetPath = '../images/' . $newName;
+        if (move_uploaded_file($fileTmp, $targetPath)) {
+            // Remove old pic if not default
+            if (!empty($staff['image']) && $staff['image'] !== 'default.jpg' && file_exists('../images/' . $staff['image'])) {
+                unlink('../images/' . $staff['image']);
+            }
+            $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
+            $stmt->execute([$newName, $staff_id]);
+            header('Location: staff-dashboard.php?profile_updated=1');
+            exit();
+        }
+    }
+}
+// Handle profile picture delete (optional)
+if (isset($_POST['delete_pic'])) {
+    if (!empty($staff['image']) && $staff['image'] !== 'default.jpg' && file_exists('../images/' . $staff['image'])) {
+        unlink('../images/' . $staff['image']);
+    }
+    $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
+    $stmt->execute([$staff_id]);
+    header('Location: staff-dashboard.php?profile_updated=1');
+    exit();
+}
+
 // Handle confirm/cancel actions
 if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
     $reservation_id = intval($_POST['reservation_id']);
@@ -215,6 +264,57 @@ input.form-control, select.form-control {
     <a href="../logout.php" class="btn btn-secondary"><i class="fa fa-sign-out"></i> Logout</a>
   </div>
   <div class="container">
+    <!-- Staff Profile Section -->
+    <div class="section-card mb-4">
+      <h4 class="mb-3 text-info"><i class="fa fa-user"></i> My Profile</h4>
+      <?php if (isset($_GET['profile_updated'])): ?>
+        <div class="alert alert-success">Profile updated successfully.</div>
+      <?php endif; ?>
+      <div class="row align-items-center">
+        <div class="col-md-2 text-center">
+          <?php
+            $profilePic = (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg';
+          ?>
+          <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="rounded-circle mb-2" style="width:90px;height:90px;object-fit:cover;border:3px solid #ffc107;">
+          <form method="POST" enctype="multipart/form-data" class="mt-2">
+            <input type="file" name="profile_pic" accept="image/*" class="form-control mb-1">
+            <button type="submit" name="upload_pic" class="btn btn-warning btn-sm">Change Picture</button>
+          </form>
+          <?php if (!empty($staff['image'])): ?>
+          <form method="POST" class="mt-1">
+            <button type="submit" name="delete_pic" class="btn btn-danger btn-sm">Delete Picture</button>
+          </form>
+          <?php endif; ?>
+        </div>
+        <div class="col-md-10">
+          <form method="POST" class="row">
+            <div class="form-group col-md-4">
+              <label>First Name</label>
+              <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($staff['first_name']) ?>" required>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Middle Name</label>
+              <input type="text" name="middle_name" class="form-control" value="<?= htmlspecialchars($staff['middle_name']) ?>">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($staff['last_name']) ?>" required>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Email</label>
+              <input type="email" class="form-control" value="<?= htmlspecialchars($staff['email']) ?>" readonly>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Phone</label>
+              <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($staff['phone']) ?>">
+            </div>
+            <div class="form-group col-12 mt-2">
+              <button type="submit" name="update_profile" class="btn btn-success">Update Profile</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="section-card">
       <h4 class="mb-3 text-primary"><i class="fa fa-calendar-check-o"></i> Manage Expected Bookings</h4>
       <p class="mb-3">Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.</p>
