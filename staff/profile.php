@@ -182,29 +182,32 @@ body {
             </div>
           </form>
           <hr class="my-4">
-          <h5 class="text-warning mb-3"><i class="fa fa-lock"></i> Change Password</h5>
-          <?php if (!empty($password_message)): ?>
-            <div class="password-message"><?php echo htmlspecialchars($password_message); ?></div>
-          <?php endif; ?>
-          <form method="POST" class="change-password-form">
-            <div class="form-group mb-2">
-              <label>Current Password</label>
-              <input type="password" name="current_password" class="form-control" required>
-            </div>
-            <div class="form-group mb-2">
-              <label>New Password</label>
-              <input type="password" name="new_password" class="form-control" required>
-            </div>
-            <div class="form-group mb-2">
-              <label>Confirm New Password</label>
-              <input type="password" name="confirm_new_password" class="form-control" required>
-            </div>
-            <div class="form-group col-12 mt-2">
-              <button type="submit" name="change_password" class="btn btn-warning w-100">Change Password</button>
-            </div>
-          </form>
         </div>
       </div>
+    </div>
+    <!-- Separate container for Change Password -->
+    <div class="profile-container mt-4">
+      <h5 class="text-warning mb-3"><i class="fa fa-lock"></i> Change Password</h5>
+      <?php if (!empty($password_message)): ?>
+        <div class="password-message"><?php echo htmlspecialchars($password_message); ?></div>
+      <?php endif; ?>
+      <form method="POST" class="change-password-form">
+        <div class="form-group mb-2">
+          <label>Current Password</label>
+          <input type="password" name="current_password" class="form-control" required>
+        </div>
+        <div class="form-group mb-2">
+          <label>New Password</label>
+          <input type="password" name="new_password" class="form-control" required>
+        </div>
+        <div class="form-group mb-2">
+          <label>Confirm New Password</label>
+          <input type="password" name="confirm_new_password" class="form-control" required>
+        </div>
+        <div class="form-group col-12 mt-2">
+          <button type="submit" name="change_password" class="btn btn-warning w-100">Change Password</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
