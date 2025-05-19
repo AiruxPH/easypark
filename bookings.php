@@ -208,11 +208,16 @@ My Account (<?php echo $_SESSION['username'] ?>)
         <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
         <td><?= htmlspecialchars($b['payment_date']) ?></td>
         <td>
-          <?php if ($isConfirmed): ?>
-            <button class="btn btn-sm btn-danger action-cancel" data-id="<?= $b['reservation_id'] ?>">Cancel</button>
-            <button class="btn btn-sm btn-success action-complete" data-id="<?= $b['reservation_id'] ?>">Mark as Complete</button>
+          <?php
+            $status = $b['status'];
+            // Show Cancel for pending or confirmed, Complete for ongoing
+            if ($status === 'pending' || $status === 'confirmed'):
+          ?>
+              <button class="btn btn-sm btn-danger action-cancel" data-id="<?= $b['reservation_id'] ?>">Cancel</button>
+          <?php elseif ($status === 'ongoing'): ?>
+              <button class="btn btn-sm btn-success action-complete" data-id="<?= $b['reservation_id'] ?>">Mark as Complete</button>
           <?php else: ?>
-            <span class="text-muted">-</span>
+              <span class="text-muted">-</span>
           <?php endif; ?>
         </td>
       </tr>
