@@ -255,7 +255,6 @@ body {
       </button>
       <div class="collapse navbar-collapse" id="staffNav">
         <ul class="navbar-nav w-100 justify-content-between">
-          <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
           <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
           <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
           <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i class="fa fa-history"></i> History</a></li>
