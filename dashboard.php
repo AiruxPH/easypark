@@ -7,7 +7,7 @@ if(!isset($_SESSION['user_id'])) {
 
 //if the user in not a client, redirect to index.php
 if($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'admin') {
-    header("Location: /admin/admin-dashboard.php");
+    header("Location: /admin/index.php");
     exit();
 }
 //if the user is a staff member, redirect to staff-dashboard.php
