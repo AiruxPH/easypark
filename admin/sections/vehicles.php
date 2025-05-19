@@ -1,7 +1,14 @@
 <?php
 // vehicles.php - Vehicles section for admin panel
 
-global $pdo;
+// Ensure $pdo is available
+if (!isset($pdo)) {
+    global $pdo;
+    if (!isset($pdo)) {
+        echo '<div class="alert alert-danger">Database connection not available.</div>';
+        return;
+    }
+}
 
 // Pagination
 $page = max(1, intval($_GET['page'] ?? 1));
@@ -10,8 +17,8 @@ $offset = ($page - 1) * $perPage;
 
 // Get total count
 $countStmt = $pdo->query("SELECT COUNT(*) FROM vehicles");
-$total = $countStmt->fetchColumn();
-$totalPages = ceil($total / $perPage);
+$total = $countStmt ? $countStmt->fetchColumn() : 0;
+$totalPages = $total ? ceil($total / $perPage) : 1;
 
 // Fetch vehicles with user info
 $sql = "SELECT v.vehicle_id, v.plate_number, v.vehicle_type, v.brand, v.model, v.color, v.created_at, u.first_name, u.last_name
@@ -56,7 +63,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= htmlspecialchars($row['brand']) ?></td>
                         <td><?= htmlspecialchars($row['model']) ?></td>
                         <td><?= htmlspecialchars($row['color']) ?></td>
-                        <td><?= htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) ?></td>
+                        <td><?= htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])) ?></td>
                         <td><?= htmlspecialchars($row['created_at']) ?></td>
                         </tr>
                     <?php endforeach; ?>
