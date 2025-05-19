@@ -646,15 +646,19 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                       ORDER BY v.plate_number ASC LIMIT 200";
                     $stmt = $pdo->query($sql);
                     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($vehicles as $veh): ?>
-                      <tr data-veh='<?= htmlspecialchars(json_encode($veh)) ?>'>
-                        <td><?= htmlspecialchars($veh['plate_number']) ?></td>
-                        <td><?= htmlspecialchars($veh['owner_name']) ?></td>
-                        <td><?= htmlspecialchars($veh['brand']) ?></td>
-                        <td><?= htmlspecialchars($veh['model']) ?></td>
-                        <td><?= htmlspecialchars(ucfirst(str_replace('_',' ',$veh['type']))) ?></td>
-                      </tr>
-                    <?php endforeach; ?>
+                    if ($vehicles && count($vehicles) > 0):
+                      foreach ($vehicles as $veh): ?>
+                        <tr data-veh='<?= htmlspecialchars(json_encode($veh)) ?>'>
+                          <td><?= htmlspecialchars($veh['plate_number']) ?></td>
+                          <td><?= htmlspecialchars($veh['owner_name']) ?></td>
+                          <td><?= htmlspecialchars($veh['brand']) ?></td>
+                          <td><?= htmlspecialchars($veh['model']) ?></td>
+                          <td><?= htmlspecialchars(ucfirst(str_replace('_',' ',$veh['type']))) ?></td>
+                        </tr>
+                      <?php endforeach;
+                    else: ?>
+                      <tr><td colspan="5" class="text-center text-muted">No vehicles found.</td></tr>
+                    <?php endif; ?>
                   </tbody>
                 </table>
               </div>
