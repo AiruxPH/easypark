@@ -146,9 +146,31 @@ body {
         <div class="col-md-4 text-center mb-3 mb-md-0">
           <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="rounded-circle mb-2 shadow" style="width:120px;height:120px;object-fit:cover;border:3px solid #ffc107;">
           <form method="POST" enctype="multipart/form-data" class="mt-2">
-            <input type="file" name="profile_pic" accept="image/*" class="form-control mb-1">
-            <button type="submit" name="upload_pic" class="btn btn-warning btn-sm w-100">Change Picture</button>
+            <div class="custom-file mb-1 position-relative">
+              <input type="file" name="profile_pic" accept="image/*" class="custom-file-input form-control d-none" id="profilePicInput">
+              <label class="custom-file-label btn btn-outline-warning w-100" for="profilePicInput" id="profilePicLabel">
+                <i class="fa fa-upload"></i> <span id="profilePicLabelText">Choose a new picture</span>
+              </label>
+            </div>
+            <button type="submit" name="upload_pic" class="btn btn-warning btn-sm w-100 mt-2">Change Picture</button>
           </form>
+          <script>
+            // Fancy file picker label update
+            document.addEventListener('DOMContentLoaded', function() {
+              var input = document.getElementById('profilePicInput');
+              var label = document.getElementById('profilePicLabelText');
+              if(input && label) {
+                input.addEventListener('change', function(e) {
+                  var fileName = input.files && input.files.length > 0 ? input.files[0].name : 'Choose a new picture';
+                  label.textContent = fileName;
+                });
+                // Make label clickable
+                document.getElementById('profilePicLabel').addEventListener('click', function(e) {
+                  input.click();
+                });
+              }
+            });
+          </script>
           <?php if (!empty($staff['image'])): ?>
           <form method="POST" class="mt-1">
             <button type="submit" name="delete_pic" class="btn btn-danger btn-sm w-100">Delete Picture</button>
