@@ -66,6 +66,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     header('Location: ?section=users&search=' . urlencode($search) . '&user_type=' . urlencode($userType) . '&page=' . $page);
     exit;
 }
+
+// Handle Add User
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
+    $userType = $_POST['user_type'] ?? '';
+    if (!$isSuperAdmin && $userType === 'admin') {
+        echo '<div class="alert alert-danger">You do not have permission to add admin accounts.</div>';
+    } else {
+        // ...validate other fields...
+        $stmt = $pdo->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, phone, user_type, security_word, created_at, is_active, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
+        $stmt->execute([
+            $_POST['first_name'], $_POST['middle_name'], $_POST['last_name'], $_POST['email'],
+            $_POST['password'], $_POST['phone'], $userType, $_POST['security_word'] ?? '', 1, 'default.jpg'
+        ]);
+        echo '<div class="alert alert-success">User added successfully.</div>';
+    }
+}
+
+// Handle Edit User
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
+    $editUserId = intval($_POST['user_id']);
+    // Fetch target user type
+    $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $target->execute([$editUserId]);
+    $targetType = $target->fetchColumn();
+    if (!$isSuperAdmin && $targetType === 'admin') {
+        echo '<div class="alert alert-danger">You do not have permission to edit admin accounts.</div>';
+    } else {
+        $stmt = $pdo->prepare("UPDATE users SET first_name=?, middle_name=?, last_name=?, email=?, phone=?, user_type=?, is_active=? WHERE user_id=?");
+        $stmt->execute([
+            $_POST['first_name'], $_POST['middle_name'], $_POST['last_name'], $_POST['email'],
+            $_POST['phone'], $_POST['user_type'], $_POST['is_active'], $editUserId
+        ]);
+        echo '<div class="alert alert-success">User updated successfully.</div>';
+    }
+}
+
+// Handle Delete User
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
+    $deleteUserId = intval($_POST['user_id']);
+    // Fetch target user type
+    $target = $pdo->prepare("SELECT user_type FROM users WHERE user_id = ?");
+    $target->execute([$deleteUserId]);
+    $targetType = $target->fetchColumn();
+    if (!$isSuperAdmin && $targetType === 'admin') {
+        echo '<div class="alert alert-danger">You do not have permission to delete admin accounts.</div>';
+    } else {
+        $stmt = $pdo->prepare("DELETE FROM users WHERE user_id=?");
+        $stmt->execute([$deleteUserId]);
+        echo '<div class="alert alert-success">User deleted successfully.</div>';
+    }
+}
 ?>
 
 <div class="container-fluid">
@@ -176,18 +227,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                                 <?php
                                 // Determine if action buttons should be shown
                                 $isTargetAdmin = ($user['user_type'] === 'admin');
-                                $canEditDelete = $isSuperAdmin || (!$isTargetAdmin);
+                                $canEditDelete = $isSuperAdmin || !$isTargetAdmin;
                                 ?>
-                                <?php if ($canEditDelete): ?>
-                                    <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= $user['user_id'] ?>)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                <?php else: ?>
-                                    <span class="text-muted">No Access</span>
-                                <?php endif; ?>
+                                <button class="btn btn-sm btn-primary"
+                                    onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)"
+                                    <?= !$canEditDelete ? 'disabled' : '' ?>>Edit</button>
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="deleteUser(<?= $user['user_id'] ?>, '<?= $user['user_type'] ?>')"
+                                    <?= !$canEditDelete ? 'disabled' : '' ?>>Delete</button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -246,14 +293,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 <div class="modal fade" id="addUserModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New User</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="addUserForm" method="POST">
+            <form method="POST" id="addUserForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
                     <div class="form-group">
                         <label>First Name</label>
                         <input type="text" class="form-control" name="first_name" required>
@@ -274,26 +319,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                         <label>Phone</label>
                         <input type="tel" class="form-control" name="phone" required>
                     </div>
-                    <div class="form-group">
-                        <label>User Type</label>
-                        <select class="form-control" name="user_type" required>
+                    <div class="mb-3">
+                        <label for="add_user_type" class="form-label">User Type</label>
+                        <select name="user_type" id="add_user_type" class="form-select" required>
                             <?php if ($isSuperAdmin): ?>
-                                <option value="client">Client</option>
-                                <option value="staff">Staff</option>
                                 <option value="admin">Admin</option>
-                            <?php else: ?>
-                                <option value="staff">Staff</option>
-                                <option value="client">Client</option>
                             <?php endif; ?>
+                            <option value="staff">Staff</option>
+                            <option value="client">Client</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" class="form-control" name="password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add User</button>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="add_user" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -302,14 +346,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 <div class="modal fade" id="editUserModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit User</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editUserForm" method="POST">
+            <form method="POST" id="editUserForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
                     <input type="hidden" name="user_id" id="edit_user_id">
                     <div class="form-group">
                         <label>First Name</label>
@@ -331,12 +373,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                         <label>Phone</label>
                         <input type="tel" class="form-control" id="edit_phone" name="phone" required>
                     </div>
-                    <div class="form-group">
-                        <label>User Type</label>
-                        <select class="form-control" id="edit_user_type" name="user_type" required>
-                            <option value="client">Client</option>
+                    <div class="mb-3">
+                        <label for="edit_user_type" class="form-label">User Type</label>
+                        <select name="user_type" id="edit_user_type" class="form-select" required>
+                            <?php if ($isSuperAdmin): ?>
+                                <option value="admin">Admin</option>
+                            <?php endif; ?>
                             <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
+                            <option value="client">Client</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -350,9 +394,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                         <label>New Password (leave blank to keep current)</label>
                         <input type="password" class="form-control" name="password">
                     </div>
-                    <button type="submit" class="btn btn-primary">Update User</button>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="edit_user" id="editUserBtn" class="btn btn-primary">Update User</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -368,10 +414,25 @@ function editUser(user) {
     $('#edit_user_type').val(user.user_type);
     // Use user.is_active (1/0) instead of user.active
     $('#edit_active').val(user.is_active);
+
+    // Disable editing admin if not super admin
+    if (user.user_type === 'admin' && <?= json_encode(!$isSuperAdmin) ?>) {
+        $('#editUserBtn').prop('disabled', true);
+        $('#editUserForm select, #editUserForm input').prop('disabled', true);
+    } else {
+        $('#editUserBtn').prop('disabled', false);
+        $('#editUserForm select, #editUserForm input').prop('disabled', false);
+    }
+
     $('#editUserModal').modal('show');
 }
 
-function deleteUser(userId) {
+function deleteUser(userId, userType) {
+    // Block delete for admin if not super admin
+    if (userType === 'admin' && <?= json_encode(!$isSuperAdmin) ?>) {
+        alert('You do not have permission to delete admin accounts.');
+        return;
+    }
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
         const form = document.createElement('form');
         form.method = 'POST';
