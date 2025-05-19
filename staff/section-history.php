@@ -7,7 +7,7 @@ require_once __DIR__ . '/section-common.php';
   <input type="text" id="historySearch" class="form-control mb-2" placeholder="Search reservation history...">
   <div class="table-responsive">
     <table id="historyTable" class="table table-bordered table-hover bg-white text-dark">
-      <thead class="thead-light">
+      <thead class="thead-dark">
         <tr>
           <th class="sortable">Ref #</th>
           <th class="sortable">Client</th>
