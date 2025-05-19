@@ -299,8 +299,8 @@ $(function() {
     if (!section) return;
     loadSection(section);
   });
-  // Load profile section by default on page load
-  loadSection('profile');
+  // Load bookings section by default on page load
+  loadSection('bookings');
 });
 </script>
 <style>
