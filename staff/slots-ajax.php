@@ -130,5 +130,10 @@ $paginationHtml = ob_get_clean();
 echo json_encode([
   'cards' => $cardsHtml,
   'pagination' => $paginationHtml,
-  'total' => $total
+  'total' => $total,
+  'debug' => [
+    'sql' => $sql,
+    'params' => $params,
+    'slots' => $slots,
+  ]
 ]);
