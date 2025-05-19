@@ -266,11 +266,11 @@ body {
 <script>
 // SPA-like section navigation
 const sectionFiles = {
-  profile: 'staff/section-profile.php',
-  bookings: 'staff/section-bookings.php',
-  active: 'staff/section-active.php',
-  history: 'staff/section-history.php',
-  slots: 'staff/section-slots.php'
+  profile: 'section-profile.php',
+  bookings: 'section-bookings.php',
+  active: 'section-active.php',
+  history: 'section-history.php',
+  slots: 'section-slots.php'
 };
 $(function() {
   $('.staff-navbar .nav-link').on('click', function(e) {
@@ -280,11 +280,8 @@ $(function() {
     $('.staff-navbar .nav-link').removeClass('active');
     $(this).addClass('active');
     $('#section-content').fadeOut(100, function() {
-      // Always use absolute path from window.location.pathname;
-      var path = window.location.pathname;
-      var base = path.substring(0, path.lastIndexOf('/staff/') + 6); // includes '/staff/'
       var file = sectionFiles[section];
-      $('#section-content').load(base + file, function() {
+      $('#section-content').load('/staff/' + file, function() {
         $('#section-content').fadeIn(100);
       });
     });
