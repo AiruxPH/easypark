@@ -32,9 +32,7 @@ require_once __DIR__ . '/section-common.php';
       </select>
     </div>
   </div>
-  <div class="row" id="slotsGrid">
-    <div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>
-  </div>
+  <div class="row" id="slotsGrid"></div>
 </div>
 
 <script>
@@ -60,17 +58,15 @@ $(document).ready(function() {
         $('nav[aria-label="Parking Slots pagination"]').remove();
       },
       success: function(response) {
-        if (response && response.cards !== undefined) {
-          $('#slotsGrid').html(response.cards);
-          if (response.pagination) {
-            $('#slotsGrid').after(response.pagination);
-          }
-        } else {
-          $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Invalid response from server.</div></div>');
+        $('#slotsGrid').html(response.cards);
+        $('nav[aria-label="Parking Slots pagination"]').remove(); // Always remove before adding
+        if (response.pagination) {
+          $('#slotsGrid').after(response.pagination);
         }
       },
       error: function(xhr) {
         $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
+        $('nav[aria-label="Parking Slots pagination"]').remove();
       }
     });
   }
@@ -87,5 +83,8 @@ $(document).ready(function() {
     if (!page || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
     fetchSlots(page);
   });
+
+  // Initial load: show default sorted slots immediately
+  fetchSlots(1);
 });
 </script>
