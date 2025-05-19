@@ -9,7 +9,7 @@ require_once __DIR__ . '/section-common.php';
   </p>
   <input type="text" id="bookingsSearch" class="form-control mb-2" placeholder="Search bookings...">
   <div class="table-responsive">
-    <table id="bookingsTable" class="table table-bordered table-hover">
+    <table id="bookingsTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-dark">
         <tr>
           <th class="sortable">Ref #</th>
