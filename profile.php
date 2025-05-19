@@ -16,6 +16,7 @@ if ($_SESSION['user_type'] != 'client') {
 }
 $user_id = $_SESSION['user_id'];
 
+
 // Fetch user info
 $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
