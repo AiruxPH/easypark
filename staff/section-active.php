@@ -6,8 +6,8 @@ require_once __DIR__ . '/section-common.php';
   <h4 class="mb-3 text-success"><i class="fa fa-play-circle"></i> Active Reservations (Confirmed & Ongoing)</h4>
   <input type="text" id="activeSearch" class="form-control mb-2" placeholder="Search active reservations...">
   <div class="table-responsive">
-    <table id="activeTable" class="table table-bordered table-hover">
-      <thead class="thead-light">
+    <table id="activeTable" class="table table-bordered table-hover bg-white text-dark">
+      <thead class="thead-dark">
         <tr>
           <th class="sortable">Ref #</th>
           <th class="sortable">Client</th>
