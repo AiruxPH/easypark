@@ -283,27 +283,47 @@ const sectionFiles = {
   history: 'section-history.php',
   slots: 'section-slots.php'
 };
-$(function() {
-  function loadSection(section) {
-    $('.staff-navbar .nav-link').removeClass('active');
-    $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
-    $('#section-content').fadeOut(100, function() {
-      $('#section-content').load(sectionFiles[section], function(response, status, xhr) {
-        if (status === "error") {
-          $('#section-content').html(
-            "<div class='alert alert-danger'>Failed to load section: " + xhr.status + " " + xhr.statusText + "</div>"
-          ).fadeIn(100);
-        } else {
-          $('#section-content').fadeIn(100);
-        }
-      });
-    });
+let currentSection = 'bookings';
+function loadSection(section, params = {}) {
+  currentSection = section;
+  $('.staff-navbar .nav-link').removeClass('active');
+  $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
+  let url = sectionFiles[section];
+  if (Object.keys(params).length > 0) {
+    url += '?' + $.param(params);
   }
+  $('#section-content').fadeOut(100, function() {
+    $('#section-content').load(url, function(response, status, xhr) {
+      if (status === "error") {
+        $('#section-content').html(
+          "<div class='alert alert-danger'>Failed to load section: " + xhr.status + " " + xhr.statusText + "</div>"
+        ).fadeIn(100);
+      } else {
+        $('#section-content').fadeIn(100);
+      }
+    });
+  });
+}
+$(function() {
   $('.staff-navbar .nav-link').on('click', function(e) {
     e.preventDefault();
     var section = $(this).data('section');
     if (!section) return;
     loadSection(section);
+  });
+  // Intercept pagination link clicks inside #section-content
+  $('#section-content').on('click', '.pagination .page-link', function(e) {
+    var href = $(this).attr('href');
+    if (href && href !== '#' && href.indexOf('javascript:') !== 0) {
+      e.preventDefault();
+      // Extract page param from href
+      var params = {};
+      var match = href.match(/([a-z_]+)_page=(\d+)/);
+      if (match) {
+        params[match[1] + '_page'] = match[2];
+      }
+      loadSection(currentSection, params);
+    }
   });
   // Load bookings section by default on page load
   loadSection('bookings');
