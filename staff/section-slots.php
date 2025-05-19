@@ -83,7 +83,9 @@ $(document).ready(function() {
     var status = $('#slotStatusFilter').val();
     var sortBy = $('#slotSort').val();
     var $cards = $('.slot-card');
-    $cards.each(function() {
+    // Only filter/sort cards visible in the current page
+    var $pageCards = $cards.parent().filter(':visible').find('.slot-card');
+    $pageCards.each(function() {
       var $card = $(this);
       var slotNum = normalize($card.data('slot_number'));
       var slotType = normalize($card.data('slot_type'));
@@ -95,7 +97,7 @@ $(document).ready(function() {
       $card.toggle(show);
     });
     // Sorting
-    var $visible = $cards.filter(':visible');
+    var $visible = $pageCards.filter(':visible');
     $visible.sort(function(a, b) {
       var valA = normalize($(a).data(sortBy));
       var valB = normalize($(b).data(sortBy));
@@ -107,5 +109,12 @@ $(document).ready(function() {
     $('#slotsGrid').append($visible);
   }
   $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', filterAndSortSlots);
+  // Reset filters/search on pagination click
+  $('.pagination .page-link').on('click', function() {
+    $('#slotSearch').val('');
+    $('#slotTypeFilter').val('');
+    $('#slotStatusFilter').val('');
+    $('#slotSort').val('slot_number');
+  });
 });
 </script>
