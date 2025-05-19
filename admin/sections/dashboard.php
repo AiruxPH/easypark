@@ -125,3 +125,26 @@ $stats = [
         </div>
     </div>
 </div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- ...existing code... -->
+    <ul class="navbar-nav ms-auto">
+        <!-- ...other nav items... -->
+        <?php
+        // Fetch current admin info if not already available
+        if (!isset($currentAdmin) && isset($_SESSION['user_email'])) {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$_SESSION['user_email']]);
+            $currentAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        ?>
+        <?php if (!empty($currentAdmin)): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showProfileModal(); return false;">My Profile</a>
+            </li>
+        <?php endif; ?>
+        <li class="nav-item">
+            <a class="nav-link" href="?logout=1">Logout</a>
+        </li>
+    </ul>
+</nav>
