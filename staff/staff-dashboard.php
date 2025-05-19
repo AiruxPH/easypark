@@ -238,10 +238,12 @@ body {
   <div class="header-bar mb-4">
     <h2><i class="fa fa-user-shield"></i> Staff Dashboard</h2>
     <div class="d-flex align-items-center">
-      <img src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>" alt="Profile Picture" class="rounded-circle mr-2" style="width:40px;height:40px;object-fit:cover;border:2px solid #ffc107;">
-      <span class="text-light font-weight-bold mr-3" style="font-size:1.1rem;">
-        <?php echo htmlspecialchars($staff['first_name'] . ' ' . $staff['last_name']); ?>
-      </span>
+      <a href="javascript:void(0)" class="d-flex align-items-center nav-link p-0 mr-3" data-section="profile" style="color: #ffc107; text-decoration: none;">
+        <img src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>" alt="Profile Picture" class="rounded-circle mr-2" style="width:40px;height:40px;object-fit:cover;border:2px solid #ffc107;">
+        <span class="font-weight-bold" style="font-size:1.1rem;">
+          <?php echo htmlspecialchars($staff['first_name'] . ' ' . $staff['last_name']); ?>
+        </span>
+      </a>
       <a href="../logout.php" class="btn btn-secondary ml-2"><i class="fa fa-sign-out"></i> Logout</a>
     </div>
   </div>
