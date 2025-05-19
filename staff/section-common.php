@@ -1,4 +1,20 @@
 <?php
+/**
+ * section-common.php
+ *
+ * Shared backend logic for the staff dashboard sections (bookings, active, history, slots, etc.).
+ *
+ * This file centralizes all data-fetching, pagination, and helper functions needed by the staff dashboard.
+ * It should be included at the top of any section or AJAX file that needs access to reservation, slot, or pagination data.
+ *
+ * Purpose:
+ * - Eliminate code duplication between staff-dashboard.php and section files
+ * - Ensure consistency and maintainability for all staff dashboard data
+ * - Used by: section-bookings.php, section-active.php, section-history.php, section-slots.php, and any AJAX endpoints
+ *
+ * Do NOT put any HTML output in this file. Only backend logic and helpers.
+ */
+
 session_start();
 require_once '../db.php';
 
