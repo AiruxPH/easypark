@@ -206,6 +206,9 @@ if (isset($_POST['add_vehicle'])) {
       <li class="nav-item">
         <a class="nav-link" href="dashboard.php">Dashboard</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="vehicles.php">My Vehicles</a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -264,136 +267,6 @@ if (isset($_POST['add_vehicle'])) {
             </div>
             <button type="submit" name="update_profile" class="btn btn-warning text-white">Update Profile</button>
         </form>
-    </div>
-
-    <div class="profile-section mb-4">
-        <h4>My Vehicles</h4>
-        <?php if (!empty($message)) {
-            echo '<div class="alert alert-danger text-center" id="vehicleMsg">' . htmlspecialchars($message) . '</div>';
-        } ?>
-        <table class="table table-bordered vehicle-table bg-white text-dark">
-            <thead class="thead-light">
-                <tr>
-                    <th>Plate Number</th>
-                    <th>Type</th>
-                    <th>Brand</th>
-                    <th>Model</th>
-                    <th>Color</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($vehicles as $vehicle): ?>
-                <tr>
-                    <td><?= htmlspecialchars($vehicle['plate_number']) ?></td>
-                    <td><?= htmlspecialchars($vehicle['type'] ?? $vehicle['vehicle_type']) ?></td>
-                    <td><?= htmlspecialchars($vehicle['brand'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($vehicle['model'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($vehicle['color']) ?></td>
-                    <td>
-                        <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): 
-                            $res = $vehicle_active_reservations[$vehicle['vehicle_id']];
-                            $status = ucfirst($res['status']);
-                        ?>
-                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#reservationModal<?= $vehicle['vehicle_id'] ?>">
-                                <?= htmlspecialchars($status) ?>
-                            </button>
-                        <?php else: ?>
-                            <span class="badge badge-success">Available</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php if (!isset($vehicle_active_reservations[$vehicle['vehicle_id']])): ?>
-                        <a href="profile.php?delete_vehicle=<?= $vehicle['vehicle_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this vehicle?')">Delete</a>
-                        <?php else: ?>
-                        <button class="btn btn-sm btn-secondary" disabled>Delete</button>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php if (isset($vehicle_active_reservations[$vehicle['vehicle_id']])): 
-                    $res = $vehicle_active_reservations[$vehicle['vehicle_id']]; ?>
-                <!-- Reservation Modal -->
-                <div class="modal fade" id="reservationModal<?= $vehicle['vehicle_id'] ?>" tabindex="-1" role="dialog" aria-labelledby="reservationModalLabel<?= $vehicle['vehicle_id'] ?>" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="reservationModalLabel<?= $vehicle['vehicle_id'] ?>">Active Reservation Details</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        <p><b>Reference #:</b> <?= htmlspecialchars($res['reservation_id']) ?></p>
-                        <p><b>Slot:</b> <?= htmlspecialchars($res['parking_slot_id']) ?></p>
-                        <p><b>Start:</b> <?= htmlspecialchars($res['start_time']) ?></p>
-                        <p><b>End:</b> <?= htmlspecialchars($res['end_time']) ?></p>
-                        <p><b>Status:</b> <?= htmlspecialchars($res['status']) ?></p>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <button class="btn btn-success" data-toggle="modal" data-target="#addVehicleModal">Add Vehicle</button>
-    </div>
-    <!-- Add Vehicle Modal -->
-    <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <form method="POST" action="profile.php">
-            <div class="modal-header">
-              <h5 class="modal-title" id="addVehicleModalLabel">Add Vehicle</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <label>Plate Number</label>
-                <input type="text" name="plate_number" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label>Color</label>
-                <input type="text" name="color" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label>Type</label>
-                <select id="vehicleTypeInput" class="form-control" required>
-                  <option value="">Select Type</option>
-                  <?php
-                  $types = $pdo->query('SELECT DISTINCT type FROM Vehicle_Models')->fetchAll(PDO::FETCH_COLUMN);
-                  foreach ($types as $type) {
-                    echo '<option value="' . htmlspecialchars($type) . '">' . htmlspecialchars($type) . '</option>';
-                  }
-                  ?>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Brand</label>
-                <select id="brandInput" class="form-control" required disabled>
-                  <option value="">Select Brand</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Model</label>
-                <select name="model_id" id="modelInput" class="form-control" required disabled>
-                  <option value="">Select Model</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-              <button type="submit" name="add_vehicle" class="btn btn-success">Add Vehicle</button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
 
     <div class="text-center mt-4">
@@ -458,67 +331,6 @@ if (isset($_POST['add_vehicle'])) {
         }
       });
     }
-  });
-  // Hide vehicle error message after 3 seconds
-  setTimeout(function() {
-    var msg = document.getElementById('vehicleMsg');
-    if (msg) msg.style.display = 'none';
-  }, 3000);
-  
-  // Nested dropdown for type > brand > model
-  $(function() {
-    var allBrands = {};
-    var allModels = {};
-    <?php
-      $models = $pdo->query('SELECT model_id, brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
-      $brandTypeMap = [];
-      $modelTypeBrandMap = [];
-      foreach ($models as $m) {
-        $brandTypeMap[$m['type']][] = $m['brand'];
-        $modelTypeBrandMap[$m['type']][$m['brand']][] = ['model' => $m['model'], 'model_id' => $m['model_id']];
-      }
-      echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
-      echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
-    ?>
-    
-    $('#vehicleTypeInput').on('change', function() {
-      var type = $(this).val();
-      var brandSel = $('#brandInput');
-      var modelSel = $('#modelInput');
-      brandSel.empty().append('<option value="">Select Brand</option>');
-      modelSel.empty().append('<option value="">Select Model</option>').prop('disabled', true);
-      if (type && allBrands[type]) {
-        var uniqueBrands = [...new Set(allBrands[type])];
-        uniqueBrands.forEach(function(brand) {
-          brandSel.append('<option value="'+brand+'">'+brand+'</option>');
-        });
-        brandSel.prop('disabled', false);
-      } else {
-        brandSel.prop('disabled', true);
-      }
-    });
-
-    $('#brandInput').on('change', function() {
-      var type = $('#vehicleTypeInput').val();
-      var brand = $(this).val();
-      var modelSel = $('#modelInput');
-      modelSel.empty().append('<option value="">Select Model</option>');
-      if (type && brand && allModels[type] && allModels[type][brand]) {
-        allModels[type][brand].forEach(function(obj) {
-          modelSel.append('<option value="'+obj.model_id+'">'+obj.model+'</option>');
-        });
-        modelSel.prop('disabled', false);
-      } else {
-        modelSel.prop('disabled', true);
-      }
-    });
-
-    // On modal open, reset dropdowns
-    $('#addVehicleModal').on('show.bs.modal', function() {
-      $('#vehicleTypeInput').val('');
-      $('#brandInput').empty().append('<option value="">Select Brand</option>').prop('disabled', true);
-      $('#modelInput').empty().append('<option value="">Select Model</option>').prop('disabled', true);
-    });
   });
 </script>
 </body>
