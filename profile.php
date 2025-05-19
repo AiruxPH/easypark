@@ -152,6 +152,39 @@ if (isset($_POST['change_password'])) {
     }
 }
 
+// Handle forgot password - AJAX step logic
+if (isset($_POST['forgot_password_action'])) {
+    header('Content-Type: application/json');
+    if (!isset($_POST['fp_security_word'])) {
+        echo json_encode(['success' => false, 'message' => 'Security word required.']);
+        exit;
+    }
+    $fp_security_word = trim($_POST['fp_security_word']);
+    // Check security word
+    $stmt = $pdo->prepare('SELECT security_word FROM users WHERE user_id = ?');
+    $stmt->execute([$user_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row || strtolower($fp_security_word) !== strtolower($row['security_word'])) {
+        echo json_encode(['success' => false, 'message' => 'Incorrect security word.']);
+        exit;
+    }
+    // If new password fields are present, update password
+    if (!empty($_POST['fp_new_password']) && !empty($_POST['fp_confirm_new_password'])) {
+        $new = $_POST['fp_new_password'];
+        $confirm = $_POST['fp_confirm_new_password'];
+        if ($new !== $confirm) {
+            echo json_encode(['success' => false, 'message' => 'Passwords do not match.']);
+            exit;
+        }
+        $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
+        $stmt->execute([$new, $user_id]);
+        echo json_encode(['success' => true, 'message' => 'Password reset successful!']);
+        exit;
+    }
+    // Security word correct, prompt for new password
+    echo json_encode(['success' => true]);
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -331,6 +364,50 @@ if (isset($_POST['change_password'])) {
         </form>
     </div>
 
+    <!-- Forgot Password Modal Trigger -->
+    <div class="text-center mb-2">
+      <a href="#" class="btn btn-link text-warning" data-toggle="modal" data-target="#forgotPasswordModal">Forgot Password?</a>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" action="profile.php" id="forgotPasswordForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="forgotPasswordModalLabel">Forgot Password</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div id="forgot-step-1">
+                <div class="form-group">
+                  <label>Security Word</label>
+                  <input type="text" name="fp_security_word" class="form-control" required>
+                </div>
+              </div>
+              <div id="forgot-step-2" style="display:none;">
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" name="fp_new_password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Confirm New Password</label>
+                  <input type="password" name="fp_confirm_new_password" class="form-control" required>
+                </div>
+              </div>
+              <input type="hidden" name="forgot_password_action" value="1">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-warning" id="forgotNextBtn">Next</button>
+              <button type="submit" class="btn btn-success" id="forgotResetBtn" style="display:none;">Reset Password</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="text-center mt-4">
       <a href="index.php" class="btn btn-primary">Go back to Home</a>
       <a href="logout.php" class="btn btn-danger ml-2">Logout</a>
@@ -390,6 +467,40 @@ if (isset($_POST['change_password'])) {
       deleteForm.addEventListener('submit', function(e) {
         if (!confirm('Are you sure you want to delete your profile picture?')) {
           e.preventDefault();
+        }
+      });
+    }
+  });
+  // Overlay/modal step logic
+  document.addEventListener('DOMContentLoaded', function() {
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    const step1 = document.getElementById('forgot-step-1');
+    const step2 = document.getElementById('forgot-step-2');
+    const nextBtn = document.getElementById('forgotNextBtn');
+    const resetBtn = document.getElementById('forgotResetBtn');
+    let securityOk = false;
+    if (forgotForm) {
+      forgotForm.addEventListener('submit', function(e) {
+        if (!securityOk) {
+          e.preventDefault();
+          // AJAX check security word
+          const formData = new FormData(forgotForm);
+          fetch('profile.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              securityOk = true;
+              step1.style.display = 'none';
+              step2.style.display = '';
+              nextBtn.style.display = 'none';
+              resetBtn.style.display = '';
+            } else {
+              alert(data.message || 'Incorrect security word.');
+            }
+          });
         }
       });
     }
