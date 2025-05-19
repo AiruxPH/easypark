@@ -464,63 +464,7 @@ if (isset($_POST['add_vehicle'])) {
     var msg = document.getElementById('vehicleMsg');
     if (msg) msg.style.display = 'none';
   }, 3000);
-  // Vehicle brand/model suggestion logic
-  $(function() {
-    var allModels = {};
-    var allBrands = {};
-    // Fetch all brands/models by type from PHP
-    <?php
-      $models = $pdo->query('SELECT brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
-      $brandTypeMap = [];
-      $modelTypeBrandMap = [];
-      foreach ($models as $m) {
-        $brandTypeMap[$m['type']][] = $m['brand'];
-        $modelTypeBrandMap[$m['type']][$m['brand']][] = $m['model'];
-      }
-      echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
-      echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
-    ?>
-    function updateBrandList() {
-      var type = $('#vehicleTypeInput').val();
-      var brandList = $('#brandList');
-      brandList.empty();
-      if (type && allBrands[type]) {
-        var uniqueBrands = [...new Set(allBrands[type])];
-        uniqueBrands.forEach(function(brand) {
-          brandList.append('<option value="'+brand+'">');
-        });
-      }
-    }
-    function updateModelList() {
-      var type = $('#vehicleTypeInput').val();
-      var brand = $('#brandInput').val();
-      var modelList = $('#modelList');
-      modelList.empty();
-      if (type && brand && allModels[type] && allModels[type][brand]) {
-        var uniqueModels = [...new Set(allModels[type][brand])];
-        uniqueModels.forEach(function(model) {
-          modelList.append('<option value="'+model+'">');
-        });
-      }
-    }
-    $('#vehicleTypeInput').on('change', function() {
-      updateBrandList();
-      $('#brandInput').val('');
-      $('#modelInput').val('');
-      $('#modelList').empty();
-    });
-    $('#brandInput').on('input', function() {
-      updateModelList();
-      $('#modelInput').val('');
-    });
-    // On modal open, reset lists
-    $('#addVehicleModal').on('show.bs.modal', function() {
-      updateBrandList();
-      $('#brandInput').val('');
-      $('#modelInput').val('');
-      $('#modelList').empty();
-    });
-  });
+  
   // Nested dropdown for type > brand > model
   $(function() {
     var allBrands = {};
@@ -529,7 +473,6 @@ if (isset($_POST['add_vehicle'])) {
       $models = $pdo->query('SELECT model_id, brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
       $brandTypeMap = [];
       $modelTypeBrandMap = [];
-      $modelIdMap = [];
       foreach ($models as $m) {
         $brandTypeMap[$m['type']][] = $m['brand'];
         $modelTypeBrandMap[$m['type']][$m['brand']][] = ['model' => $m['model'], 'model_id' => $m['model_id']];
@@ -537,6 +480,7 @@ if (isset($_POST['add_vehicle'])) {
       echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
       echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
     ?>
+    
     $('#vehicleTypeInput').on('change', function() {
       var type = $(this).val();
       var brandSel = $('#brandInput');
@@ -553,6 +497,7 @@ if (isset($_POST['add_vehicle'])) {
         brandSel.prop('disabled', true);
       }
     });
+
     $('#brandInput').on('change', function() {
       var type = $('#vehicleTypeInput').val();
       var brand = $(this).val();
@@ -567,66 +512,14 @@ if (isset($_POST['add_vehicle'])) {
         modelSel.prop('disabled', true);
       }
     });
-    // On modal open, reset
+
+    // On modal open, reset dropdowns
     $('#addVehicleModal').on('show.bs.modal', function() {
       $('#vehicleTypeInput').val('');
       $('#brandInput').empty().append('<option value="">Select Brand</option>').prop('disabled', true);
       $('#modelInput').empty().append('<option value="">Select Model</option>').prop('disabled', true);
     });
   });
-</script>
-<script>
-// Fetch all vehicle models for client-side filtering
-let vehicleModels = <?php
-$models = $pdo->query('SELECT model_id, type, brand, model FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
-echo json_encode($models);
-?>;
-
-const typeInput = document.getElementById('vehicleTypeInput');
-const brandInput = document.getElementById('brandInput');
-const modelInput = document.getElementById('modelInput');
-
-// Populate Brand dropdown based on selected Type
-function updateBrands() {
-  const selectedType = typeInput.value;
-  brandInput.innerHTML = '<option value="">Select Brand</option>';
-  modelInput.innerHTML = '<option value="">Select Model</option>';
-  modelInput.disabled = true;
-  if (!selectedType) {
-    brandInput.disabled = true;
-    return;
-  }
-  const brands = [...new Set(vehicleModels.filter(vm => vm.type === selectedType).map(vm => vm.brand))];
-  brands.forEach(brand => {
-    const opt = document.createElement('option');
-    opt.value = brand;
-    opt.textContent = brand;
-    brandInput.appendChild(opt);
-  });
-  brandInput.disabled = false;
-}
-
-// Populate Model dropdown based on selected Type and Brand
-function updateModels() {
-  const selectedType = typeInput.value;
-  const selectedBrand = brandInput.value;
-  modelInput.innerHTML = '<option value="">Select Model</option>';
-  if (!selectedBrand) {
-    modelInput.disabled = true;
-    return;
-  }
-  const models = vehicleModels.filter(vm => vm.type === selectedType && vm.brand === selectedBrand);
-  models.forEach(vm => {
-    const opt = document.createElement('option');
-    opt.value = vm.model_id;
-    opt.textContent = vm.model;
-    modelInput.appendChild(opt);
-  });
-  modelInput.disabled = false;
-}
-
-typeInput.addEventListener('change', updateBrands);
-brandInput.addEventListener('change', updateModels);
 </script>
 </body>
 </html>
