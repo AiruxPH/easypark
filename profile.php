@@ -111,6 +111,46 @@ if (isset($_POST['add_vehicle'])) {
         $message = '❌ Please fill all vehicle fields.';
     }
 }
+// Handle profile update
+if (isset($_POST['update_profile'])) {
+    $first_name = trim($_POST['first_name']);
+    $middle_name = trim($_POST['middle_name']);
+    $last_name = trim($_POST['last_name']);
+    $phone = trim($_POST['phone']);
+
+    // Validate and update profile information
+    if ($first_name && $last_name) {
+        $stmt = $pdo->prepare('UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, phone = ? WHERE user_id = ?');
+        $stmt->execute([$first_name, $middle_name, $last_name, $phone, $user_id]);
+        $message = '✅ Profile updated successfully.';
+    } else {
+        $message = '❌ Please fill in all required fields.';
+    }
+}
+
+// Handle password change (plain, for demo only)
+if (isset($_POST['change_password'])) {
+    $current = $_POST['current_password'] ?? '';
+    $new = $_POST['new_password'] ?? '';
+    $confirm = $_POST['confirm_new_password'] ?? '';
+    if (!$current || !$new || !$confirm) {
+        $message = '❌ Please fill all password fields.';
+    } elseif ($new !== $confirm) {
+        $message = '❌ New passwords do not match.';
+    } else {
+        // Fetch current password (plain, for demo only)
+        $stmt = $pdo->prepare('SELECT password FROM users WHERE user_id = ?');
+        $stmt->execute([$user_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && $current === $row['password']) {
+            $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
+            $stmt->execute([$new, $user_id]);
+            $message = '✅ Password changed successfully!';
+        } else {
+            $message = '❌ Current password is incorrect.';
+        }
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -267,6 +307,27 @@ if (isset($_POST['add_vehicle'])) {
                 </div>
             </div>
             <button type="submit" name="update_profile" class="btn btn-warning text-white">Update Profile</button>
+        </form>
+    </div>
+
+    <div class="profile-section mb-4">
+        <h4>Change Password</h4>
+        <form method="POST" action="profile.php">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label>Current Password</label>
+                    <input type="password" name="current_password" class="form-control" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" class="form-control" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="confirm_new_password" class="form-control" required>
+                </div>
+            </div>
+            <button type="submit" name="change_password" class="btn btn-warning text-white">Change Password</button>
         </form>
     </div>
 

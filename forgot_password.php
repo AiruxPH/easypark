@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "❌ Passwords do not match.";
             $step = 2;
         } else {
-            // Update password
+            // Update password (plain, for demo only)
             $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
             $stmt->execute([$new_password, $email]);
             $message = "✅ Password reset successful! You can now <a href='login.php'>login</a>.";
