@@ -36,6 +36,7 @@ require_once __DIR__ . '/section-common.php';
     <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
   </div>
 </div>
+
 <script>
 $(document).ready(function() {
   function fetchSlots(page = 1) {
