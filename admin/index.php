@@ -11,10 +11,6 @@ switch($section) {
     case 'users':
         require_once 'sections/users.php';
         break;
-    case 'reservations':
-        global $conn;
-        require_once 'sections/reservations.php';
-        break;
     case 'vehicles':
         global $conn;
         require_once 'sections/vehicles.php';
