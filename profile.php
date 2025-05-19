@@ -506,5 +506,6 @@ if (isset($_POST['forgot_password_action'])) {
     }
   });
 </script>
+<script src="js/ef9baa832e.js"></script>
 </body>
 </html>
