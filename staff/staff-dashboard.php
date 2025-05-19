@@ -55,7 +55,7 @@ if (isset($_POST['delete_pic'])) {
     exit();
 }
 
-// Handle confirm/cancel actions
+// Handle confirm/cancel/accept actions
 if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
     $reservation_id = intval($_POST['reservation_id']);
     if ($_POST['action'] === 'confirm') {
@@ -75,7 +75,6 @@ if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
         $stmt = $pdo->prepare("SELECT parking_slot_id FROM reservations WHERE reservation_id = ?");
         $stmt->execute([$reservation_id]);
         $slot_id = $stmt->fetchColumn();
-        // Exclude the just-cancelled reservation from the count
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ('confirmed', 'ongoing') AND end_time > NOW() AND reservation_id != ?");
         $stmt->execute([$slot_id, $reservation_id]);
         $active_count = $stmt->fetchColumn();
@@ -83,6 +82,13 @@ if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
             $stmt = $pdo->prepare("UPDATE parking_slots SET slot_status = 'available' WHERE parking_slot_id = ?");
             $stmt->execute([$slot_id]);
         }
+    } elseif ($_POST['action'] === 'accept') {
+        // Accept confirmed reservation, set to ongoing
+        $stmt = $pdo->prepare("UPDATE reservations SET status = 'ongoing' WHERE reservation_id = ?");
+        $stmt->execute([$reservation_id]);
+        // Set slot to occupied
+        $stmt = $pdo->prepare("UPDATE parking_slots SET slot_status = 'occupied' WHERE parking_slot_id = (SELECT parking_slot_id FROM reservations WHERE reservation_id = ?)");
+        $stmt->execute([$reservation_id]);
     }
     header("Location: staff-dashboard.php");
     exit();

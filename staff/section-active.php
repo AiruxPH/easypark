@@ -31,7 +31,14 @@ require_once __DIR__ . '/section-common.php';
             <td><?= htmlspecialchars($b['start_time']) ?></td>
             <td><?= htmlspecialchars($b['end_time']) ?></td>
             <td><?= htmlspecialchars($b['duration']) ?></td>
-            <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+            <td><?= htmlspecialchars(ucfirst($b['status'])) ?>
+              <?php if ($b['status'] === 'confirmed'): ?>
+                <form method="post" style="display:inline-block">
+                  <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
+                  <button type="submit" name="action" value="accept" class="btn btn-success btn-sm ml-2">Accept</button>
+                </form>
+              <?php endif; ?>
+            </td>
           </tr>
         <?php endforeach; endif; ?>
       </tbody>
