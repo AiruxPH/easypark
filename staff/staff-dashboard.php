@@ -209,51 +209,27 @@ body {
 .header-bar .fa {
   margin-right: 10px;
 }
-.section-card {
-  background: rgba(255,255,255,0.97);
+.staff-navbar {
+  background: #232526;
   border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
   margin-bottom: 2rem;
-  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
 }
-.table {
-  background: #fff;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-.table thead {
-  background: #343a40;
+.staff-navbar .nav-link {
   color: #ffc107;
-}
-.table-hover tbody tr:hover {
-  background: #ffe082;
-}
-.card.bg-dark {
-  background: linear-gradient(135deg, #232526 0%, #414345 100%);
-  border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-}
-.card-title, .card-text {
-  color: #ffc107;
-}
-.btn-warning, .btn-success, .btn-danger, .btn-secondary {
   font-weight: 600;
+  font-size: 1.1rem;
   letter-spacing: 0.5px;
 }
-input.form-control, select.form-control {
+.staff-navbar .nav-link.active, .staff-navbar .nav-link:focus {
+  background: #ffc107;
+  color: #232526 !important;
   border-radius: 0.5rem;
-}
-::-webkit-scrollbar {
-  width: 8px;
-  background: #eee;
-}
-::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 4px;
 }
 @media (max-width: 767px) {
   .header-bar { flex-direction: column; align-items: flex-start; padding: 1rem; }
   .section-card { padding: 1rem; }
+  .staff-navbar .nav-link { font-size: 1rem; }
 }
 </style>
 </head>
@@ -264,258 +240,50 @@ input.form-control, select.form-control {
     <a href="../logout.php" class="btn btn-secondary"><i class="fa fa-sign-out"></i> Logout</a>
   </div>
   <div class="container">
-    <!-- Staff Profile Section -->
-    <div class="section-card mb-4">
-      <h4 class="mb-3 text-info"><i class="fa fa-user"></i> My Profile</h4>
-      <?php if (isset($_GET['profile_updated'])): ?>
-        <div class="alert alert-success">Profile updated successfully.</div>
-      <?php endif; ?>
-      <div class="row align-items-center">
-        <div class="col-md-2 text-center">
-          <?php
-            $profilePic = (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg';
-          ?>
-          <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture" class="rounded-circle mb-2" style="width:90px;height:90px;object-fit:cover;border:3px solid #ffc107;">
-          <form method="POST" enctype="multipart/form-data" class="mt-2">
-            <input type="file" name="profile_pic" accept="image/*" class="form-control mb-1">
-            <button type="submit" name="upload_pic" class="btn btn-warning btn-sm">Change Picture</button>
-          </form>
-          <?php if (!empty($staff['image'])): ?>
-          <form method="POST" class="mt-1">
-            <button type="submit" name="delete_pic" class="btn btn-danger btn-sm">Delete Picture</button>
-          </form>
-          <?php endif; ?>
-        </div>
-        <div class="col-md-10">
-          <form method="POST" class="row">
-            <div class="form-group col-md-4">
-              <label>First Name</label>
-              <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($staff['first_name']) ?>" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label>Middle Name</label>
-              <input type="text" name="middle_name" class="form-control" value="<?= htmlspecialchars($staff['middle_name']) ?>">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Last Name</label>
-              <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($staff['last_name']) ?>" required>
-            </div>
-            <div class="form-group col-md-6">
-              <label>Email</label>
-              <input type="email" class="form-control" value="<?= htmlspecialchars($staff['email']) ?>" readonly>
-            </div>
-            <div class="form-group col-md-6">
-              <label>Phone</label>
-              <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($staff['phone']) ?>">
-            </div>
-            <div class="form-group col-12 mt-2">
-              <button type="submit" name="update_profile" class="btn btn-success">Update Profile</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="section-card">
-      <h4 class="mb-3 text-primary"><i class="fa fa-calendar-check-o"></i> Manage Expected Bookings</h4>
-      <p class="mb-3">Only upcoming <strong>pending</strong> bookings are shown. To confirm/cancel, use the action buttons for the corresponding <strong>Ref # (Reservation ID)</strong>.</p>
-      <input type="text" id="bookingsSearch" class="form-control mb-2" placeholder="Search bookings...">
-      <div class="table-responsive">
-        <table id="bookingsTable" class="table table-bordered table-hover">
-          <thead class="thead-dark">
-            <tr>
-              <th class="sortable">Ref #</th>
-              <th class="sortable">Client</th>
-              <th class="sortable">Slot</th>
-              <th class="sortable">Vehicle</th>
-              <th class="sortable">Start</th>
-              <th class="sortable">End</th>
-              <th class="sortable">Duration</th>
-              <th class="sortable">Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (count($bookings) === 0): ?>
-              <tr><td colspan="9" class="text-center">No bookings found.</td></tr>
-            <?php else: foreach ($bookings as $b): ?>
-              <tr>
-                <td><?= htmlspecialchars($b['reservation_id']) ?></td>
-                <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
-                <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-                <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
-                <td><?= htmlspecialchars($b['start_time']) ?></td>
-                <td><?= htmlspecialchars($b['end_time']) ?></td>
-                <td><?= htmlspecialchars($b['duration']) ?></td>
-                <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
-                <td>
-                  <?php if ($b['status'] === 'pending'): ?>
-                    <form method="post" style="display:inline-block">
-                      <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
-                      <button type="submit" name="action" value="confirm" class="btn btn-success btn-sm">Confirm</button>
-                    </form>
-                    <form method="post" style="display:inline-block">
-                      <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
-                      <button type="submit" name="action" value="cancel" class="btn btn-danger btn-sm">Cancel</button>
-                    </form>
-                  <?php else: ?>
-                    <span class="text-muted">No actions</span>
-                  <?php endif; ?>
-                </td>
-              </tr>
-            <?php endforeach; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="section-card">
-      <h4 class="mb-3 text-success"><i class="fa fa-play-circle"></i> Active Reservations (Confirmed & Ongoing)</h4>
-      <input type="text" id="activeSearch" class="form-control mb-2" placeholder="Search active reservations...">
-      <div class="table-responsive">
-        <table id="activeTable" class="table table-bordered table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th class="sortable">Ref #</th>
-              <th class="sortable">Client</th>
-              <th class="sortable">Slot</th>
-              <th class="sortable">Vehicle</th>
-              <th class="sortable">Start</th>
-              <th class="sortable">End</th>
-              <th class="sortable">Duration</th>
-              <th class="sortable">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (count($active_reservations) === 0): ?>
-              <tr><td colspan="8" class="text-center">No active reservations.</td></tr>
-            <?php else: foreach ($active_reservations as $b): ?>
-              <tr>
-                <td><?= htmlspecialchars($b['reservation_id']) ?></td>
-                <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
-                <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-                <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
-                <td><?= htmlspecialchars($b['start_time']) ?></td>
-                <td><?= htmlspecialchars($b['end_time']) ?></td>
-                <td><?= htmlspecialchars($b['duration']) ?></td>
-                <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
-              </tr>
-            <?php endforeach; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="section-card">
-      <h4 class="mb-3 text-info"><i class="fa fa-history"></i> Reservation History (Completed/Cancelled)</h4>
-      <input type="text" id="historySearch" class="form-control mb-2" placeholder="Search reservation history...">
-      <div class="table-responsive">
-        <table id="historyTable" class="table table-bordered table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th class="sortable">Ref #</th>
-              <th class="sortable">Client</th>
-              <th class="sortable">Slot</th>
-              <th class="sortable">Vehicle</th>
-              <th class="sortable">Start</th>
-              <th class="sortable">End</th>
-              <th class="sortable">Duration</th>
-              <th class="sortable">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (count($history_reservations) === 0): ?>
-              <tr><td colspan="8" class="text-center">No completed or cancelled reservations found.</td></tr>
-            <?php else: foreach ($history_reservations as $b): ?>
-              <tr>
-                <td><?= htmlspecialchars($b['reservation_id']) ?></td>
-                <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
-                <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-                <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
-                <td><?= htmlspecialchars($b['start_time']) ?></td>
-                <td><?= htmlspecialchars($b['end_time']) ?></td>
-                <td><?= htmlspecialchars($b['duration']) ?></td>
-                <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
-              </tr>
-            <?php endforeach; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="section-card">
-      <h4 class="mb-3 text-warning"><i class="fa fa-car"></i> Parking Slots Overview</h4>
-      <div class="row">
-      <?php if (count($all_slots) === 0): ?>
-        <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
-      <?php else: foreach ($all_slots as $slot): ?>
-        <div class="col-md-4 mb-3">
-          <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>" style="border-width:3px;">
-            <div class="card-body">
-              <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
-              <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
-              <p class="card-text">Status: <span class="font-weight-bold text-warning"><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></span></p>
-            </div>
-          </div>
-        </div>
-      <?php endforeach; endif; ?>
-      </div>
-      <?php if ($slots_total_pages > 1): ?>
-      <?php list($slots_start, $slots_end) = getPaginationRange($slots_page, $slots_total_pages); ?>
-      <nav aria-label="Parking Slots pagination">
-        <ul class="pagination justify-content-center">
-          <li class="page-item<?= $slots_page <= 1 ? ' disabled' : '' ?>">
-            <a class="page-link" href="?slots_page=<?= $slots_page-1 ?>" tabindex="-1">Previous</a>
-          </li>
-          <?php if ($slots_start > 1): ?>
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-          <?php endif; ?>
-          <?php for ($i = $slots_start; $i <= $slots_end; $i++): ?>
-            <li class="page-item<?= $i == $slots_page ? ' active' : '' ?>">
-              <a class="page-link" href="?slots_page=<?= $i ?>"><?= $i ?></a>
-            </li>
-          <?php endfor; ?>
-          <?php if ($slots_end < $slots_total_pages): ?>
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-          <?php endif; ?>
-          <li class="page-item<?= $slots_page >= $slots_total_pages ? ' disabled' : '' ?>">
-            <a class="page-link" href="?slots_page=<?= $slots_page+1 ?>">Next</a>
-          </li>
+    <!-- Responsive Navbar for Sections -->
+    <nav class="staff-navbar navbar navbar-expand-md navbar-dark mb-4">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staffNav" aria-controls="staffNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="staffNav">
+        <ul class="navbar-nav w-100 justify-content-between">
+          <li class="nav-item"><a class="nav-link active" href="#" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-section="history"><i class="fa fa-history"></i> History</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-section="slots"><i class="fa fa-car"></i> Slots</a></li>
         </ul>
-      </nav>
-      <?php endif; ?>
+      </div>
+    </nav>
+    <!-- Section Content Loader -->
+    <div id="section-content">
+      <?php include __DIR__ . '/section-profile.php'; ?>
     </div>
   </div>
 </div>
 <script src="../js/bootstrap.bundle.min.js"></script>
 <script src="../js/jquery.min.js"></script>
 <script>
-// Table search and sort for all tables
-function tableSearch(inputId, tableSelector) {
-  $(inputId).on('keyup', function() {
-    var value = $(this).val().toLowerCase();
-    $(tableSelector + ' tbody tr').filter(function() {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-    });
-  });
-}
+// SPA-like section navigation
+const sectionFiles = {
+  profile: 'section-profile.php',
+  bookings: 'section-bookings.php',
+  active: 'section-active.php',
+  history: 'section-history.php',
+  slots: 'section-slots.php'
+};
 $(function() {
-  tableSearch('#activeSearch', '#activeTable');
-  tableSearch('#historySearch', '#historyTable');
-  tableSearch('#bookingsSearch', '#bookingsTable');
-  // Simple column sort
-  $('th.sortable').on('click', function() {
-    var table = $(this).closest('table');
-    var rows = table.find('tbody > tr').toArray();
-    var idx = $(this).index();
-    var asc = !$(this).hasClass('asc');
-    rows.sort(function(a, b) {
-      var A = $(a).children().eq(idx).text().toUpperCase();
-      var B = $(b).children().eq(idx).text().toUpperCase();
-      if($.isNumeric(A) && $.isNumeric(B)) {
-        return asc ? A - B : B - A;
-      }
-      return asc ? A.localeCompare(B) : B.localeCompare(A);
+  $('.staff-navbar .nav-link').on('click', function(e) {
+    e.preventDefault();
+    var section = $(this).data('section');
+    if (!section) return;
+    $('.staff-navbar .nav-link').removeClass('active');
+    $(this).addClass('active');
+    $('#section-content').fadeOut(100, function() {
+      $('#section-content').load(sectionFiles[section], function() {
+        $('#section-content').fadeIn(100);
+      });
     });
-    table.find('tbody').empty().append(rows);
-    table.find('th').removeClass('asc desc');
-    $(this).addClass(asc ? 'asc' : 'desc');
   });
 });
 </script>
