@@ -233,7 +233,6 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <?php foreach ($vehicles as $veh): ?>
   <?php
     $is_active = isset($active_vehicle_ids[$veh['vehicle_id']]);
-    // Only disable if the reservation is still active (end_time > NOW and status is confirmed/ongoing)
   ?>
   <option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?> <?= $is_active ? 'disabled' : '' ?>>
     <?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
@@ -244,7 +243,7 @@ My Account (<?php echo $_SESSION['username'] ?>)
 <small class="form-text text-warning">Vehicles with an active reservation cannot be selected.</small>
 </div>
 </form>
-<?php if ($selected_vehicle_id): ?>
+<?php if ($selected_vehicle_id && empty($active_vehicle_ids[$selected_vehicle_id])): ?>
 <?php if ($current_step === 3): ?>
 <!-- Step 3: Confirmation page -->
 <form method="post" class="bg-dark text-light p-4 rounded">
