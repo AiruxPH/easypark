@@ -1,4 +1,8 @@
 <?php
+session_start();
+$currentAdminEmail = $_SESSION['user_email'] ?? '';
+$isSuperAdmin = ($currentAdminEmail === 'admin@gmail.com');
+
 // Get filters and pagination parameters
 $search = $_GET['search'] ?? '';
 $userType = $_GET['user_type'] ?? '';
@@ -67,9 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Users Management</h2>
+        <?php if ($isSuperAdmin): ?>
         <button class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
             <i class="fa fa-plus"></i> Add New User
         </button>
+        <?php endif; ?>
     </div>
 
     <!-- Filters -->
@@ -167,12 +173,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                                 <?= $user['is_active'] == 1 ? 'Active' : 'Inactive' ?>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= $user['user_id'] ?>)">
-                                    <i class="fa fa-trash"></i>
-                                </button>
+                                <?php
+                                // Determine if action buttons should be shown
+                                $isTargetAdmin = ($user['user_type'] === 'admin');
+                                $canEditDelete = $isSuperAdmin || (!$isTargetAdmin);
+                                ?>
+                                <?php if ($canEditDelete): ?>
+                                    <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser(<?= $user['user_id'] ?>)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <span class="text-muted">No Access</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -262,9 +277,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                     <div class="form-group">
                         <label>User Type</label>
                         <select class="form-control" name="user_type" required>
-                            <option value="client">Client</option>
-                            <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
+                            <?php if ($isSuperAdmin): ?>
+                                <option value="client">Client</option>
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
+                            <?php else: ?>
+                                <option value="staff">Staff</option>
+                                <option value="client">Client</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="form-group">
