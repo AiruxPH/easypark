@@ -1,13 +1,18 @@
 <?php
 // vehicles.php - Vehicles section for admin panel
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Ensure $pdo is available
 if (!isset($pdo)) {
     global $pdo;
-    if (!isset($pdo)) {
-        echo '<div class="alert alert-danger">Database connection not available.</div>';
-        return;
-    }
+}
+if (!isset($pdo)) {
+    echo '<div class="alert alert-danger">Database connection not available.</div>';
+    // Do not return, allow rest of page to render for debugging
 }
 
 // Pagination
@@ -15,22 +20,28 @@ $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = 20;
 $offset = ($page - 1) * $perPage;
 
-// Get total count
-$countStmt = $pdo->query("SELECT COUNT(*) FROM vehicles");
-$total = $countStmt ? $countStmt->fetchColumn() : 0;
-$totalPages = $total ? ceil($total / $perPage) : 1;
+try {
+    // Get total count
+    $countStmt = $pdo->query("SELECT COUNT(*) FROM vehicles");
+    $total = $countStmt ? $countStmt->fetchColumn() : 0;
+    $totalPages = $total ? ceil($total / $perPage) : 1;
 
-// Fetch vehicles with user info
-$sql = "SELECT v.vehicle_id, v.plate_number, v.vehicle_type, v.brand, v.model, v.color, v.created_at, u.first_name, u.last_name
-    FROM vehicles v
-    LEFT JOIN users u ON v.user_id = u.user_id
-    ORDER BY v.vehicle_id DESC
-    LIMIT :limit OFFSET :offset";
-$stmt = $pdo->prepare($sql);
-$stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-$stmt->execute();
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Fetch vehicles with user info
+    $sql = "SELECT v.vehicle_id, v.plate_number, v.vehicle_type, v.brand, v.model, v.color, v.created_at, u.first_name, u.last_name
+        FROM vehicles v
+        LEFT JOIN users u ON v.user_id = u.user_id
+        ORDER BY v.vehicle_id DESC
+        LIMIT :limit OFFSET :offset";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    echo '<div class="alert alert-danger">Database error: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    $result = [];
+    $totalPages = 1;
+}
 ?>
 
 <div class="container-fluid">
