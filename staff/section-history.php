@@ -6,7 +6,7 @@ require_once __DIR__ . '/section-common.php';
   <h4 class="mb-3 text-info"><i class="fa fa-history"></i> Reservation History (Completed/Cancelled)</h4>
   <input type="text" id="historySearch" class="form-control mb-2" placeholder="Search reservation history...">
   <div class="table-responsive">
-    <table id="historyTable" class="table table-bordered table-hover">
+    <table id="historyTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-light">
         <tr>
           <th class="sortable">Ref #</th>

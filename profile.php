@@ -271,7 +271,7 @@ if (isset($_POST['add_vehicle'])) {
         <?php if (!empty($message)) {
             echo '<div class="alert alert-danger text-center" id="vehicleMsg">' . htmlspecialchars($message) . '</div>';
         } ?>
-        <table class="table table-bordered vehicle-table">
+        <table class="table table-bordered vehicle-table bg-white text-dark">
             <thead class="thead-light">
                 <tr>
                     <th>Plate Number</th>
