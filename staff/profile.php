@@ -53,6 +53,32 @@ if (isset($_POST['delete_pic'])) {
     exit();
 }
 $profilePic = (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg';
+
+// Handle password change
+$password_message = '';
+if (isset($_POST['change_password'])) {
+    $current = $_POST['current_password'] ?? '';
+    $new = $_POST['new_password'] ?? '';
+    $confirm = $_POST['confirm_new_password'] ?? '';
+    if (!$current || !$new || !$confirm) {
+        $password_message = '❌ Please fill all password fields.';
+    } elseif ($new !== $confirm) {
+        $password_message = '❌ New passwords do not match.';
+    } else {
+        // Fetch current hashed password
+        $stmt = $pdo->prepare('SELECT password FROM users WHERE user_id = ?');
+        $stmt->execute([$staff_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && password_verify($current, $row['password'])) {
+            $hashed = password_hash($new, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
+            $stmt->execute([$hashed, $staff_id]);
+            $password_message = '✅ Password changed successfully!';
+        } else {
+            $password_message = '❌ Current password is incorrect.';
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -81,6 +107,25 @@ body {
   margin-top: 2rem;
   color: #fff;
 }
+.profile-container {
+  background: #2c2f33;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2rem;
+  color: #fff;
+}
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #ffc107;
+}
+.password-message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
 </style>
 </head>
 <body>
@@ -93,6 +138,9 @@ body {
     <div class="section-card mb-4 p-4">
       <?php if (isset($_GET['profile_updated'])): ?>
         <div class="alert alert-success">Profile updated successfully.</div>
+      <?php endif; ?>
+      <?php if (!empty($message)): ?>
+        <div class="alert alert-<?php echo strpos($message, '✅') !== false ? 'success' : 'danger'; ?>"> <?php echo htmlspecialchars($message); ?> </div>
       <?php endif; ?>
       <div class="row align-items-center">
         <div class="col-md-4 text-center mb-3 mb-md-0">
@@ -131,6 +179,28 @@ body {
             </div>
             <div class="form-group col-12 mt-3">
               <button type="submit" name="update_profile" class="btn btn-warning w-100">Update Profile</button>
+            </div>
+          </form>
+          <hr class="my-4">
+          <h5 class="text-warning mb-3"><i class="fa fa-lock"></i> Change Password</h5>
+          <?php if (!empty($password_message)): ?>
+            <div class="password-message"><?php echo htmlspecialchars($password_message); ?></div>
+          <?php endif; ?>
+          <form method="POST" class="change-password-form">
+            <div class="form-group mb-2">
+              <label>Current Password</label>
+              <input type="password" name="current_password" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label>New Password</label>
+              <input type="password" name="new_password" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label>Confirm New Password</label>
+              <input type="password" name="confirm_new_password" class="form-control" required>
+            </div>
+            <div class="form-group col-12 mt-2">
+              <button type="submit" name="change_password" class="btn btn-warning w-100">Change Password</button>
             </div>
           </form>
         </div>
