@@ -1,36 +1,65 @@
 <?php
-include 'db.php'; // your PDO connection file
+include 'db.php';
 
+$logFile = __DIR__ . '/cron_log.txt';
+$log = "[" . date('Y-m-d H:i:s') . "] Cron job started.\n";
 
 try {
     $now = date('Y-m-d H:i:s');
 
-    // 1. Cancel pending reservations that missed their start time (no-show)
+    // Cancel no-show reservations
     $stmt_cancel = $pdo->prepare("
         UPDATE reservations
         SET status = 'cancelled'
         WHERE start_time < :now AND status = 'pending'
     ");
     $stmt_cancel->execute(['now' => $now]);
+    $log .= "Cancelled reservations: " . $stmt_cancel->rowCount() . "\n";
 
-    // 2. Expire reservations that ended but never completed (pending or confirmed)
+    // Expire outdated reservations
     $stmt_expire = $pdo->prepare("
         UPDATE reservations
         SET status = 'expired'
         WHERE end_time < :now AND status IN ('pending', 'confirmed')
     ");
     $stmt_expire->execute(['now' => $now]);
+    $log .= "Expired reservations: " . $stmt_expire->rowCount() . "\n";
 
-    // 3. Mark ongoing reservations as completed if their end_time has passed
+    // Complete finished ongoing reservations
     $stmt_complete = $pdo->prepare("
         UPDATE reservations
         SET status = 'completed'
         WHERE end_time < :now AND status = 'ongoing'
     ");
     $stmt_complete->execute(['now' => $now]);
+    $log .= "Completed reservations: " . $stmt_complete->rowCount() . "\n";
 
-    // 4. Free up parking slots that are no longer in use (expired, cancelled, completed)
-    $stmt_free_slots = $pdo->prepare("
+    // Update payments: refunded
+    $stmt_refund = $pdo->prepare("
+        UPDATE payments
+        SET status = 'refunded'
+        WHERE reservation_id IN (
+            SELECT reservation_id FROM reservations
+            WHERE status IN ('cancelled', 'expired')
+        ) AND status != 'refunded'
+    ");
+    $stmt_refund->execute();
+    $log .= "Refunded payments: " . $stmt_refund->rowCount() . "\n";
+
+    // Update payments: successful
+    $stmt_success = $pdo->prepare("
+        UPDATE payments
+        SET status = 'successful'
+        WHERE reservation_id IN (
+            SELECT reservation_id FROM reservations
+            WHERE status = 'completed'
+        ) AND status != 'successful'
+    ");
+    $stmt_success->execute();
+    $log .= "Successful payments: " . $stmt_success->rowCount() . "\n";
+
+    // Free up parking slots
+    $stmt_free = $pdo->prepare("
         UPDATE parking_slots
         SET slot_status = 'available'
         WHERE parking_slot_id IN (
@@ -44,10 +73,14 @@ try {
             WHERE status IN ('pending', 'confirmed', 'ongoing')
         )
     ");
-    $stmt_free_slots->execute(['now' => $now]);
+    $stmt_free->execute(['now' => $now]);
+    $log .= "Freed parking slots: " . $stmt_free->rowCount() . "\n";
 
-    echo "Reservation cleanup complete.";
+    $log .= "Cron job finished successfully.\n\n";
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
+    $log .= "Error: " . $e->getMessage() . "\n\n";
 }
+
+// Write to log file
+file_put_contents($logFile, $log, FILE_APPEND);
 ?>
