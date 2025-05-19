@@ -33,7 +33,7 @@ require_once __DIR__ . '/section-common.php';
     </div>
   </div>
   <div class="row" id="slotsGrid">
-    <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
+    <div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>
   </div>
 </div>
 
