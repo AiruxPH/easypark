@@ -635,7 +635,11 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                   </thead>
                   <tbody>
                     <?php
-                    $sql = "SELECT v.plate_number, CONCAT(u.first_name, ' ', u.last_name) AS owner_name, m.brand, m.model, v.type
+                    $sql = "SELECT v.plate_number, 
+                                 IFNULL(CONCAT(u.first_name, ' ', u.last_name), 'Unknown') AS owner_name, 
+                                 IFNULL(m.brand, 'Unknown') AS brand, 
+                                 IFNULL(m.model, 'Unknown') AS model, 
+                                 v.type
                       FROM vehicles v
                       LEFT JOIN users u ON v.user_id = u.user_id
                       LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
