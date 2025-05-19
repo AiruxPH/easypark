@@ -283,9 +283,11 @@ const sectionFiles = {
   history: 'section-history.php',
   slots: 'section-slots.php'
 };
-let currentSection = 'bookings';
+// Check for section in localStorage or URL hash
+let currentSection = localStorage.getItem('staffCurrentSection') || 'bookings';
 function loadSection(section, params = {}) {
   currentSection = section;
+  localStorage.setItem('staffCurrentSection', section);
   $('.staff-navbar .nav-link').removeClass('active');
   $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
   let url = sectionFiles[section];
@@ -325,8 +327,8 @@ $(function() {
       loadSection(currentSection, params);
     }
   });
-  // Load bookings section by default on page load
-  loadSection('bookings');
+  // Load last focused section on page load
+  loadSection(currentSection);
 });
 </script>
 <style>
