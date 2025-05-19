@@ -11,14 +11,14 @@ require_once __DIR__ . '/section-common.php';
     <table id="bookingsTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-dark">
         <tr>
-          <th>Ref #</th>
-          <th>Client</th>
-          <th>Slot</th>
-          <th>Vehicle</th>
-          <th>Start</th>
-          <th>End</th>
-          <th>Duration</th>
-          <th>Status</th>
+          <th class="sortable">Ref #</th>
+          <th class="sortable">Client</th>
+          <th class="sortable">Slot</th>
+          <th class="sortable">Vehicle</th>
+          <th class="sortable">Start</th>
+          <th class="sortable">End</th>
+          <th class="sortable">Duration</th>
+          <th class="sortable">Status</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -55,3 +55,28 @@ require_once __DIR__ . '/section-common.php';
     </table>
   </div>
 </div>
+<script>
+$(document).ready(function() {
+  window.bookingsSortCol = undefined;
+  window.bookingsSortAsc = true;
+  $('#bookingsTable thead th.sortable').on('click', function() {
+    var idx = $(this).index();
+    if (window.bookingsSortCol === idx) window.bookingsSortAsc = !window.bookingsSortAsc;
+    else { window.bookingsSortCol = idx; window.bookingsSortAsc = true; }
+    var rows = $('#bookingsTable tbody tr').get();
+    rows.sort(function(a, b) {
+      var tdA = $(a).children('td').eq(window.bookingsSortCol).text().toLowerCase();
+      var tdB = $(b).children('td').eq(window.bookingsSortCol).text().toLowerCase();
+      if (!isNaN(tdA) && !isNaN(tdB)) {
+        return window.bookingsSortAsc ? tdA - tdB : tdB - tdA;
+      }
+      return window.bookingsSortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+    });
+    $.each(rows, function(i, row) {
+      $('#bookingsTable tbody').append(row);
+    });
+    $('#bookingsTable thead th').removeClass('asc desc');
+    $(this).addClass(window.bookingsSortAsc ? 'asc' : 'desc');
+  });
+});
+</script>
