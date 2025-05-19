@@ -125,43 +125,6 @@ if ($currentAdminEmail) {
 }
 ?>
 
-<!-- Navbar (example, adjust selector as needed) -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">EasyPark Admin</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="?section=dashboard">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="?section=users">Users</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="?section=transactions">Transactions</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="?section=reports">Reports</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <!-- ...other nav items... -->
-                <?php if ($currentAdmin): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showProfileModal(); return false;">My Profile</a>
-                    </li>
-                <?php endif; ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="?logout=1">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Users Management</h2>
@@ -444,50 +407,6 @@ if ($currentAdminEmail) {
             </div>
         </div>
     </div>
-
-    <!-- My Profile Modal -->
-    <div class="modal fade" id="profileModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST" id="profileForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title">My Profile</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="profile_user_id" value="<?= htmlspecialchars($currentAdmin['user_id']) ?>">
-                        <div class="mb-3">
-                            <label class="form-label">First Name</label>
-                            <input name="profile_first_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['first_name']) ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Middle Name</label>
-                            <input name="profile_middle_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['middle_name']) ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Last Name</label>
-                            <input name="profile_last_name" class="form-control" value="<?= htmlspecialchars($currentAdmin['last_name']) ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input name="profile_email" type="email" class="form-control" value="<?= htmlspecialchars($currentAdmin['email']) ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone</label>
-                            <input name="profile_phone" class="form-control" value="<?= htmlspecialchars($currentAdmin['phone']) ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password <small>(leave blank to keep current)</small></label>
-                            <input name="profile_password" type="password" class="form-control" autocomplete="new-password">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -541,8 +460,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1200);
     }
 });
-
-function showProfileModal() {
-    $('#profileModal').modal('show');
-}
 </script>
