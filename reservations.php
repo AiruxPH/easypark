@@ -382,13 +382,16 @@ if ($stmt->fetchColumn() > 0) {
 <div class="card-body">
 <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
 <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
-<button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>" class="btn btn-warning btn-block" <?= $has_active_reservation ? 'disabled title="You already have an active reservation. Complete or cancel it before reserving again."' : 'onclick="return confirm(\'Reserve this slot?\');"' ?>>Reserve</button>
+<button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>" class="btn btn-warning btn-block" <?= $has_active_reservation ? 'disabled' : '' ?>>Reserve</button>
 </div>
 </div>
 </div>
 <?php endforeach; ?>
 </div>
 </form>
+<?php if ($has_active_reservation): ?>
+<div class="alert alert-info mt-3">You have an active reservation. You cannot reserve another slot until your current reservation is completed or cancelled.</div>
+<?php endif; ?>
 <?php
 // Pagination controls
 $total_pages = ceil($total_slots / $slots_per_page);
