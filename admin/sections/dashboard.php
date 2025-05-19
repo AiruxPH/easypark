@@ -89,47 +89,7 @@ $stats = [
 
     <!-- Recent Activity Section -->
     <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recent Reservations</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Slot</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $stmt = $pdo->query("
-                                SELECT r.reservation_id, u.first_name, u.last_name, s.slot_number, r.status 
-                                FROM reservations r 
-                                JOIN users u ON r.user_id = u.user_id 
-                                JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id 
-                                ORDER BY r.created_at DESC 
-                                LIMIT 5
-                            ");
-                            while ($row = $stmt->fetch()): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($row['reservation_id']) ?></td>
-                                    <td><?= htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['slot_number']) ?></td>
-                                    <td><span class="badge badge-<?= $row['status'] === 'confirmed' ? 'success' : 'warning' ?>"><?= ucfirst(htmlspecialchars($row['status'])) ?></span></td>
-                                </tr>
-                            <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-6 offset-md-3">
             <div class="card">
                 <div class="card-header">
                     <h5>Recent Transactions</h5>
