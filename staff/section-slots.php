@@ -4,20 +4,48 @@ require_once __DIR__ . '/section-common.php';
 ?>
 <div class="section-card">
   <h4 class="mb-3 text-warning"><i class="fa fa-car"></i> Parking Slots Overview</h4>
-  <div class="row">
-  <?php if (count($all_slots) === 0): ?>
-    <div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>
-  <?php else: foreach ($all_slots as $slot): ?>
-    <div class="col-md-4 mb-3">
-      <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>" style="border-width:3px;">
-        <div class="card-body">
-          <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
-          <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
-          <p class="card-text">Status: <span class="font-weight-bold text-warning"><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></span></p>
-        </div>
-      </div>
+  <div class="row mb-3">
+    <div class="col-md-4 mb-2">
+      <input type="text" id="slotSearch" class="form-control" placeholder="Search slots...">
     </div>
-  <?php endforeach; endif; ?>
+    <div class="col-md-3 mb-2">
+      <select id="slotTypeFilter" class="form-control">
+        <option value="">All Types</option>
+        <option value="two_wheeler">Two Wheeler</option>
+        <option value="standard">Standard</option>
+        <option value="compact">Compact</option>
+      </select>
+    </div>
+    <div class="col-md-3 mb-2">
+      <select id="slotStatusFilter" class="form-control">
+        <option value="">All Statuses</option>
+        <option value="available">Available</option>
+        <option value="reserved">Reserved</option>
+        <option value="occupied">Occupied</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table id="slotsTable" class="table table-bordered table-hover bg-white text-dark">
+      <thead class="thead-dark">
+        <tr>
+          <th class="sortable">Slot #</th>
+          <th class="sortable">Type</th>
+          <th class="sortable">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (count($all_slots) === 0): ?>
+          <tr><td colspan="3" class="text-center">No parking slots found.</td></tr>
+        <?php else: foreach ($all_slots as $slot): ?>
+          <tr>
+            <td><?= htmlspecialchars($slot['slot_number']) ?></td>
+            <td><?= htmlspecialchars($slot['slot_type']) ?></td>
+            <td><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></td>
+          </tr>
+        <?php endforeach; endif; ?>
+      </tbody>
+    </table>
   </div>
   <?php if ($slots_total_pages > 1): ?>
   <?php list($slots_start, $slots_end) = getPaginationRange($slots_page, $slots_total_pages); ?>
@@ -44,3 +72,50 @@ require_once __DIR__ . '/section-common.php';
   </nav>
   <?php endif; ?>
 </div>
+<script>
+$(document).ready(function() {
+  function filterAndSortSlots() {
+    var search = $('#slotSearch').val().toLowerCase();
+    var type = $('#slotTypeFilter').val();
+    var status = $('#slotStatusFilter').val();
+    var rows = $('#slotsTable tbody tr').get();
+    rows.forEach(function(row) {
+      var tds = $(row).children('td');
+      var slotNum = tds.eq(0).text().toLowerCase();
+      var slotType = tds.eq(1).text().toLowerCase();
+      var slotStatus = tds.eq(2).text().toLowerCase();
+      var show = true;
+      if (search && !slotNum.includes(search) && !slotType.includes(search) && !slotStatus.includes(search)) show = false;
+      if (type && slotType !== type.replace('_', ' ')) show = false;
+      if (status && slotStatus !== status) show = false;
+      $(row).toggle(show);
+    });
+    // Sorting
+    if (window.slotSortCol !== undefined) {
+      rows = rows.filter(function(row) { return $(row).css('display') !== 'none'; });
+      rows.sort(function(a, b) {
+        var tdA = $(a).children('td').eq(window.slotSortCol).text().toLowerCase();
+        var tdB = $(b).children('td').eq(window.slotSortCol).text().toLowerCase();
+        if (!isNaN(tdA) && !isNaN(tdB)) {
+          return window.slotSortAsc ? tdA - tdB : tdB - tdA;
+        }
+        return window.slotSortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+      });
+      $.each(rows, function(i, row) {
+        $('#slotsTable tbody').append(row);
+      });
+    }
+  }
+  $('#slotSearch, #slotTypeFilter, #slotStatusFilter').on('input change', filterAndSortSlots);
+  window.slotSortCol = undefined;
+  window.slotSortAsc = true;
+  $('#slotsTable thead th.sortable').on('click', function() {
+    var idx = $(this).index();
+    if (window.slotSortCol === idx) window.slotSortAsc = !window.slotSortAsc;
+    else { window.slotSortCol = idx; window.slotSortAsc = true; }
+    filterAndSortSlots();
+    $('#slotsTable thead th').removeClass('asc desc');
+    $(this).addClass(window.slotSortAsc ? 'asc' : 'desc');
+  });
+});
+</script>
