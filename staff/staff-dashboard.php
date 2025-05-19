@@ -280,8 +280,8 @@ $(function() {
     $('.staff-navbar .nav-link').removeClass('active');
     $(this).addClass('active');
     $('#section-content').fadeOut(100, function() {
-      var file = sectionFiles[section];
-      $('#section-content').load('/staff/' + file, function() {
+      // Always use relative path from staff-dashboard.php
+      $('#section-content').load(sectionFiles[section], function() {
         $('#section-content').fadeIn(100);
       });
     });
