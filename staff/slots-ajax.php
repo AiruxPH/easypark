@@ -2,6 +2,28 @@
 require_once __DIR__ . '/section-common.php';
 header('Content-Type: application/json');
 
+// Ensure helper functions are available for AJAX context
+if (!function_exists('getSlotColorClass')) {
+    function getSlotColorClass($status) {
+        switch (strtolower($status)) {
+            case 'available': return 'border-success';
+            case 'reserved': return 'border-warning';
+            case 'occupied': return 'border-danger';
+            default: return 'border-secondary';
+        }
+    }
+}
+if (!function_exists('getPaginationRange')) {
+    function getPaginationRange($current, $total, $max = 5) {
+        $start = max(1, $current - floor($max/2));
+        $end = min($total, $start + $max - 1);
+        if ($end - $start + 1 < $max) {
+            $start = max(1, $end - $max + 1);
+        }
+        return [$start, $end];
+    }
+}
+
 // Get parameters
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $type = isset($_GET['type']) ? trim($_GET['type']) : '';
