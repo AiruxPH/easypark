@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/section-common.php';
+header('Content-Type: application/json');
 
 // Get parameters
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -57,6 +58,10 @@ foreach ($slots as $slot): ?>
   </div>
 <?php endforeach;
 $cardsHtml = ob_get_clean();
+
+if (empty($slots)) {
+    $cardsHtml = '<div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>';
+}
 
 // Pagination
 ob_start();
