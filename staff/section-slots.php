@@ -74,47 +74,62 @@ require_once __DIR__ . '/section-common.php';
 </div>
 <script>
 $(document).ready(function() {
-  function normalize(text) {
-    return (text || '').toString().toLowerCase().trim();
-  }
-  function filterAndSortSlots() {
-    var search = normalize($('#slotSearch').val());
+  function fetchSlots(page = 1) {
+    var search = $('#slotSearch').val();
     var type = $('#slotTypeFilter').val();
     var status = $('#slotStatusFilter').val();
     var sortBy = $('#slotSort').val();
-    var $cards = $('.slot-card');
-    // Only filter/sort cards visible in the current page
-    var $pageCards = $cards.parent().filter(':visible').find('.slot-card');
-    $pageCards.each(function() {
-      var $card = $(this);
-      var slotNum = normalize($card.data('slot_number'));
-      var slotType = normalize($card.data('slot_type'));
-      var slotStatus = normalize($card.data('slot_status'));
-      var show = true;
-      if (search && !slotNum.includes(search) && !slotType.includes(search) && !slotStatus.includes(search)) show = false;
-      if (type && slotType !== type) show = false;
-      if (status && slotStatus !== status) show = false;
-      $card.toggle(show);
-    });
-    // Sorting
-    var $visible = $pageCards.filter(':visible');
-    $visible.sort(function(a, b) {
-      var valA = normalize($(a).data(sortBy));
-      var valB = normalize($(b).data(sortBy));
-      if (!isNaN(valA) && !isNaN(valB)) {
-        return valA - valB;
+    $.ajax({
+      url: 'staff/slots-ajax.php',
+      method: 'GET',
+      data: {
+        search: search,
+        type: type,
+        status: status,
+        sort: sortBy,
+        page: page
+      },
+      beforeSend: function() {
+        $('#slotsGrid').html('<div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>');
+      },
+      success: function(response) {
+        // Expect response to contain both slot cards and pagination nav
+        var $temp = $('<div>').html(response);
+        var $newGrid = $temp.find('#slotsGrid').length ? $temp.find('#slotsGrid').html() : $temp.html();
+        var $newPagination = $temp.find('nav[aria-label="Parking Slots pagination"]');
+        $('#slotsGrid').html($newGrid);
+        if ($newPagination.length) {
+          if ($('nav[aria-label="Parking Slots pagination"]').length) {
+            $('nav[aria-label="Parking Slots pagination"]').replaceWith($newPagination);
+          } else {
+            $('#slotsGrid').after($newPagination);
+          }
+        } else {
+          $('nav[aria-label="Parking Slots pagination"]').remove();
+        }
+      },
+      error: function() {
+        $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
       }
-      return valA.localeCompare(valB);
     });
-    $('#slotsGrid').append($visible);
   }
-  $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', filterAndSortSlots);
-  // Reset filters/search on pagination click
-  $('.pagination .page-link').on('click', function() {
-    $('#slotSearch').val('');
-    $('#slotTypeFilter').val('');
-    $('#slotStatusFilter').val('');
-    $('#slotSort').val('slot_number');
+
+  // Initial fetch (if needed)
+  // fetchSlots();
+
+  // On filter/search/sort change
+  $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', function() {
+    fetchSlots(1);
+  });
+
+  // On pagination click (delegated, since pagination is replaced dynamically)
+  $(document).on('click', 'nav[aria-label="Parking Slots pagination"] .page-link', function(e) {
+    e.preventDefault();
+    var href = $(this).attr('href');
+    if (!href || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
+    var pageMatch = href.match(/slots_page=(\d+)/);
+    var page = pageMatch ? parseInt(pageMatch[1], 10) : 1;
+    fetchSlots(page);
   });
 });
 </script>
