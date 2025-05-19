@@ -335,7 +335,8 @@ function editUser(user) {
     $('#edit_email').val(user.email);
     $('#edit_phone').val(user.phone);
     $('#edit_user_type').val(user.user_type);
-    $('#edit_active').val(user.active);
+    // Use user.is_active (1/0) instead of user.active
+    $('#edit_active').val(user.is_active);
     $('#editUserModal').modal('show');
 }
 
