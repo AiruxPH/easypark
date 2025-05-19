@@ -26,12 +26,15 @@ try {
     $total = $countStmt ? $countStmt->fetchColumn() : 0;
     $totalPages = $total ? ceil($total / $perPage) : 1;
 
-    // Fetch vehicles with user info
-    $sql = "SELECT v.vehicle_id, v.plate_number, v.vehicle_type, v.brand, v.model, v.color, v.created_at, u.first_name, u.last_name
-        FROM vehicles v
-        LEFT JOIN users u ON v.user_id = u.user_id
-        ORDER BY v.vehicle_id DESC
-        LIMIT :limit OFFSET :offset";
+    // Fetch vehicles with user info and model info
+    $sql = "SELECT v.vehicle_id, v.plate_number, v.color, v.created_at, 
+                   u.first_name, u.last_name,
+                   m.brand, m.model, m.type
+            FROM vehicles v
+            LEFT JOIN users u ON v.user_id = u.user_id
+            LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
+            ORDER BY v.vehicle_id DESC
+            LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -70,7 +73,7 @@ try {
                         <tr>
                         <td><?= htmlspecialchars($row['vehicle_id']) ?></td>
                         <td><?= htmlspecialchars($row['plate_number']) ?></td>
-                        <td><?= htmlspecialchars($row['vehicle_type']) ?></td>
+                        <td><?= htmlspecialchars($row['type']) ?></td>
                         <td><?= htmlspecialchars($row['brand']) ?></td>
                         <td><?= htmlspecialchars($row['model']) ?></td>
                         <td><?= htmlspecialchars($row['color']) ?></td>
