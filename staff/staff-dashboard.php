@@ -247,11 +247,11 @@ body {
       </button>
       <div class="collapse navbar-collapse" id="staffNav">
         <ul class="navbar-nav w-100 justify-content-between">
-          <li class="nav-item"><a class="nav-link active" href="#" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="history"><i class="fa fa-history"></i> History</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-section="slots"><i class="fa fa-car"></i> Slots</a></li>
+          <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" data-section="profile"><i class="fa fa-user"></i> My Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i class="fa fa-calendar-check-o"></i> Bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i class="fa fa-play-circle"></i> Active</a></li>
+          <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i class="fa fa-history"></i> History</a></li>
+          <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i class="fa fa-car"></i> Slots</a></li>
         </ul>
       </div>
     </nav>
@@ -280,7 +280,7 @@ $(function() {
     $('.staff-navbar .nav-link').removeClass('active');
     $(this).addClass('active');
     $('#section-content').fadeOut(100, function() {
-      // Always use absolute path from root for AJAX load
+      // Always use absolute path from window.location.pathname;
       var path = window.location.pathname;
       var base = path.substring(0, path.lastIndexOf('/staff/') + 6); // includes '/staff/'
       var file = sectionFiles[section];
