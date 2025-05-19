@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/section-common.php';
 // Active Reservations Section (for include or AJAX)
 ?>
 <div class="section-card">

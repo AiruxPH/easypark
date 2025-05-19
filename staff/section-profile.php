@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/section-common.php';
+
 // Staff Profile Section (for include or AJAX)
 $profilePic = (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg';
 ?>
