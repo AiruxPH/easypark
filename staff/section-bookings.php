@@ -2,62 +2,7 @@
 require_once __DIR__ . '/section-common.php';
 // Bookings Section (for include or AJAX)
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['reservation_id'])) {
-    $reservation_id = filter_input(INPUT_POST, 'reservation_id', FILTER_VALIDATE_INT);
-    $action = $_POST['action'];
 
-    if (!$reservation_id) {
-        $error_message = 'Invalid reservation ID.';
-    } else {
-        try {
-            // Begin transaction
-            $conn->beginTransaction();
-
-            // Verify the reservation exists and is pending
-            $stmt = $conn->prepare("SELECT r.parking_slot_id, r.status FROM reservations r WHERE r.reservation_id = ?");
-            $stmt->execute([$reservation_id]);
-            $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$reservation) {
-                throw new Exception('Reservation not found.');
-            }
-            if ($reservation['status'] !== 'pending') {
-                throw new Exception('Reservation is not pending.');
-            }
-
-            if ($action === 'confirm') {
-                // Update reservation status to confirmed
-                $stmt = $conn->prepare("UPDATE reservations SET status = 'confirmed' WHERE reservation_id = ?");
-                $stmt->execute([$reservation_id]);
-
-                // Update parking slot status to reserved
-                $stmt = $conn->prepare("UPDATE parking_slots SET slot_status = 'reserved' WHERE parking_slot_id = ?");
-                $stmt->execute([$reservation['parking_slot_id']]);
-
-                $success_message = 'Reservation #' . $reservation_id . ' confirmed successfully.';
-            } elseif ($action === 'cancel') {
-                // Delete the reservation
-                $stmt = $conn->prepare("DELETE FROM reservations WHERE reservation_id = ?");
-                $stmt->execute([$reservation_id]);
-
-                // Update parking slot status to available
-                $stmt = $conn->prepare("UPDATE parking_slots SET slot_status = 'available' WHERE parking_slot_id = ?");
-                $stmt->execute([$reservation['parking_slot_id']]);
-
-                $success_message = 'Reservation #' . $reservation_id . ' cancelled successfully.';
-            } else {
-                throw new Exception('Invalid action.');
-            }
-
-            // Commit transaction
-            $conn->commit();
-        } catch (Exception $e) {
-            // Rollback transaction on error
-            $conn->rollBack();
-            $error_message = 'Error: ' . $e->getMessage();
-        }
-    }
-}
 ?>
 <div class="section-card">
   <h4 class="mb-3 text-primary"><i class="fa fa-calendar-check-o"></i> Manage Expected Bookings</h4>
