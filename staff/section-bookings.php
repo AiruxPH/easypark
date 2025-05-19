@@ -25,14 +25,14 @@ require_once __DIR__ . '/section-common.php';
     <table id="bookingsTable" class="table table-bordered table-hover bg-white text-dark">
       <thead class="thead-dark">
         <tr>
-          <th class="sortable">Ref #</th>
-          <th class="sortable">Client</th>
-          <th class="sortable">Slot</th>
-          <th class="sortable">Vehicle</th>
-          <th class="sortable">Start</th>
-          <th class="sortable">End</th>
-          <th class="sortable">Duration</th>
-          <th class="sortable">Status</th>
+          <th>Ref #</th>
+          <th>Client</th>
+          <th>Slot</th>
+          <th>Vehicle</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Duration</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -71,45 +71,19 @@ require_once __DIR__ . '/section-common.php';
 </div>
 <script>
 $(document).ready(function() {
-  function filterAndSortBookings() {
+  function filterBookings() {
     var search = $('#bookingsSearch').val().toLowerCase();
     var status = $('#bookingsStatusFilter').val();
-    var rows = $('#bookingsTable tbody tr').get();
-    rows.forEach(function(row) {
-      var tds = $(row).children('td');
+    $('#bookingsTable tbody tr').each(function() {
+      var tds = $(this).children('td');
       var rowStatus = tds.eq(7).text().toLowerCase();
-      var rowText = $(row).text().toLowerCase();
+      var rowText = $(this).text().toLowerCase();
       var show = true;
       if (search && rowText.indexOf(search) === -1) show = false;
       if (status && rowStatus !== status) show = false;
-      $(row).toggle(show);
+      $(this).toggle(show);
     });
-    // Sorting
-    if (window.bookingsSortCol !== undefined) {
-      rows = rows.filter(function(row) { return $(row).css('display') !== 'none'; });
-      rows.sort(function(a, b) {
-        var tdA = $(a).children('td').eq(window.bookingsSortCol).text().toLowerCase();
-        var tdB = $(b).children('td').eq(window.bookingsSortCol).text().toLowerCase();
-        if (!isNaN(tdA) && !isNaN(tdB)) {
-          return window.bookingsSortAsc ? tdA - tdB : tdB - tdA;
-        }
-        return window.bookingsSortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
-      });
-      $.each(rows, function(i, row) {
-        $('#bookingsTable tbody').append(row);
-      });
-    }
   }
-  $('#bookingsSearch, #bookingsStatusFilter').on('input change', filterAndSortBookings);
-  window.bookingsSortCol = undefined;
-  window.bookingsSortAsc = true;
-  $('#bookingsTable thead th.sortable').on('click', function() {
-    var idx = $(this).index();
-    if (window.bookingsSortCol === idx) window.bookingsSortAsc = !window.bookingsSortAsc;
-    else { window.bookingsSortCol = idx; window.bookingsSortAsc = true; }
-    filterAndSortBookings();
-    $('#bookingsTable thead th').removeClass('asc desc');
-    $(this).addClass(window.bookingsSortAsc ? 'asc' : 'desc');
-  });
+  $('#bookingsSearch, #bookingsStatusFilter').on('input change', filterBookings);
 });
 </script>
