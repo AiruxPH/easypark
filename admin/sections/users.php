@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
             $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
             $_POST['password'] ?? '', $_POST['phone'] ?? '', $userType, $_POST['security_word'] ?? '', 1, 'default.jpg'
         ]);
-        echo '<div class="alert alert-success">User added successfully.</div>';
+        echo '<div class="alert alert-success" id="user-success-msg">User added successfully.</div>';
     }
 }
 
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
             $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
             $_POST['phone'] ?? '', $_POST['user_type'] ?? '', $_POST['is_active'] ?? 1, $editUserId
         ]);
-        echo '<div class="alert alert-success">User updated successfully.</div>';
+        echo '<div class="alert alert-success" id="user-success-msg">User updated successfully.</div>';
     }
 }
 
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     } else {
         $stmt = $pdo->prepare("DELETE FROM users WHERE user_id=?");
         $stmt->execute([$deleteUserId]);
-        echo '<div class="alert alert-success">User deleted successfully.</div>';
+        echo '<div class="alert alert-success" id="user-success-msg">User deleted successfully.</div>';
     }
 }
 ?>
@@ -442,4 +442,14 @@ function deleteUser(userId, userType) {
         form.submit();
     }
 }
+
+// Reload page after a successful user action
+document.addEventListener('DOMContentLoaded', function() {
+    var msg = document.getElementById('user-success-msg');
+    if (msg) {
+        setTimeout(function() {
+            window.location.reload();
+        }, 1200);
+    }
+});
 </script>
