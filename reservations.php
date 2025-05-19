@@ -286,11 +286,11 @@ My Account (<?php echo $_SESSION['username'] ?>)
   </div>
   <div class="form-group">
     <label>Start Date & Time:</label>
-    <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required onchange="updatePrice()">
+    <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
   </div>
   <div class="form-group">
     <label>End Date & Time:</label>
-    <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required onchange="updatePrice()">
+    <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
   </div>
   <div class="form-group">
     <label>Payment Method:</label>
