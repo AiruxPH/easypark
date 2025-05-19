@@ -233,6 +233,58 @@ body {
     </div>
   </div>
 </div>
+<!-- Password Reset Overlay -->
+<div id="resetPasswordOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(30,30,30,0.92);z-index:9999;align-items:center;justify-content:center;">
+  <div class="profile-container" style="max-width:400px;margin:auto;position:relative;">
+    <button type="button" class="btn-close position-absolute end-0 top-0 m-2" aria-label="Close" onclick="hideResetOverlay()" style="background:none;border:none;font-size:2rem;color:#fff;">&times;</button>
+    <h4 class="text-warning mb-3"><i class="fa fa-unlock-alt"></i> Reset Password</h4>
+    <div id="resetPasswordMsg"></div>
+    <form id="resetPasswordForm" method="POST" autocomplete="off">
+      <div class="form-group mb-3">
+        <label>Email Address</label>
+        <input type="email" name="reset_email" class="form-control" required placeholder="Enter your staff email">
+      </div>
+      <div class="form-group mb-3">
+        <label>Security Word</label>
+        <input type="text" name="security_word" class="form-control" required placeholder="Enter your security word">
+      </div>
+      <div class="form-group mb-3">
+        <label>New Password</label>
+        <input type="text" name="new_password" class="form-control" required placeholder="Enter new password">
+      </div>
+      <div class="form-group mb-3">
+        <button type="submit" class="btn btn-warning w-100">Reset Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function showResetOverlay() {
+  document.getElementById('resetPasswordOverlay').style.display = 'flex';
+}
+function hideResetOverlay() {
+  document.getElementById('resetPasswordOverlay').style.display = 'none';
+}
+// AJAX for reset password
+$(function(){
+  $('#resetPasswordForm').on('submit', function(e){
+    e.preventDefault();
+    var email = $(this).find('input[name="reset_email"]').val();
+    var security = $(this).find('input[name="security_word"]').val();
+    var newpass = $(this).find('input[name="new_password"]').val();
+    var msgBox = $('#resetPasswordMsg');
+    msgBox.html('<div class="text-info">Processing...</div>');
+    $.post('staff/reset_password_ajax.php', { email: email, security_word: security, new_password: newpass }, function(data){
+      msgBox.html(data);
+    }).fail(function(){
+      msgBox.html('<div class="text-danger">Failed to reset password. Please try again later.</div>');
+    });
+  });
+});
+</script>
+<div class="text-center mt-2">
+  <a href="#" class="text-warning small" onclick="showResetOverlay();return false;">Forgot password?</a>
+</div>
 <script src="../js/bootstrap.bundle.min.js"></script>
 <script src="../js/jquery.min.js"></script>
 <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
