@@ -13,6 +13,7 @@ require_once __DIR__ . '/section-common.php';
         <option value="">All Statuses</option>
         <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
+        <option value="cancelled">Expired</option>
       </select>
     </div>
   </div>
@@ -32,7 +33,7 @@ require_once __DIR__ . '/section-common.php';
       </thead>
       <tbody>
         <?php if (count($history_reservations) === 0): ?>
-          <tr><td colspan="8" class="text-center">No completed or cancelled reservations found.</td></tr>
+          <tr><td colspan="8" class="text-center">No completed, cancelled, or expired reservations found.</td></tr>
         <?php else: foreach ($history_reservations as $b): ?>
           <tr>
             <td><?= htmlspecialchars($b['reservation_id']) ?></td>
