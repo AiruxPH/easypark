@@ -266,11 +266,11 @@ body {
 <script>
 // SPA-like section navigation
 const sectionFiles = {
-  profile: 'section-profile.php',
-  bookings: 'section-bookings.php',
-  active: 'section-active.php',
-  history: 'section-history.php',
-  slots: 'section-slots.php'
+  profile: 'staff/section-profile.php',
+  bookings: 'staff/section-bookings.php',
+  active: 'staff/section-active.php',
+  history: 'staff/section-history.php',
+  slots: 'staff/section-slots.php'
 };
 $(function() {
   $('.staff-navbar .nav-link').on('click', function(e) {
