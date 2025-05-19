@@ -657,7 +657,7 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                         </tr>
                       <?php endforeach;
                     else: ?>
-                      <tr><td colspan="5" class="text-center text-muted">No vehicles found.</td></tr>
+                      <tr id="no-vehicles-row"><td colspan="5" class="text-center text-muted">No vehicles found.</td></tr>
                     <?php endif; ?>
                   </tbody>
                 </table>
