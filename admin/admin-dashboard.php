@@ -640,10 +640,10 @@ $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GE
                                  IFNULL(m.brand, 'Unknown') AS brand, 
                                  IFNULL(m.model, 'Unknown') AS model, 
                                  v.type
-                      FROM vehicles v
-                      LEFT JOIN users u ON v.user_id = u.user_id
-                      LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
-                      ORDER BY v.plate_number ASC LIMIT 200";
+                          FROM vehicles v
+                          LEFT JOIN users u ON v.user_id = u.user_id
+                          LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
+                          ORDER BY v.plate_number ASC LIMIT 200";
                     $stmt = $pdo->query($sql);
                     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     if ($vehicles && count($vehicles) > 0):
