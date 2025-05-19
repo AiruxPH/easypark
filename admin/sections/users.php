@@ -2,6 +2,7 @@
 // Get filters and pagination parameters
 $search = $_GET['search'] ?? '';
 $userType = $_GET['user_type'] ?? '';
+$active = $_GET['active'] ?? ''; // '1', '0', or ''
 $sort = $_GET['sort'] ?? 'user_id';
 $order = $_GET['order'] ?? 'ASC';
 $page = max(1, intval($_GET['page'] ?? 1));
@@ -22,10 +23,15 @@ if ($userType) {
     $params[':user_type'] = $userType;
 }
 
+if ($active !== '' && ($active === '1' || $active === '0')) {
+    $where[] = "is_active = :is_active";
+    $params[':is_active'] = $active;
+}
+
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Validate and sanitize sort column
-$allowedSort = ['user_id', 'first_name', 'last_name', 'email', 'user_type'];
+$allowedSort = ['user_id', 'first_name', 'last_name', 'email', 'user_type', 'is_active'];
 $sort = in_array($sort, $allowedSort) ? $sort : 'user_id';
 $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
 
@@ -82,9 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                         <option value="client"<?= $userType === 'client' ? ' selected' : '' ?>>Client</option>
                     </select>
                 </div>
+                <div class="col-md-2 mb-2">
+                    <select name="active" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="1" <?= $active === '1' ? 'selected' : '' ?>>Active</option>
+                        <option value="0" <?= $active === '0' ? 'selected' : '' ?>>Inactive</option>
+                    </select>
+                </div>
                 <div class="col-md-3 mb-2">
                     <button type="submit" class="btn btn-primary">Filter</button>
-                    <?php if ($search || $userType): ?>
+                    <?php if ($search || $userType || $active !== ''): ?>
                         <a href="?section=users" class="btn btn-secondary ml-2">Clear</a>
                     <?php endif; ?>
                 </div>
@@ -151,9 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-<?= $user['active'] == '1' ? 'success' : 'danger' ?>">
-                                    <?= $user['active'] == '1' ? 'Active' : 'Inactive' ?>
-                                </span>
+                                <?= $user['is_active'] == 1 ? 'Active' : 'Inactive' ?>
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-primary" onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)">
