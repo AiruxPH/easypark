@@ -111,8 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 }
             }
         } elseif ($new_status === 'unavailable') {
-            // If marked unavailable (maintenance), cancel ALL active/upcoming reservations for this slot? 
-            // For now, let's just mark the slot. Maybe later notify users.
+            // Maintenance Mode: Cancel ALL active/upcoming reservations for this slot
+            $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE parking_slot_id = ? AND status IN ('confirmed', 'ongoing') AND end_time > NOW()");
+            $stmt->execute([$slot_id]);
         }
 
         header('Location: ?section=parking&status=' . urlencode($status) . '&type=' . urlencode($type) . '&page=' . $page);
@@ -229,7 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                         <?= ucfirst($slot['slot_type']) ?>
                     <?php endif; ?>
                 </div>
-                <!-- <div class="slot-status-label"><?= $statusLabel ?></div> -->
+
+                <div class="slot-price-badge">₱<?= number_format($slot['price'], 0) ?>/hr</div>
 
                 <?php if ($slot['plate_number']): ?>
                     <div class="occupant-info">

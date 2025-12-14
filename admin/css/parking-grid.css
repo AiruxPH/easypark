@@ -121,3 +121,17 @@
     display: block;
     color: #2e59d9;
 }
+
+.slot-price-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(234, 236, 244, 0.9);
+    border: 1px solid #d1d3e2;
+    border-radius: 1rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4e73df;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
