@@ -41,7 +41,7 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="table-responsive">
   <table class="table table-bordered table-hover text-center">
-    <thead class="thead-dark">
+    <thead>
       <tr>
         <th>ID</th>
         <th>Slot Number</th>

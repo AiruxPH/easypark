@@ -135,7 +135,7 @@ if ($currentAdminEmail) {
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Users Management</h2>
+        <h2 class="text-dark font-weight-bold">Users Management</h2>
         <?php if ($isSuperAdmin): ?>
         <button class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
             <i class="fa fa-plus"></i> Add New User

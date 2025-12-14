@@ -4,7 +4,7 @@
 ?>
 <div id="users-container" style="<?= isset($_GET['users']) ? '' : 'display:none;' ?>">
   <div class="card mb-4 shadow">
-    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <span><i class="fas fa-users"></i> User Management</span>
       <button class="btn btn-light btn-sm" onclick="showAddUserModal()" <?= $isSuperAdmin || $_SESSION['user_type'] === 'admin' ? '' : 'disabled' ?>>
         <i class="fas fa-plus"></i> Add User
@@ -23,9 +23,9 @@
         </div>
       </form>
       <?php if ($users && count($users) > 0): ?>
-      <div class="table-responsive">
-        <!-- User table goes here -->
-      </div>
+        <div class="table-responsive">
+          <!-- User table goes here -->
+        </div>
       <?php endif; ?>
     </div>
   </div>

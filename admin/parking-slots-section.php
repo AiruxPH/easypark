@@ -3,7 +3,7 @@
 ?>
 <div id="parking-slots-container" style="<?= $showParkingSlots && !isset($_GET['users']) ? '' : 'display:none;' ?>">
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <span><i class="fas fa-car"></i> Parking Slots</span>
     </div>
     <div class="card-body">
@@ -13,9 +13,11 @@
           <option value="">All</option>
           <option value="available" <?= isset($_GET['status']) && $_GET['status'] === 'available' ? ' selected' : '' ?>>
             Available</option>
-          <option value="reserved" <?= isset($_GET['status']) && $_GET['status'] === 'reserved' ? ' selected' : '' ?>>Reserved
+          <option value="reserved" <?= isset($_GET['status']) && $_GET['status'] === 'reserved' ? ' selected' : '' ?>>
+            Reserved
           </option>
-          <option value="occupied" <?= isset($_GET['status']) && $_GET['status'] === 'occupied' ? ' selected' : '' ?>>Occupied
+          <option value="occupied" <?= isset($_GET['status']) && $_GET['status'] === 'occupied' ? ' selected' : '' ?>>
+            Occupied
           </option>
         </select>
         <label class="mr-2">Type:</label>
