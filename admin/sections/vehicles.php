@@ -74,6 +74,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'true') {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Set headers
+    if (ob_get_level())
+        ob_end_clean(); // Clean buffer to remove any HTML before this point
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="vehicles_export_' . date('Y-m-d') . '.csv"');
 
