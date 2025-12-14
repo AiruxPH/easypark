@@ -231,8 +231,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                     <?php endif; ?>
                 </div>
 
-                <div class="slot-price-badge">₱<?= number_format($slot['price'], 0) ?>/hr</div>
-
                 <?php if ($slot['plate_number']): ?>
                     <div class="occupant-info">
                         <small>Plate:</small>
