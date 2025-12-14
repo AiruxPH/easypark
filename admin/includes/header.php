@@ -82,23 +82,3 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                 <i class="fa fa-user-circle"></i> Admin
             </span>
         </nav>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const sidebar = document.getElementById('sidebar');
-                const mainContent = document.getElementById('main-content');
-                const toggleBtn = document.getElementById('sidebar-toggle');
-                const closeBtn = document.getElementById('sidebar-close');
-
-                toggleBtn.addEventListener('click', function () {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
-                });
-
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function () {
-                        sidebar.classList.remove('active'); // Mobile close
-                    });
-                }
-            });
-        </script>
