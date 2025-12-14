@@ -17,8 +17,8 @@ require_once __DIR__ . '/section-common.php';
     <div class="col-md-5 mb-2">
       <div class="input-group">
         <div class="input-group-prepend"><span class="input-group-text small">Start Date</span></div>
-        <input type="date" id="bookingsDateFrom" class="form-control form-control-sm">
-        <input type="date" id="bookingsDateTo" class="form-control form-control-sm">
+        <input type="date" id="bookingsDateFrom" class="form-control">
+        <input type="date" id="bookingsDateTo" class="form-control">
       </div>
     </div>
   </div>
@@ -52,7 +52,8 @@ require_once __DIR__ . '/section-common.php';
               <td><?= htmlspecialchars($b['start_time']) ?></td>
               <td><?= htmlspecialchars($b['end_time']) ?></td>
               <td><?= htmlspecialchars($b['duration']) ?></td>
-              <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+              <td><span class="<?= getBadgeClass($b['status']) ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
+              </td>
               <td>
                 <?php if ($b['status'] === 'pending'): ?>
                   <form method="post" style="display:inline-block">

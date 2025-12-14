@@ -281,6 +281,40 @@ if (isset($_POST['delete_pic'])) {
     th.desc:after {
       content: ' \25BC';
     }
+
+    /* Card Lift Animation */
+    .card.shadow {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card.shadow:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Custom Pagination Styling (Yellow/Black) */
+    .pagination .page-item .page-link {
+      color: #ffc107;
+      background-color: #343a40;
+      border-color: #454d55;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: #ffc107;
+      border-color: #ffc107;
+      color: #212529;
+    }
+
+    .pagination .page-item.disabled .page-link {
+      color: #6c757d;
+      background-color: #343a40;
+      border-color: #454d55;
+    }
+
+    .pagination .page-item .page-link:hover {
+      background-color: #e0a800;
+      color: #212529;
+    }
   </style>
   <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
 </body>

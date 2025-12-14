@@ -89,6 +89,7 @@ $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $slots_total_pages = ceil($slots_total / $per_page);
 
 // Helper for slot color class
+// Helper for slot color class
 function getSlotColorClass($status)
 {
     switch (strtolower($status)) {
@@ -98,8 +99,35 @@ function getSlotColorClass($status)
             return 'border-warning';
         case 'occupied':
             return 'border-danger';
+        case 'unavailable':
+            return 'border-secondary';
         default:
             return 'border-secondary';
+    }
+}
+
+// Helper for status badge class
+function getBadgeClass($status)
+{
+    switch (strtolower($status)) {
+        case 'confirmed':
+        case 'completed':
+        case 'available':
+            return 'badge badge-success';
+        case 'pending':
+        case 'reserved':
+            return 'badge badge-warning';
+        case 'occupied':
+        case 'cancelled':
+        case 'expired':
+            return 'badge badge-danger';
+        case 'ongoing':
+            return 'badge badge-primary';
+        case 'unavailable':
+        case 'maintenance':
+            return 'badge badge-secondary';
+        default:
+            return 'badge badge-secondary';
     }
 }
 
