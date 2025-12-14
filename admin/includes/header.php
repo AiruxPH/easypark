@@ -23,62 +23,61 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
 
 <body>
 
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="p-3">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="text-light m-0 sidebar-brand">EasyPark</h3>
-                <button class="btn btn-link text-light p-0 d-md-none" id="sidebar-close">
-                    <i class="fa fa-times"></i>
-                </button>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand font-weight-bold" href="index.php">EasyPark Admin</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link<?= !isset($_GET['section']) ? ' active' : '' ?>" href="index.php">
+                            <i class="fa fa-dashboard"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'parking' ? ' active' : '' ?>"
+                            href="?section=parking">
+                            <i class="fa fa-car"></i> Parking Slots
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'users' ? ' active' : '' ?>"
+                            href="?section=users">
+                            <i class="fa fa-users"></i> Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'vehicles' ? ' active' : '' ?>"
+                            href="?section=vehicles">
+                            <i class="fa fa-car"></i> Vehicles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'transactions' ? ' active' : '' ?>"
+                            href="?section=transactions">
+                            <i class="fa fa-money"></i> Transactions
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <span class="navbar-text mr-3">
+                            <i class="fa fa-user-circle"></i> Admin
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="../logout.php">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link<?= !isset($_GET['section']) ? ' active' : '' ?>" href="index.php">
-                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'parking' ? ' active' : '' ?>"
-                        href="?section=parking">
-                        <i class="fa fa-car"></i> <span>Parking Slots</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'users' ? ' active' : '' ?>"
-                        href="?section=users">
-                        <i class="fa fa-users"></i> <span>Users</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'vehicles' ? ' active' : '' ?>"
-                        href="?section=vehicles">
-                        <i class="fa fa-car"></i> <span>Vehicles</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'transactions' ? ' active' : '' ?>"
-                        href="?section=transactions">
-                        <i class="fa fa-money"></i> <span>Transactions</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../logout.php">
-                        <i class="fa fa-sign-out"></i> <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
         </div>
     </nav>
 
     <!-- Main Content Wrapper -->
-    <div class="main-content" id="main-content">
-        <!-- Top Navbar for Toggle -->
-        <nav class="navbar navbar-light bg-white shadow-sm mb-4">
-            <button class="btn btn-link text-primary" id="sidebar-toggle" type="button" onclick="toggleSidebar()">
-                <i class="fa fa-bars fa-lg"></i>
-            </button>
-            <span class="navbar-text ml-auto">
-                <i class="fa fa-user-circle"></i> Admin
-            </span>
-        </nav>
+    <div class="main-content container-fluid" id="main-content">
