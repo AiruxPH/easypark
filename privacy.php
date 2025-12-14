@@ -21,13 +21,6 @@ if ($is_logged_in) {
   <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <style>
-    .bg-image-dark {
-      background-image: url('images/nav-bg.jpg');
-      background-size: 100% auto;
-      background-position: top left;
-      background-repeat: repeat-y;
-    }
-
     .bg-car {
       background-image: url('images/bg-car.jpg');
       background-size: cover;
