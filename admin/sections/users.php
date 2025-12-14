@@ -96,12 +96,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     } elseif (!$isSuperAdmin && $targetType === 'admin') {
         echo '<div class="alert alert-danger">You do not have permission to edit admin accounts.</div>';
     } else {
-        $stmt = $pdo->prepare("UPDATE users SET first_name=?, middle_name=?, last_name=?, email=?, phone=?, user_type=?, is_active=? WHERE user_id=?");
-        $stmt->execute([
-            $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
-            $_POST['phone'] ?? '', $_POST['user_type'] ?? '', $_POST['is_active'] ?? 1, $editUserId
-        ]);
-        echo '<div class="alert alert-success" id="user-success-msg">User updated successfully.</div>';
+        if (!$isSuperAdmin && ($_POST['user_type'] ?? '') === 'admin') {
+            echo '<div class="alert alert-danger">You do not have permission to create or promote Admin accounts.</div>';
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET first_name=?, middle_name=?, last_name=?, email=?, phone=?, user_type=?, is_active=? WHERE user_id=?");
+            $stmt->execute([
+                $_POST['first_name'] ?? '', $_POST['middle_name'] ?? '', $_POST['last_name'] ?? '', $_POST['email'] ?? '',
+                $_POST['phone'] ?? '', $_POST['user_type'] ?? '', $_POST['is_active'] ?? 1, $editUserId
+            ]);
+            echo '<div class="alert alert-success" id="user-success-msg">User updated successfully.</div>';
+        }
     }
 }
 

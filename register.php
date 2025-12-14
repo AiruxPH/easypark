@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (!$email) {
     $message = "⚠️ Invalid email address.";
+  } elseif ($email === 'admin@gmail.com') {
+    $message = "❌ This email address is reserved and cannot be registered.";
   } elseif ($password !== $confirmPwd) {
     $message = "❌ Passwords do not match.";
   } else {
