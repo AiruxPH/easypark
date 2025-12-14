@@ -93,6 +93,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
   $stmt->execute([$slot_id, $selected_vehicle_type]);
   $slot = $stmt->fetch(PDO::FETCH_ASSOC);
   if ($slot) {
+    /* RACE CONDITION FEATURE: Disable overlap checks to allow double booking
     // Prevent double booking: check for overlapping reservations for this slot
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
     $stmt->execute([
@@ -129,7 +130,16 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $end_datetime
     ]);
     $user_overlap = $stmt->fetchColumn();
-    if ($overlap_count > 0) {
+    */
+    $overlap_count = 0;
+    $vehicle_overlap = 0;
+    $user_overlap = 0;
+
+    // Check if slot is physically occupied right now
+    if ($slot['slot_status'] === 'occupied') {
+      $reservation_error = 'This slot is currently occupied. Please choose another slot.';
+      $show_reservation_form = true;
+    } elseif ($overlap_count > 0) {
       $reservation_error = 'This slot is already reserved for the selected time range. Please choose a different time or slot.';
       $show_reservation_form = true;
     } elseif ($vehicle_overlap > 0) {
