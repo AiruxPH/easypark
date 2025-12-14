@@ -15,23 +15,40 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
   exit;
 }
 // Fetch parking slot statistics using PDO
+// Fetch parking slot statistics using PDO
 $totalSlots = $availableSlots = $reservedSlots = $occupiedSlots = 0;
+
+// 1. Total Physical Slots
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM parking_slots");
 if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $totalSlots = $row['total'];
 }
-$stmt = $pdo->query("SELECT COUNT(*) as available FROM parking_slots WHERE slot_status='available'");
-if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-  $availableSlots = $row['available'];
-}
-$stmt = $pdo->query("SELECT COUNT(*) as reserved FROM parking_slots WHERE slot_status='reserved'");
-if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-  $reservedSlots = $row['reserved'];
-}
+
+// 2. Physically Occupied Slots
 $stmt = $pdo->query("SELECT COUNT(*) as occupied FROM parking_slots WHERE slot_status='occupied'");
 if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $occupiedSlots = $row['occupied'];
 }
+
+// 3. Active Reservations (Real Demand)
+// Count distinct future/current bookings that are CONFIRMED or ONGOING
+// This reflects the number of "Active Bookings" regardless of physical slot count
+$stmt = $pdo->query("
+    SELECT COUNT(*) as active_count 
+    FROM reservations 
+    WHERE status IN ('confirmed', 'ongoing') 
+    AND start_time <= NOW() 
+    AND end_time > NOW()
+");
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+  $reservedSlots = $row['active_count']; // Map "Reserved" to "Active Bookings"
+}
+
+// 4. Available Slots (For new bookings)
+// Since we allow race conditions (overlapping bookings), a slot is technically 'available' to be booked
+// UNLESS it is physically occupied.
+// So Available = Total - Occupied
+$availableSlots = $totalSlots - $occupiedSlots;
 $showParkingSlots = isset($_GET['page']) || isset($_GET['status']) || isset($_GET['type']);
 // User management logic (pagination, search, etc.)
 $usersPerPage = 10;

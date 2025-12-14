@@ -23,46 +23,82 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
 
 <body>
 
-    <nav class="sidebar">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
         <div class="p-3">
-            <h3 class="text-light mb-4">EasyPark Admin</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-light m-0 sidebar-brand">EasyPark</h3>
+                <button class="btn btn-link text-light p-0 d-md-none" id="sidebar-close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link<?= !isset($_GET['section']) ? ' active' : '' ?>" href="index.php">
-                        <i class="fa fa-dashboard"></i> Dashboard
+                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'parking' ? ' active' : '' ?>"
                         href="?section=parking">
-                        <i class="fa fa-car"></i> Parking Slots
+                        <i class="fa fa-car"></i> <span>Parking Slots</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'users' ? ' active' : '' ?>"
                         href="?section=users">
-                        <i class="fa fa-users"></i> Users
+                        <i class="fa fa-users"></i> <span>Users</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'vehicles' ? ' active' : '' ?>"
                         href="?section=vehicles">
-                        <i class="fa fa-car"></i> Vehicles
+                        <i class="fa fa-car"></i> <span>Vehicles</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'transactions' ? ' active' : '' ?>"
                         href="?section=transactions">
-                        <i class="fa fa-money"></i> Transactions
+                        <i class="fa fa-money"></i> <span>Transactions</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="../logout.php">
-                        <i class="fa fa-sign-out"></i> Logout
+                        <i class="fa fa-sign-out"></i> <span>Logout</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="main-content">
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="main-content">
+        <!-- Top Navbar for Toggle -->
+        <nav class="navbar navbar-light bg-white shadow-sm mb-4">
+            <button class="btn btn-link text-primary" id="sidebar-toggle">
+                <i class="fa fa-bars fa-lg"></i>
+            </button>
+            <span class="navbar-text ml-auto">
+                <i class="fa fa-user-circle"></i> Admin
+            </span>
+        </nav>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                const toggleBtn = document.getElementById('sidebar-toggle');
+                const closeBtn = document.getElementById('sidebar-close');
+
+                toggleBtn.addEventListener('click', function () {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                });
+
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function () {
+                        sidebar.classList.remove('active'); // Mobile close
+                    });
+                }
+            });
+        </script>
