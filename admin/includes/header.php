@@ -56,9 +56,9 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'transactions' ? ' active' : '' ?>"
-                            href="?section=transactions">
-                            <i class="fa fa-money"></i> Transactions
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'payments' ? ' active' : '' ?>"
+                            href="?section=payments">
+                            <i class="fa fa-credit-card"></i> Payments
                         </a>
                     </li>
                 </ul>

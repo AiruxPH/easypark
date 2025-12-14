@@ -15,9 +15,9 @@ switch ($section) {
         global $conn;
         require_once 'sections/vehicles.php';
         break;
-    case 'transactions':
+    case 'payments':
         global $conn;
-        require_once 'sections/transactions.php';
+        require_once 'sections/payments.php';
         break;
     default:
         require_once 'sections/dashboard.php';
