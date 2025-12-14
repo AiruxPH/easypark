@@ -22,6 +22,7 @@ require_once __DIR__ . '/section-common.php';
         <option value="available">Available</option>
         <option value="reserved">Reserved</option>
         <option value="occupied">Occupied</option>
+        <option value="unavailable">Unavailable</option>
       </select>
     </div>
     <div class="col-md-2 mb-2">
@@ -36,55 +37,55 @@ require_once __DIR__ . '/section-common.php';
 </div>
 
 <script>
-$(document).ready(function() {
-  function fetchSlots(page = 1) {
-    var search = $('#slotSearch').val();
-    var type = $('#slotTypeFilter').val();
-    var status = $('#slotStatusFilter').val();
-    var sortBy = $('#slotSort').val();
-    $.ajax({
-      url: 'slots-ajax.php',
-      method: 'GET',
-      data: {
-        search: search,
-        type: type,
-        status: status,
-        sort: sortBy,
-        page: page
-      },
-      dataType: 'json',
-      beforeSend: function() {
-        $('#slotsGrid').html('<div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>');
-        $('nav[aria-label="Parking Slots pagination"]').remove();
-      },
-      success: function(response) {
-        $('#slotsGrid').html(response.cards);
-        $('nav[aria-label="Parking Slots pagination"]').remove(); // Always remove before adding
-        if (response.pagination) {
-          $('#slotsGrid').after(response.pagination);
+  $(document).ready(function () {
+    function fetchSlots(page = 1) {
+      var search = $('#slotSearch').val();
+      var type = $('#slotTypeFilter').val();
+      var status = $('#slotStatusFilter').val();
+      var sortBy = $('#slotSort').val();
+      $.ajax({
+        url: 'slots-ajax.php',
+        method: 'GET',
+        data: {
+          search: search,
+          type: type,
+          status: status,
+          sort: sortBy,
+          page: page
+        },
+        dataType: 'json',
+        beforeSend: function () {
+          $('#slotsGrid').html('<div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>');
+          $('nav[aria-label="Parking Slots pagination"]').remove();
+        },
+        success: function (response) {
+          $('#slotsGrid').html(response.cards);
+          $('nav[aria-label="Parking Slots pagination"]').remove(); // Always remove before adding
+          if (response.pagination) {
+            $('#slotsGrid').after(response.pagination);
+          }
+        },
+        error: function (xhr) {
+          $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
+          $('nav[aria-label="Parking Slots pagination"]').remove();
         }
-      },
-      error: function(xhr) {
-        $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
-        $('nav[aria-label="Parking Slots pagination"]').remove();
-      }
-    });
-  }
+      });
+    }
 
-  // On filter/search/sort change
-  $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', function() {
+    // On filter/search/sort change
+    $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', function () {
+      fetchSlots(1);
+    });
+
+    // On pagination click (delegated, since pagination is replaced dynamically)
+    $(document).on('click', 'nav[aria-label="Parking Slots pagination"] .page-link', function (e) {
+      e.preventDefault();
+      var page = $(this).data('page');
+      if (!page || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
+      fetchSlots(page);
+    });
+
+    // Initial load: show default sorted slots immediately
     fetchSlots(1);
   });
-
-  // On pagination click (delegated, since pagination is replaced dynamically)
-  $(document).on('click', 'nav[aria-label="Parking Slots pagination"] .page-link', function(e) {
-    e.preventDefault();
-    var page = $(this).data('page');
-    if (!page || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
-    fetchSlots(page);
-  });
-
-  // Initial load: show default sorted slots immediately
-  fetchSlots(1);
-});
 </script>

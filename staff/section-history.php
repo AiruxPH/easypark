@@ -13,8 +13,14 @@ require_once __DIR__ . '/section-common.php';
         <option value="">All Statuses</option>
         <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
-        <option value="cancelled">Expired</option>
       </select>
+    </div>
+    <div class="col-md-5 mb-2">
+      <div class="input-group">
+        <div class="input-group-prepend"><span class="input-group-text small">Date</span></div>
+        <input type="date" id="historyDateFrom" class="form-control form-control-sm">
+        <input type="date" id="historyDateTo" class="form-control form-control-sm">
+      </div>
     </div>
   </div>
   <div class="table-responsive">
@@ -33,64 +39,67 @@ require_once __DIR__ . '/section-common.php';
       </thead>
       <tbody>
         <?php if (count($history_reservations) === 0): ?>
-          <tr><td colspan="8" class="text-center">No completed, cancelled, or expired reservations found.</td></tr>
-        <?php else: foreach ($history_reservations as $b): ?>
           <tr>
-            <td><?= htmlspecialchars($b['reservation_id']) ?></td>
-            <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
-            <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-            <td><?= htmlspecialchars($b['brand'].' '.$b['model'].' - '.$b['plate_number']) ?></td>
-            <td><?= htmlspecialchars($b['start_time']) ?></td>
-            <td><?= htmlspecialchars($b['end_time']) ?></td>
-            <td><?= htmlspecialchars($b['duration']) ?></td>
-            <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+            <td colspan="8" class="text-center">No completed, cancelled, or expired reservations found.</td>
           </tr>
-        <?php endforeach; endif; ?>
+        <?php else:
+          foreach ($history_reservations as $b): ?>
+            <tr>
+              <td><?= htmlspecialchars($b['reservation_id']) ?></td>
+              <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
+              <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
+              <td><?= htmlspecialchars($b['brand'] . ' ' . $b['model'] . ' - ' . $b['plate_number']) ?></td>
+              <td><?= htmlspecialchars($b['start_time']) ?></td>
+              <td><?= htmlspecialchars($b['end_time']) ?></td>
+              <td><?= htmlspecialchars($b['duration']) ?></td>
+              <td><?= htmlspecialchars(ucfirst($b['status'])) ?></td>
+            </tr>
+          <?php endforeach; endif; ?>
       </tbody>
     </table>
   </div>
 </div>
 <script>
-$(document).ready(function() {
-  function filterAndSortHistory() {
-    var search = $('#historySearch').val().toLowerCase();
-    var status = $('#historyStatusFilter').val();
-    var rows = $('#historyTable tbody tr').get();
-    rows.forEach(function(row) {
-      var tds = $(row).children('td');
-      var rowStatus = tds.eq(7).text().toLowerCase();
-      var rowText = $(row).text().toLowerCase();
-      var show = true;
-      if (search && rowText.indexOf(search) === -1) show = false;
-      if (status && rowStatus !== status) show = false;
-      $(row).toggle(show);
-    });
-    // Sorting
-    if (window.historySortCol !== undefined) {
-      rows = rows.filter(function(row) { return $(row).css('display') !== 'none'; });
-      rows.sort(function(a, b) {
-        var tdA = $(a).children('td').eq(window.historySortCol).text().toLowerCase();
-        var tdB = $(b).children('td').eq(window.historySortCol).text().toLowerCase();
-        if (!isNaN(tdA) && !isNaN(tdB)) {
-          return window.historySortAsc ? tdA - tdB : tdB - tdA;
-        }
-        return window.historySortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+  $(document).ready(function () {
+    function filterAndSortHistory() {
+      var search = $('#historySearch').val().toLowerCase();
+      var status = $('#historyStatusFilter').val();
+      var rows = $('#historyTable tbody tr').get();
+      rows.forEach(function (row) {
+        var tds = $(row).children('td');
+        var rowStatus = tds.eq(7).text().toLowerCase();
+        var rowText = $(row).text().toLowerCase();
+        var show = true;
+        if (search && rowText.indexOf(search) === -1) show = false;
+        if (status && rowStatus !== status) show = false;
+        $(row).toggle(show);
       });
-      $.each(rows, function(i, row) {
-        $('#historyTable tbody').append(row);
-      });
+      // Sorting
+      if (window.historySortCol !== undefined) {
+        rows = rows.filter(function (row) { return $(row).css('display') !== 'none'; });
+        rows.sort(function (a, b) {
+          var tdA = $(a).children('td').eq(window.historySortCol).text().toLowerCase();
+          var tdB = $(b).children('td').eq(window.historySortCol).text().toLowerCase();
+          if (!isNaN(tdA) && !isNaN(tdB)) {
+            return window.historySortAsc ? tdA - tdB : tdB - tdA;
+          }
+          return window.historySortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
+        });
+        $.each(rows, function (i, row) {
+          $('#historyTable tbody').append(row);
+        });
+      }
     }
-  }
-  $('#historySearch, #historyStatusFilter').on('input change', filterAndSortHistory);
-  window.historySortCol = undefined;
-  window.historySortAsc = true;
-  $('#historyTable thead th.sortable').on('click', function() {
-    var idx = $(this).index();
-    if (window.historySortCol === idx) window.historySortAsc = !window.historySortAsc;
-    else { window.historySortCol = idx; window.historySortAsc = true; }
-    filterAndSortHistory();
-    $('#historyTable thead th').removeClass('asc desc');
-    $(this).addClass(window.historySortAsc ? 'asc' : 'desc');
+    $('#historySearch, #historyStatusFilter, #historyDateFrom, #historyDateTo').on('input change', filterAndSortHistory);
+    window.historySortCol = undefined;
+    window.historySortAsc = true;
+    $('#historyTable thead th.sortable').on('click', function () {
+      var idx = $(this).index();
+      if (window.historySortCol === idx) window.historySortAsc = !window.historySortAsc;
+      else { window.historySortCol = idx; window.historySortAsc = true; }
+      filterAndSortHistory();
+      $('#historyTable thead th').removeClass('asc desc');
+      $(this).addClass(window.historySortAsc ? 'asc' : 'desc');
+    });
   });
-});
 </script>

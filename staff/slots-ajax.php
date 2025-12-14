@@ -4,24 +4,32 @@ header('Content-Type: application/json');
 
 // Ensure helper functions are available for AJAX context
 if (!function_exists('getSlotColorClass')) {
-    function getSlotColorClass($status) {
-        switch (strtolower($status)) {
-            case 'available': return 'border-success';
-            case 'reserved': return 'border-warning';
-            case 'occupied': return 'border-danger';
-            default: return 'border-secondary';
-        }
+  function getSlotColorClass($status)
+  {
+    switch (strtolower($status)) {
+      case 'available':
+        return 'border-success';
+      case 'reserved':
+        return 'border-warning';
+      case 'occupied':
+        return 'border-danger';
+      case 'unavailable':
+        return 'border-secondary';
+      default:
+        return 'border-secondary';
     }
+  }
 }
 if (!function_exists('getPaginationRange')) {
-    function getPaginationRange($current, $total, $max = 5) {
-        $start = max(1, $current - floor($max/2));
-        $end = min($total, $start + $max - 1);
-        if ($end - $start + 1 < $max) {
-            $start = max(1, $end - $max + 1);
-        }
-        return [$start, $end];
+  function getPaginationRange($current, $total, $max = 5)
+  {
+    $start = max(1, $current - floor($max / 2));
+    $end = min($total, $start + $max - 1);
+    if ($end - $start + 1 < $max) {
+      $start = max(1, $end - $max + 1);
     }
+    return [$start, $end];
+  }
 }
 
 // Get parameters
@@ -41,27 +49,27 @@ $searchableCols = ['slot_number', 'slot_type', 'slot_status'];
 
 // Build search condition dynamically
 if ($search !== '' && $searchableCols) {
-    $searchConds = [];
-    foreach ($searchableCols as $col) {
-        $searchConds[] = "$col LIKE :search";
-    }
-    $where[] = '(' . implode(' OR ', $searchConds) . ')';
-    $params[':search'] = "%$search%";
+  $searchConds = [];
+  foreach ($searchableCols as $col) {
+    $searchConds[] = "$col LIKE :search";
+  }
+  $where[] = '(' . implode(' OR ', $searchConds) . ')';
+  $params[':search'] = "%$search%";
 }
 if ($type !== '') {
-    $where[] = "slot_type = :type";
-    $params[':type'] = $type;
+  $where[] = "slot_type = :type";
+  $params[':type'] = $type;
 }
 if ($status !== '') {
-    $where[] = "slot_status = :status";
-    $params[':status'] = $status;
+  $where[] = "slot_status = :status";
+  $params[':status'] = $status;
 }
 $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
 $countSql = "SELECT COUNT(*) FROM parking_slots $whereSql";
 $countStmt = $pdo->prepare($countSql);
 foreach ($params as $k => $v) {
-    $countStmt->bindValue($k, $v);
+  $countStmt->bindValue($k, $v);
 }
 $countStmt->execute();
 $total = $countStmt->fetchColumn();
@@ -72,7 +80,7 @@ $sortCol = in_array($sort, $allowedSort) ? $sort : 'slot_number';
 $sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY $sortCol ASC LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $k => $v) {
-    $stmt->bindValue($k, $v);
+  $stmt->bindValue($k, $v);
 }
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
@@ -81,12 +89,27 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ob_start();
 foreach ($slots as $slot): ?>
-  <div class="col-md-4 mb-3 slot-card" data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>" data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>" data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>">
+  <div class="col-md-4 mb-3 slot-card" data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
+    data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>"
+    data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>">
     <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>" style="border-width:3px;">
       <div class="card-body">
         <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
         <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
-        <p class="card-text">Status: <span class="font-weight-bold text-warning"><?= htmlspecialchars(ucfirst($slot['slot_status'])) ?></span></p>
+        <?php
+        $statusLabel = ucfirst($slot['slot_status']);
+        $statusClass = 'text-success';
+        if ($slot['slot_status'] == 'occupied')
+          $statusClass = 'text-danger';
+        if ($slot['slot_status'] == 'reserved')
+          $statusClass = 'text-warning';
+        if ($slot['slot_status'] == 'unavailable') {
+          $statusClass = 'text-secondary';
+          $statusLabel = 'Maintenance';
+        }
+        ?>
+        <p class="card-text">Status: <span
+            class="font-weight-bold <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span></p>
       </div>
     </div>
   </div>
@@ -94,36 +117,36 @@ foreach ($slots as $slot): ?>
 $cardsHtml = ob_get_clean();
 
 if (empty($slots)) {
-    $cardsHtml = '<div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>';
+  $cardsHtml = '<div class="col-12"><div class="alert alert-info text-center">No parking slots found.</div></div>';
 }
 
 // Pagination
 ob_start();
 if ($total_pages > 1) {
-    list($slots_start, $slots_end) = getPaginationRange($page, $total_pages);
-    ?>
-    <nav aria-label="Parking Slots pagination">
-      <ul class="pagination justify-content-center">
-        <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
-          <a class="page-link" href="#" data-page="<?= $page-1 ?>" tabindex="-1">Previous</a>
+  list($slots_start, $slots_end) = getPaginationRange($page, $total_pages);
+  ?>
+  <nav aria-label="Parking Slots pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
+        <a class="page-link" href="#" data-page="<?= $page - 1 ?>" tabindex="-1">Previous</a>
+      </li>
+      <?php if ($slots_start > 1): ?>
+        <li class="page-item disabled"><span class="page-link">...</span></li>
+      <?php endif; ?>
+      <?php for ($i = $slots_start; $i <= $slots_end; $i++): ?>
+        <li class="page-item<?= $i == $page ? ' active' : '' ?>">
+          <a class="page-link" href="#" data-page="<?= $i ?>"><?= $i ?></a>
         </li>
-        <?php if ($slots_start > 1): ?>
-          <li class="page-item disabled"><span class="page-link">...</span></li>
-        <?php endif; ?>
-        <?php for ($i = $slots_start; $i <= $slots_end; $i++): ?>
-          <li class="page-item<?= $i == $page ? ' active' : '' ?>">
-            <a class="page-link" href="#" data-page="<?= $i ?>"><?= $i ?></a>
-          </li>
-        <?php endfor; ?>
-        <?php if ($slots_end < $total_pages): ?>
-          <li class="page-item disabled"><span class="page-link">...</span></li>
-        <?php endif; ?>
-        <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
-          <a class="page-link" href="#" data-page="<?= $page+1 ?>">Next</a>
-        </li>
-      </ul>
-    </nav>
-    <?php
+      <?php endfor; ?>
+      <?php if ($slots_end < $total_pages): ?>
+        <li class="page-item disabled"><span class="page-link">...</span></li>
+      <?php endif; ?>
+      <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
+        <a class="page-link" href="#" data-page="<?= $page + 1 ?>">Next</a>
+      </li>
+    </ul>
+  </nav>
+  <?php
 }
 $paginationHtml = ob_get_clean();
 
