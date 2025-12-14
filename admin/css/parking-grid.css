@@ -65,6 +65,19 @@
     background-color: rgba(231, 74, 59, 0.1);
 }
 
+/* Status: Unavailable (Maintenance) */
+.slot-unavailable {
+    border-top: 5px solid #858796;
+    /* Gray */
+    background-color: #f8f9fc;
+    opacity: 0.8;
+}
+
+.slot-unavailable .slot-icon {
+    color: #858796;
+    background-color: rgba(133, 135, 150, 0.1);
+}
+
 .slot-number {
     font-weight: 800;
     font-size: 1.2rem;

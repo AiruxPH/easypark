@@ -1,7 +1,11 @@
 <?php
 // Get filters
+$search = trim($_GET['search'] ?? '');
 $status = $_GET['status'] ?? '';
 $type = $_GET['type'] ?? '';
+$sort = $_GET['sort'] ?? 'slot_number'; // default sort
+$order = $_GET['order'] ?? 'ASC';
+
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = 20; // Maintain pagination
 $offset = ($page - 1) * $perPage;
@@ -10,17 +14,27 @@ $offset = ($page - 1) * $perPage;
 $where = [];
 $params = [];
 
-if ($status && in_array($status, ['available', 'reserved', 'occupied'])) {
+if ($search) {
+    $where[] = "(ps.slot_number LIKE :search)";
+    $params[':search'] = "%$search%";
+}
+
+if ($status && in_array($status, ['available', 'reserved', 'occupied', 'unavailable'])) {
     $where[] = 'ps.slot_status = :status';
     $params[':status'] = $status;
 }
 
-if ($type && in_array($type, ['two_wheeler', 'standard'])) {
+if ($type) {
     $where[] = 'ps.slot_type = :type';
     $params[':type'] = $type;
 }
 
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+// Validation for sort
+$allowedSort = ['slot_number', 'slot_type', 'slot_status', 'price'];
+$sort = in_array($sort, $allowedSort) ? $sort : 'slot_number';
+$order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
 
 // Get total count
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM parking_slots ps $whereClause");
@@ -28,9 +42,11 @@ $countStmt->execute($params);
 $total = $countStmt->fetchColumn();
 $totalPages = ceil($total / $perPage);
 
-// Get slots with occupant info (LEFT JOIN)
-// We join with 'reservations' to find "Active" bookings (Occupied or Reserved within time window)
-// Note: This matches the 'dashboard' logic where we look for 'ongoing' or 'confirmed'
+// Get available types dynamically for filter
+$typesStmt = $pdo->query("SELECT DISTINCT slot_type FROM parking_slots ORDER BY slot_type");
+$availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Get slots with active reservation info
 $sql = "
     SELECT 
         ps.*,
@@ -47,7 +63,7 @@ $sql = "
         LEFT JOIN vehicles v ON r.vehicle_id = v.vehicle_id
     LEFT JOIN users u ON r.user_id = u.user_id
     $whereClause 
-    ORDER BY ps.slot_number ASC 
+    ORDER BY ps.$sort $order 
     LIMIT :limit OFFSET :offset
 ";
 
@@ -66,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
     $new_status = $_POST['new_status'];
     $winning_res_id = $_POST['winning_reservation_id'] ?? null;
 
-    if (in_array($new_status, ['available', 'reserved', 'occupied'])) {
+    if (in_array($new_status, ['available', 'reserved', 'occupied', 'unavailable'])) {
         $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
         $stmt->execute([$new_status, $slot_id]);
 
@@ -94,6 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                     }
                 }
             }
+        } elseif ($new_status === 'unavailable') {
+            // If marked unavailable (maintenance), cancel ALL active/upcoming reservations for this slot? 
+            // For now, let's just mark the slot. Maybe later notify users.
         }
 
         header('Location: ?section=parking&status=' . urlencode($status) . '&type=' . urlencode($type) . '&page=' . $page);
@@ -110,31 +129,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
         </button>
     </div>
 
-    <!-- Filters -->
+    <!-- Filters & Search -->
     <div class="card mb-4 shadow-sm border-bottom-primary">
-        <div class="card-body py-2">
+        <div class="card-body py-3">
             <form method="GET" class="form-inline justify-content-center">
                 <input type="hidden" name="section" value="parking">
-                <label class="mr-2 font-weight-bold text-gray-600">Filter By:</label>
 
-                <select name="status" class="custom-select custom-select-sm mr-2">
-                    <option value="">All Statuses</option>
-                    <option value="available" <?= $status === 'available' ? ' selected' : '' ?>>🟢 Available</option>
-                    <option value="reserved" <?= $status === 'reserved' ? ' selected' : '' ?>>🟡 Reserved</option>
-                    <option value="occupied" <?= $status === 'occupied' ? ' selected' : '' ?>>🔴 Occupied</option>
-                </select>
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                    </div>
+                    <input type="text" name="search" class="form-control bg-light border-0 small"
+                        placeholder="Search Slot (e.g. A-1)" value="<?= htmlspecialchars($search) ?>">
+                </div>
 
-                <select name="type" class="custom-select custom-select-sm mr-2">
-                    <option value="">All Vehicle Types</option>
-                    <option value="two_wheeler" <?= $type === 'two_wheeler' ? ' selected' : '' ?>>🏍️ Two Wheeler</option>
-                    <option value="standard" <?= $type === 'standard' ? ' selected' : '' ?>>🚗 Standard Car</option>
-                </select>
+                <div class="input-group mr-2 mb-2">
+                    <select name="status" class="custom-select custom-select-sm border-0 bg-light">
+                        <option value="">All Statuses</option>
+                        <option value="available" <?= $status === 'available' ? ' selected' : '' ?>>🟢 Available</option>
+                        <option value="reserved" <?= $status === 'reserved' ? ' selected' : '' ?>>🟡 Reserved</option>
+                        <option value="occupied" <?= $status === 'occupied' ? ' selected' : '' ?>>🔴 Occupied</option>
+                        <option value="unavailable" <?= $status === 'unavailable' ? ' selected' : '' ?>>⚪ Unavailable
+                        </option>
+                    </select>
+                </div>
 
-                <button type="submit" class="btn btn-sm btn-primary shadow-sm">
+                <div class="input-group mr-2 mb-2">
+                    <select name="type" class="custom-select custom-select-sm border-0 bg-light text-capitalize">
+                        <option value="">All Vehicle Types</option>
+                        <?php foreach ($availableTypes as $t): ?>
+                            <option value="<?= htmlspecialchars($t) ?>" <?= $type === $t ? ' selected' : '' ?>>
+                                <?= ucfirst(str_replace('_', ' ', htmlspecialchars($t))) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="input-group mr-2 mb-2">
+                    <label class="mr-2 small text-gray-600">Sort:</label>
+                    <select name="sort" class="custom-select custom-select-sm border-0 bg-light"
+                        onchange="this.form.submit()">
+                        <option value="slot_number" <?= $sort === 'slot_number' ? 'selected' : '' ?>>Slot Number</option>
+                        <option value="slot_status" <?= $sort === 'slot_status' ? 'selected' : '' ?>>Status</option>
+                        <option value="slot_type" <?= $sort === 'slot_type' ? 'selected' : '' ?>>Type</option>
+                        <option value="price" <?= $sort === 'price' ? 'selected' : '' ?>>Price</option>
+                    </select>
+                    <select name="order" class="custom-select custom-select-sm border-0 bg-light ml-1"
+                        onchange="this.form.submit()">
+                        <option value="ASC" <?= $order === 'ASC' ? 'selected' : '' ?>>Asc</option>
+                        <option value="DESC" <?= $order === 'DESC' ? 'selected' : '' ?>>Desc</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-sm btn-primary shadow-sm mb-2 ml-2">
                     <i class="fa fa-filter"></i> Apply
                 </button>
-                <?php if ($status || $type): ?>
-                    <a href="?section=parking" class="btn btn-sm btn-light ml-2 text-danger">
+                <?php if ($search || $status || $type): ?>
+                    <a href="?section=parking" class="btn btn-sm btn-light ml-2 mb-2 text-danger">
                         <i class="fa fa-times"></i> Clear
                     </a>
                 <?php endif; ?>
@@ -159,6 +210,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 $statusClass = 'slot-reserved';
                 $icon = 'fa-clock-o';
                 $statusLabel = 'Reserved';
+            } elseif ($slot['slot_status'] === 'unavailable') {
+                $statusClass = 'slot-unavailable';
+                $icon = 'fa-ban';
+                $statusLabel = 'Unavailable';
             }
             ?>
             <div class="parking-slot-box <?= $statusClass ?>"
@@ -166,7 +221,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 <div class="slot-number"><?= $slot['slot_number'] ?></div>
                 <div class="slot-icon"><i class="fa <?= $icon ?>"></i></div>
                 <div class="slot-type">
-                    <?= $slot['slot_type'] === 'two_wheeler' ? '<i class="fa fa-motorcycle"></i> Moto' : '<i class="fa fa-car"></i> Car' ?>
+                    <?php if ($slot['slot_type'] === 'two_wheeler'): ?>
+                        <i class="fa fa-motorcycle"></i> Moto
+                    <?php elseif ($slot['slot_type'] === 'standard'): ?>
+                        <i class="fa fa-car"></i> Car
+                    <?php else: ?>
+                        <?= ucfirst($slot['slot_type']) ?>
+                    <?php endif; ?>
                 </div>
                 <!-- <div class="slot-status-label"><?= $statusLabel ?></div> -->
 
@@ -182,13 +243,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
 
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
+        <nav aria-label="Page navigation" class="mt-4 mb-5">
+            <ul class="pagination pagination-sm justify-content-center">
                 <!-- Keep pagination links simpler for grid -->
                 <?php if ($page > 1): ?>
                     <li class="page-item">
                         <a class="page-link"
-                            href="?section=parking&page=<?= $page - 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>">Previous</a>
+                            href="?section=parking&page=<?= $page - 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Previous</a>
                     </li>
                 <?php endif; ?>
 
@@ -199,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 <?php if ($page < $totalPages): ?>
                     <li class="page-item">
                         <a class="page-link"
-                            href="?section=parking&page=<?= $page + 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>">Next</a>
+                            href="?section=parking&page=<?= $page + 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Next</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -227,8 +288,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                     <div class="form-group">
                         <label>Type</label>
                         <select class="form-control" name="slot_type" required>
-                            <option value="two_wheeler">Two Wheeler (Moto)</option>
-                            <option value="standard">Standard (Car)</option>
+                            <?php foreach ($availableTypes as $t): ?>
+                                <option value="<?= htmlspecialchars($t) ?>">
+                                    <?= ucfirst(str_replace('_', ' ', htmlspecialchars($t))) ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <?php if (empty($availableTypes)): ?>
+                                <option value="standard">Standard</option>
+                                <option value="two_wheeler">Two Wheeler</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">Add Slot</button>
@@ -262,8 +330,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                         <div class="form-group col-md-6">
                             <label>Vehicle Type</label>
                             <select class="form-control" id="edit_slot_type" name="slot_type" required>
-                                <option value="two_wheeler">Two Wheeler</option>
-                                <option value="standard">Standard</option>
+                                <?php foreach ($availableTypes as $t): ?>
+                                    <option value="<?= htmlspecialchars($t) ?>">
+                                        <?= ucfirst(str_replace('_', ' ', htmlspecialchars($t))) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                <?php if (empty($availableTypes)): ?>
+                                    <option value="standard">Standard</option>
+                                    <option value="two_wheeler">Two Wheeler</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -275,6 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                             <option value="available" class="text-success">🟢 Available</option>
                             <option value="reserved" class="text-warning">🟡 Reserved</option>
                             <option value="occupied" class="text-danger">🔴 Occupied</option>
+                            <option value="unavailable" class="text-secondary">⚪ Unavailable (Maintenance)</option>
                         </select>
                     </div>
 
