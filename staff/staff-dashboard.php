@@ -168,6 +168,8 @@ if (isset($_POST['delete_pic'])) {
         </button>
         <div class="collapse navbar-collapse" id="staffNav">
           <ul class="navbar-nav w-100 justify-content-between">
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="dashboard"><i
+                  class="fa fa-tachometer-alt"></i> Dashboard</a></li>
             <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i
                   class="fa fa-calendar-check-o"></i> Bookings</a></li>
             <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i
@@ -188,6 +190,7 @@ if (isset($_POST['delete_pic'])) {
   <script>
     // SPA-like section navigation
     const sectionFiles = {
+      dashboard: 'section-dashboard.php',
       profile: 'section-profile.php',
       bookings: 'section-bookings.php',
       active: 'section-active.php',
@@ -195,16 +198,22 @@ if (isset($_POST['delete_pic'])) {
       slots: 'section-slots.php'
     };
     // Check for section in localStorage or URL hash
-    let currentSection = localStorage.getItem('staffCurrentSection') || 'bookings';
+    let currentSection = localStorage.getItem('staffCurrentSection') || 'dashboard';
+
+    // Auto-refresh interval reference
+    let refreshInterval = null;
+
     function loadSection(section, params = {}) {
       currentSection = section;
       localStorage.setItem('staffCurrentSection', section);
       $('.staff-navbar .nav-link').removeClass('active');
       $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
+
       let url = sectionFiles[section];
       if (Object.keys(params).length > 0) {
         url += '?' + $.param(params);
       }
+
       $('#section-content').fadeOut(100, function () {
         $('#section-content').load(url, function (response, status, xhr) {
           if (status === "error") {
@@ -216,7 +225,25 @@ if (isset($_POST['delete_pic'])) {
           }
         });
       });
+
+      // Handle Auto-Refresh logic
+      if (refreshInterval) clearInterval(refreshInterval);
+      if (section === 'active' || section === 'slots' || section === 'dashboard') {
+        // Auto-refresh these sections every 30 seconds
+        refreshInterval = setInterval(function () {
+          // Only refresh if no modal/input is active (simple check)
+          if ($('input:focus').length === 0) {
+            // Reload silently (without fadeOut)
+            let refreshUrl = sectionFiles[section];
+            // Preserve current usage? For improved UX, we might skip preserving detailed view state if it's too complex, 
+            // but re-loading the content keeps counters live.
+            $('#section-content').load(refreshUrl);
+            console.log('Auto-refreshing ' + section + '...');
+          }
+        }, 30000); // 30 seconds
+      }
     }
+
     $(function () {
       $('.staff-navbar .nav-link').on('click', function (e) {
         e.preventDefault();
