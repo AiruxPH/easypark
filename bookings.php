@@ -81,30 +81,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
 </head>
 
 <body class="bg-car">
-  <nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
-    <a class="navbar-brand" href="index.php">
-      <h1 class="custom-size 75rem">EASYPARK</h1>
-    </a>
-    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="reservations.php">Reserve</a></li>
-        <li class="nav-item"><a class="nav-link active" href="bookings.php">My Bookings</a></li>
-        <li class="nav-item"><a class="nav-link" href="how-it-works.php">How It Works</a></li>
-        <li class="nav-item">
-          <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
-            style="padding: 0.375rem 1rem;">
-            <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
-              style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
-            My Account (<?php echo $_SESSION['username'] ?>)
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-5">
     <h2 class="text-warning mb-4">My Bookings</h2>
     <div class="mb-3 p-3 rounded shadow-sm" style="background:#fff; color:#222; border:1px solid #ddd;">

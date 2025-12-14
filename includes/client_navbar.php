@@ -1,0 +1,75 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/db.php'; // Ensure DB connection
+
+// Get current page for active state
+$current_page = basename($_SERVER['PHP_SELF']);
+
+// Initial profile pic logic
+$profilePic = 'images/default.jpg';
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    // Check if $pdo is available, if not, it should have been included by db.php
+    if (isset($pdo)) {
+        $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user && !empty($user['image']) && file_exists(__DIR__ . '/../images/' . $user['image'])) {
+            $profilePic = 'images/' . $user['image'];
+        }
+    }
+}
+?>
+<nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
+    <a id="opp" class="navbar-brand" href="index.php">
+        <h1 class="custom-size 75rem">EASYPARK</h1>
+    </a>
+    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
+        <ul id="opp" class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>"
+                    href="reservations.php">Reserve</a>
+            </li>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'vehicles.php') ? 'active' : '' ?>" href="vehicles.php">My
+                        Vehicles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php">My
+                        Bookings</a>
+                </li>
+            <?php endif; ?>
+            <li class="nav-item">
+                <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>"
+                    href="how-it-works.php">How It Works</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= ($current_page == 'faq.php') ? 'active' : '' ?>" href="faq.php">FAQ</a>
+            </li>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <li class="nav-item">
+                    <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
+                        style="padding: 0.375rem 1rem;">
+                        <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
+                            style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
+                        My Account (<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>)
+                    </a>
+                </li>
+            <?php else: ?>
+                <li class="nav-item ml-2">
+                    <a class="nav-link btn btn-primary px-4 text-white" href="login.php">Login/Sign Up</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+</nav>

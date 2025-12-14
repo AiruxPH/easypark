@@ -109,27 +109,7 @@ if (isset($_POST['add_vehicle'])) {
 </head>
 
 <body class="bg-car">
-  <nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
-    <a id="opp" class="navbar-brand" href="index.php">
-      <h1 class="custom-size 75rem">EASYPARK</h1>
-    </a>
-    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-      <ul id="opp" class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="dashboard.php">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="profile.php">Profile</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="vehicles.php">My Vehicles</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-4">
     <h2 class="mb-4 text-warning custom-size display-4 text-center">My Vehicles</h2>
     <?php if (!empty($message)) {

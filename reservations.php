@@ -250,29 +250,7 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
 </head>
 
 <body class="bg-car">
-  <nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
-    <a class="navbar-brand" href="index.php">
-      <h1 class="custom-size 75rem">EASYPARK</h1>
-    </a>
-    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-        <li class="nav-item"><a class="nav-link active" href="reservations.php">Reserve</a></li>
-        <li class="nav-item"><a class="nav-link" href="how-it-works.php">How It Works</a></li>
-        <li class="nav-item">
-          <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
-            style="padding: 0.375rem 1rem;">
-            <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
-              style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
-            My Account (<?php echo $_SESSION['username'] ?>)
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-5">
     <!-- Breadcrumb navigation -->
     <nav aria-label="breadcrumb">
@@ -341,7 +319,8 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
             <dd class="col-sm-8"><?= htmlspecialchars($_POST['end_datetime']) ?></dd>
             <dt class="col-sm-4">Duration</dt>
             <dd class="col-sm-8"><?= htmlspecialchars($_POST['duration_value']) ?>
-              <?= htmlspecialchars($_POST['duration_type']) ?>(s)</dd>
+              <?= htmlspecialchars($_POST['duration_type']) ?>(s)
+            </dd>
             <dt class="col-sm-4">Payment Method</dt>
             <dd class="col-sm-8"><?= htmlspecialchars($_POST['payment_method']) ?></dd>
             <dt class="col-sm-4">Price</dt>
