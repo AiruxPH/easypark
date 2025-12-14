@@ -13,6 +13,8 @@ if (!isset($pdo)) {
 $search = trim($_GET['search'] ?? '');
 $filterType = trim($_GET['type'] ?? '');
 $filterBrand = trim($_GET['brand'] ?? '');
+$dateFrom = $_GET['date_from'] ?? '';
+$dateTo = $_GET['date_to'] ?? '';
 $sort = $_GET['sort'] ?? 'v.vehicle_id';
 $order = strtolower($_GET['order'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 
@@ -46,7 +48,44 @@ if ($filterBrand !== '') {
     $where[] = "m.brand = :brand";
     $params[':brand'] = $filterBrand;
 }
+if ($dateFrom) {
+    $where[] = "DATE(v.created_at) >= :date_from";
+    $params[':date_from'] = $dateFrom;
+}
+if ($dateTo) {
+    $where[] = "DATE(v.created_at) <= :date_to";
+    $params[':date_to'] = $dateTo;
+}
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+// --- Export CSV Handler ---
+if (isset($_GET['export']) && $_GET['export'] === 'true') {
+    $exportSql = "SELECT v.vehicle_id, v.plate_number, m.type, m.brand, m.model, v.color, CONCAT(u.first_name, ' ', u.last_name) as owner_name, v.created_at 
+            FROM vehicles v
+            LEFT JOIN users u ON v.user_id = u.user_id
+            LEFT JOIN Vehicle_Models m ON v.model_id = m.model_id
+            $whereSql
+            ORDER BY $sort $order";
+
+    $stmt = $pdo->prepare($exportSql);
+    foreach ($params as $k => $v)
+        $stmt->bindValue($k, $v);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Set headers
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="vehicles_export_' . date('Y-m-d') . '.csv"');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['ID', 'Plate Number', 'Type', 'Brand', 'Model', 'Color', 'Owner Name', 'Registered Date']);
+
+    foreach ($rows as $row) {
+        fputcsv($output, $row);
+    }
+    fclose($output);
+    exit;
+}
 
 // Pagination
 $page = max(1, intval($_GET['page'] ?? 1));
@@ -154,10 +193,22 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
                     </select>
                 </div>
 
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend"><span class="input-group-text border-0 small">From</span></div>
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+                </div>
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend"><span class="input-group-text border-0 small">To</span></div>
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+                </div>
+
                 <button type="submit" class="btn btn-sm btn-primary shadow-sm mb-2">
                     <i class="fa fa-filter"></i> Apply
                 </button>
-                <?php if ($search || $filterType || $filterBrand): ?>
+                <button type="submit" formaction="?section=vehicles&export=true" formmethod="GET" class="btn btn-sm btn-success shadow-sm mb-2 ml-2">
+                    <i class="fa fa-download"></i> Export
+                </button>
+                <?php if ($search || $filterType || $filterBrand || $dateFrom || $dateTo): ?>
                     <a href="?section=vehicles" class="btn btn-sm btn-light ml-2 mb-2 text-danger">
                         <i class="fa fa-times"></i> Clear
                     </a>
@@ -219,7 +270,8 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
                                     </td>
                                     <td>
                                         <div class="font-weight-bold text-gray-700">
-                                            <?= htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])) ?></div>
+                                            <?= htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])) ?>
+                                        </div>
                                     </td>
                                     <td class="text-muted small"><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
                                 </tr>

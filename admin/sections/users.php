@@ -9,6 +9,8 @@ $userType = $_GET['user_type'] ?? '';
 $active = $_GET['active'] ?? ''; // '1', '0', or ''
 $sort = $_GET['sort'] ?? 'user_id';
 $order = strtoupper($_GET['order'] ?? '') === 'DESC' ? 'DESC' : 'ASC';
+$dateFrom = $_GET['date_from'] ?? '';
+$dateTo = $_GET['date_to'] ?? '';
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = 20;
 $offset = ($page - 1) * $perPage;
@@ -32,11 +34,47 @@ if ($active !== '' && ($active === '1' || $active === '0')) {
     $params[':is_active'] = $active;
 }
 
+if ($dateFrom) {
+    $where[] = "DATE(created_at) >= :date_from";
+    $params[':date_from'] = $dateFrom;
+}
+if ($dateTo) {
+    $where[] = "DATE(created_at) <= :date_to";
+    $params[':date_to'] = $dateTo;
+}
+
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Validate and sanitize sort column
 $allowedSort = ['user_id', 'first_name', 'email', 'user_type', 'is_active', 'created_at'];
 $sort = in_array($sort, $allowedSort) ? $sort : 'user_id';
+
+// --- Export CSV Handler ---
+if (isset($_GET['export']) && $_GET['export'] === 'true') {
+    // Fetch ALL matching records (no limit)
+    $stmt = $pdo->prepare("SELECT user_id, first_name, middle_name, last_name, email, phone, user_type, is_active, created_at FROM users $whereClause ORDER BY $sort $order");
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Set headers
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="users_export_' . date('Y-m-d') . '.csv"');
+
+    $output = fopen('php://output', 'w');
+    // Header Row
+    fputcsv($output, ['ID', 'First Name', 'Middle Name', 'Last Name', 'Email', 'Phone', 'Role', 'Status', 'Registered Date']);
+
+    foreach ($rows as $row) {
+        // Map status to readable string
+        $row['is_active'] = $row['is_active'] == 1 ? 'Active' : 'Inactive';
+        fputcsv($output, $row);
+    }
+    fclose($output);
+    exit;
+}
 
 // Get total count
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM users $whereClause");
@@ -220,10 +258,25 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                     </select>
                 </div>
 
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend"><span class="input-group-text border-0 small">From</span></div>
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from"
+                        value="<?= htmlspecialchars($dateFrom) ?>">
+                </div>
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend"><span class="input-group-text border-0 small">To</span></div>
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to"
+                        value="<?= htmlspecialchars($dateTo) ?>">
+                </div>
+
                 <button type="submit" class="btn btn-sm btn-primary shadow-sm mb-2">
                     <i class="fa fa-filter"></i> Apply
                 </button>
-                <?php if ($search || $userType || $active !== ''): ?>
+                <button type="submit" formaction="?section=users&export=true" formmethod="GET"
+                    class="btn btn-sm btn-success shadow-sm mb-2 ml-2">
+                    <i class="fa fa-download"></i> Export
+                </button>
+                <?php if ($search || $userType || $active !== '' || $dateFrom || $dateTo): ?>
                     <a href="?section=users" class="btn btn-sm btn-light ml-2 mb-2 text-danger">
                         <i class="fa fa-times"></i> Clear
                     </a>
@@ -241,7 +294,8 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                     <thead class="thead-light">
                         <tr>
                             <th class="pl-4">
-                                <?= sortLink('user_id', 'ID', $sort, $order, $search, $userType, $active) ?></th>
+                                <?= sortLink('user_id', 'ID', $sort, $order, $search, $userType, $active) ?>
+                            </th>
                             <th><?= sortLink('first_name', 'Name', $sort, $order, $search, $userType, $active) ?></th>
                             <th><?= sortLink('email', 'Email', $sort, $order, $search, $userType, $active) ?></th>
                             <th>Phone</th>
@@ -263,7 +317,8 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 </td>
                                 <td>
                                     <div class="font-weight-bold">
-                                        <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></div>
+                                        <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                                    </div>
                                     <div class="small text-gray-500"><?= htmlspecialchars($user['middle_name']) ?></div>
                                 </td>
                                 <td><?= htmlspecialchars($user['email']) ?></td>
