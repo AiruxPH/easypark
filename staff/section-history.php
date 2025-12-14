@@ -14,6 +14,7 @@ require_once __DIR__ . '/section-common.php';
         <option value="">All Statuses</option>
         <option value="completed" <?= $filter_status === 'completed' ? 'selected' : '' ?>>Completed</option>
         <option value="cancelled" <?= $filter_status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+        <option value="expired" <?= $filter_status === 'expired' ? 'selected' : '' ?>>Expired</option>
       </select>
     </div>
     <div class="col-md-5 mb-2">
