@@ -75,7 +75,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     <div class="main-content" id="main-content">
         <!-- Top Navbar for Toggle -->
         <nav class="navbar navbar-light bg-white shadow-sm mb-4">
-            <button class="btn btn-link text-primary" id="sidebar-toggle">
+            <button class="btn btn-link text-primary" id="sidebar-toggle" type="button" onclick="toggleSidebar()">
                 <i class="fa fa-bars fa-lg"></i>
             </button>
             <span class="navbar-text ml-auto">

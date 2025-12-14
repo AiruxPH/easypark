@@ -6,33 +6,27 @@
 
 <script>
     // Sidebar Toggle Script
-    // Moved to footer to ensure DOM is fully loaded
-    (function () {
+    // Defined globally to ensure onclick attribute works
+    function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('main-content');
-        const toggleBtn = document.getElementById('sidebar-toggle');
+        
+        if (sidebar) sidebar.classList.toggle('collapsed');
+        if (mainContent) mainContent.classList.toggle('expanded');
+        console.log('Sidebar toggled manually');
+    }
+
+    // Mobile close handler
+    document.addEventListener('DOMContentLoaded', function() {
         const closeBtn = document.getElementById('sidebar-close');
-
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation(); // Prevent bubbling
-                // Check if elements exist
-                if (sidebar) sidebar.classList.toggle('collapsed');
-                if (mainContent) mainContent.classList.toggle('expanded');
-                console.log('Sidebar toggled');
-            });
-        } else {
-            console.error('Sidebar toggle button not found');
-        }
-
         if (closeBtn) {
-            closeBtn.addEventListener('click', function (e) {
+            closeBtn.addEventListener('click', function(e) {
                 e.preventDefault();
+                const sidebar = document.getElementById('sidebar');
                 if (sidebar) sidebar.classList.remove('active');
             });
         }
-    })();
+    });
 </script>
 </body>
 
