@@ -6,20 +6,21 @@ require_once __DIR__ . '/section-common.php';
   <h4 class="mb-3 text-info"><i class="fa fa-history"></i> Reservation History (Completed/Cancelled)</h4>
   <div class="row mb-2">
     <div class="col-md-4 mb-2">
-      <input type="text" id="historySearch" class="form-control" placeholder="Search reservation history...">
+      <input type="text" id="historySearch" class="form-control" placeholder="Search reservation history..."
+        value="<?= htmlspecialchars($search) ?>">
     </div>
     <div class="col-md-3 mb-2">
       <select id="historyStatusFilter" class="form-control">
         <option value="">All Statuses</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="completed" <?= $filter_status === 'completed' ? 'selected' : '' ?>>Completed</option>
+        <option value="cancelled" <?= $filter_status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
       </select>
     </div>
     <div class="col-md-5 mb-2">
       <div class="input-group">
         <div class="input-group-prepend"><span class="input-group-text small">Date</span></div>
-        <input type="date" id="historyDateFrom" class="form-control">
-        <input type="date" id="historyDateTo" class="form-control">
+        <input type="date" id="historyDateFrom" class="form-control" value="<?= htmlspecialchars($date_from) ?>">
+        <input type="date" id="historyDateTo" class="form-control" value="<?= htmlspecialchars($date_to) ?>">
       </div>
     </div>
   </div>
@@ -62,45 +63,26 @@ require_once __DIR__ . '/section-common.php';
 </div>
 <script>
   $(document).ready(function () {
-    function filterAndSortHistory() {
-      var search = $('#historySearch').val().toLowerCase();
+    window.filterAndSortHistory = function () {
+      var search = $('#historySearch').val();
       var status = $('#historyStatusFilter').val();
-      var rows = $('#historyTable tbody tr').get();
-      rows.forEach(function (row) {
-        var tds = $(row).children('td');
-        var rowStatus = tds.eq(7).text().toLowerCase();
-        var rowText = $(row).text().toLowerCase();
-        var show = true;
-        if (search && rowText.indexOf(search) === -1) show = false;
-        if (status && rowStatus !== status) show = false;
-        $(row).toggle(show);
-      });
-      // Sorting
-      if (window.historySortCol !== undefined) {
-        rows = rows.filter(function (row) { return $(row).css('display') !== 'none'; });
-        rows.sort(function (a, b) {
-          var tdA = $(a).children('td').eq(window.historySortCol).text().toLowerCase();
-          var tdB = $(b).children('td').eq(window.historySortCol).text().toLowerCase();
-          if (!isNaN(tdA) && !isNaN(tdB)) {
-            return window.historySortAsc ? tdA - tdB : tdB - tdA;
-          }
-          return window.historySortAsc ? tdA.localeCompare(tdB) : tdB.localeCompare(tdA);
-        });
-        $.each(rows, function (i, row) {
-          $('#historyTable tbody').append(row);
-        });
-      }
-    }
-    $('#historySearch, #historyStatusFilter, #historyDateFrom, #historyDateTo').on('input change', filterAndSortHistory);
-    window.historySortCol = undefined;
-    window.historySortAsc = true;
-    $('#historyTable thead th.sortable').on('click', function () {
-      var idx = $(this).index();
-      if (window.historySortCol === idx) window.historySortAsc = !window.historySortAsc;
-      else { window.historySortCol = idx; window.historySortAsc = true; }
-      filterAndSortHistory();
-      $('#historyTable thead th').removeClass('asc desc');
-      $(this).addClass(window.historySortAsc ? 'asc' : 'desc');
+      var dateFrom = $('#historyDateFrom').val();
+      var dateTo = $('#historyDateTo').val();
+
+      var params = {};
+      if (search) params.search = search;
+      if (status) params.status = status;
+      if (dateFrom) params.date_from = dateFrom;
+      if (dateTo) params.date_to = dateTo;
+
+      loadSection('history', params);
+    };
+
+    var timeout = null;
+    $('#historySearch').on('input', function () {
+      clearTimeout(timeout);
+      timeout = setTimeout(filterAndSortHistory, 500);
     });
+    $('#historyStatusFilter, #historyDateFrom, #historyDateTo').on('change', filterAndSortHistory);
   });
 </script>

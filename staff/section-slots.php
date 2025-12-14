@@ -10,23 +10,25 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
   <h4 class="mb-3 text-warning"><i class="fa fa-car"></i> Parking Slots Overview</h4>
   <div class="row mb-3">
     <div class="col-md-4 mb-2">
-      <input type="text" id="slotSearch" class="form-control" placeholder="Search slots...">
+      <input type="text" id="slotSearch" class="form-control" placeholder="Search slots..."
+        value="<?= htmlspecialchars($search) ?>">
     </div>
     <div class="col-md-3 mb-2">
       <select id="slotTypeFilter" class="form-control">
         <option value="">All Types</option>
         <?php foreach ($availableTypes as $t): ?>
-          <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $t))) ?></option>
+          <option value="<?= htmlspecialchars($t) ?>" <?= $filter_type === $t ? 'selected' : '' ?>>
+            <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $t))) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
     <div class="col-md-3 mb-2">
       <select id="slotStatusFilter" class="form-control">
         <option value="">All Statuses</option>
-        <option value="available">Available</option>
-        <option value="reserved">Reserved</option>
-        <option value="occupied">Occupied</option>
-        <option value="unavailable">Unavailable</option>
+        <option value="available" <?= $filter_status === 'available' ? 'selected' : '' ?>>Available</option>
+        <option value="reserved" <?= $filter_status === 'reserved' ? 'selected' : '' ?>>Reserved</option>
+        <option value="occupied" <?= $filter_status === 'occupied' ? 'selected' : '' ?>>Occupied</option>
+        <option value="unavailable" <?= $filter_status === 'unavailable' ? 'selected' : '' ?>>Unavailable</option>
       </select>
     </div>
     <div class="col-md-2 mb-2">
@@ -42,54 +44,26 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
 
 <script>
   $(document).ready(function () {
-    function fetchSlots(page = 1) {
-      var search = $('#slotSearch').val();
-      var type = $('#slotTypeFilter').val();
-      var status = $('#slotStatusFilter').val();
-      var sortBy = $('#slotSort').val();
-      $.ajax({
-        url: 'slots-ajax.php',
-        method: 'GET',
-        data: {
-          search: search,
-          type: type,
-          status: status,
-          sort: sortBy,
-          page: page
-        },
-        dataType: 'json',
-        beforeSend: function () {
-          $('#slotsGrid').html('<div class="col-12 text-center py-4"><span class="spinner-border text-warning"></span></div>');
-          $('nav[aria-label="Parking Slots pagination"]').remove();
-        },
-        success: function (response) {
-          $('#slotsGrid').html(response.cards);
-          $('nav[aria-label="Parking Slots pagination"]').remove(); // Always remove before adding
-          if (response.pagination) {
-            $('#slotsGrid').after(response.pagination);
-          }
-        },
-        error: function (xhr) {
-          $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
-          $('nav[aria-label="Parking Slots pagination"]').remove();
-        }
+    $('#slotsGrid').html('<div class="col-12"><div class="alert alert-danger text-center">Failed to load slots. Please try again.</div></div>');
+    $('nav[aria-label="Parking Slots pagination"]').remove();
+  }
       });
     }
 
-    // On filter/search/sort change
-    $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', function () {
-      fetchSlots(1);
-    });
-
-    // On pagination click (delegated, since pagination is replaced dynamically)
-    $(document).on('click', 'nav[aria-label="Parking Slots pagination"] .page-link', function (e) {
-      e.preventDefault();
-      var page = $(this).data('page');
-      if (!page || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
-      fetchSlots(page);
-    });
-
-    // Initial load: show default sorted slots immediately
+  // On filter/search/sort change
+  $('#slotSearch, #slotTypeFilter, #slotStatusFilter, #slotSort').on('input change', function () {
     fetchSlots(1);
+  });
+
+  // On pagination click (delegated, since pagination is replaced dynamically)
+  $(document).on('click', 'nav[aria-label="Parking Slots pagination"] .page-link', function (e) {
+    e.preventDefault();
+    var page = $(this).data('page');
+    if (!page || $(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) return;
+    fetchSlots(page);
+  });
+
+  // Initial load: show default sorted slots immediately
+  fetchSlots(1);
   });
 </script>
