@@ -14,11 +14,10 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>EasyPark Admin Dashboard</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/admin-custom.css">
-    <style>
-        /* Base inline overrides removed - migrated to css/admin-custom.css */
-    </style>
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/admin-custom.css" rel="stylesheet">
+    <link href="css/parking-grid.css" rel="stylesheet">
 </head>
 
 <body>

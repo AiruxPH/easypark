@@ -1,0 +1,110 @@
+/* admin/css/parking-grid.css */
+
+.parking-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.parking-slot-box {
+    background-color: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.parking-slot-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+    z-index: 10;
+}
+
+/* Status: Available */
+.slot-available {
+    border-top: 5px solid #1cc88a;
+    /* Success Green */
+}
+
+.slot-available .slot-icon {
+    color: #1cc88a;
+    background-color: rgba(28, 200, 138, 0.1);
+}
+
+/* Status: Reserved */
+.slot-reserved {
+    border-top: 5px solid #f6c23e;
+    /* Warning Yellow */
+    background-color: #fffcf5;
+}
+
+.slot-reserved .slot-icon {
+    color: #f6c23e;
+    background-color: rgba(246, 194, 62, 0.1);
+}
+
+/* Status: Occupied */
+.slot-occupied {
+    border-top: 5px solid #e74a3b;
+    /* Danger Red */
+    background-color: #fdf5f5;
+}
+
+.slot-occupied .slot-icon {
+    color: #e74a3b;
+    background-color: rgba(231, 74, 59, 0.1);
+}
+
+.slot-number {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
+}
+
+.slot-type {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #858796;
+    margin-bottom: 0.5rem;
+}
+
+.slot-icon {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    margin: 0 auto 0.5rem;
+}
+
+.slot-status-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Occupant Details (Only visible on Occupied/Reserved) */
+.occupant-info {
+    font-size: 0.75rem;
+    color: #4e73df;
+    margin-top: 0.25rem;
+    border-top: 1px dashed #d1d3e2;
+    padding-top: 0.25rem;
+    width: 100%;
+}
+
+.occupant-info strong {
+    display: block;
+    color: #2e59d9;
+}
