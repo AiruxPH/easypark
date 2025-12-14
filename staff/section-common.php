@@ -16,7 +16,7 @@
  */
 
 session_start();
-require_once '../db.php';
+require_once '../includes/db.php';
 
 // Fetch staff profile info (if needed)
 $staff_id = $_SESSION['user_id'] ?? null;
@@ -89,18 +89,24 @@ $all_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $slots_total_pages = ceil($slots_total / $per_page);
 
 // Helper for slot color class
-function getSlotColorClass($status) {
+function getSlotColorClass($status)
+{
     switch (strtolower($status)) {
-        case 'available': return 'border-success';
-        case 'reserved': return 'border-warning';
-        case 'occupied': return 'border-danger';
-        default: return 'border-secondary';
+        case 'available':
+            return 'border-success';
+        case 'reserved':
+            return 'border-warning';
+        case 'occupied':
+            return 'border-danger';
+        default:
+            return 'border-secondary';
     }
 }
 
 // Helper for pagination range
-function getPaginationRange($current, $total, $max = 5) {
-    $start = max(1, $current - floor($max/2));
+function getPaginationRange($current, $total, $max = 5)
+{
+    $start = max(1, $current - floor($max / 2));
     $end = min($total, $start + $max - 1);
     if ($end - $start + 1 < $max) {
         $start = max(1, $end - $max + 1);

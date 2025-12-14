@@ -16,7 +16,7 @@ if($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'staff') {
     exit();
 }
 
-require_once 'db.php';
+require_once 'includes/db.php';
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
@@ -53,7 +53,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
     }
 
       .bg-image-dark {
-        background-image: url('nav-bg.jpg');
+        background-image: url('images/nav-bg.jpg');
         background-size: 100% auto;
         background-position: top left;
         background-repeat: repeat-y;
@@ -61,7 +61,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         
       }
       .bg-car {
-        background-image: url('bg-car.jpg');
+        background-image: url('images/bg-car.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;

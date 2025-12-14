@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'includes/db.php';
 
 $logFile = __DIR__ . '/cron_log.txt';
 $log = "[" . date('Y-m-d H:i:s') . "] Cron job started.\n";

@@ -1,10 +1,10 @@
 <?php
-require_once '../db.php';
+require_once '../includes/db.php';
 require_once 'includes/header.php';
 
 $section = $_GET['section'] ?? 'dashboard';
 
-switch($section) {
+switch ($section) {
     case 'parking':
         require_once 'sections/parking.php';
         break;

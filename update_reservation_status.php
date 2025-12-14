@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['reservation_id'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
     exit();
 }
-require_once 'db.php';
+require_once 'includes/db.php';
 $reservation_id = intval($_POST['reservation_id']);
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 

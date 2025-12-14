@@ -36,7 +36,7 @@ if (isset($_SESSION['user_id'])) {
     }
 
       .bg-image-dark {
-        background-image: url('nav-bg.jpg');
+        background-image: url('images/nav-bg.jpg');
         background-size: 100% auto;
         background-position: top left;
         background-repeat: repeat-y;
@@ -44,7 +44,7 @@ if (isset($_SESSION['user_id'])) {
         
       }
       .bg-car {
-        background-image: url('bg-car.jpg');
+        background-image: url('images/bg-car.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;

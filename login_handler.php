@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'db.php';
+include 'includes/db.php';
 
 $username = $_POST['username'];
 $password = $_POST['password'];
@@ -19,12 +19,11 @@ if ($result->num_rows == 1) {
     $_SESSION['username'] = $user['username'];
     $_SESSION['user_id'] = $user['user_id'];
     $_SESSION['user_type'] = $user['user_type'];
-    
+
 
     header("Location: /login_crud/pet_crud/index.php");
     exit();
-}
-else {
+} else {
     header("Location: index.php?error=1");
     exit();
 }
