@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/section-common.php';
 // Parking Slots Overview Section (for include or AJAX)
+
+// Fetch dynamic slot types for filter
+$typesStmt = $pdo->query("SELECT DISTINCT slot_type FROM parking_slots ORDER BY slot_type");
+$availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <div class="section-card">
   <h4 class="mb-3 text-warning"><i class="fa fa-car"></i> Parking Slots Overview</h4>
@@ -11,9 +15,9 @@ require_once __DIR__ . '/section-common.php';
     <div class="col-md-3 mb-2">
       <select id="slotTypeFilter" class="form-control">
         <option value="">All Types</option>
-        <option value="two_wheeler">Two Wheeler</option>
-        <option value="standard">Standard</option>
-        <option value="compact">Compact</option>
+        <?php foreach ($availableTypes as $t): ?>
+          <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $t))) ?></option>
+        <?php endforeach; ?>
       </select>
     </div>
     <div class="col-md-3 mb-2">
