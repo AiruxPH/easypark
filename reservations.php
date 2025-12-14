@@ -139,6 +139,9 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
     if ($slot['slot_status'] === 'occupied') {
       $reservation_error = 'This slot is currently occupied. Please choose another slot.';
       $show_reservation_form = true;
+    } elseif ($slot['slot_status'] === 'unavailable') {
+      $reservation_error = 'This slot is currently under maintenance. Please choose another slot.';
+      $show_reservation_form = true;
     } elseif ($overlap_count > 0) {
       $reservation_error = 'This slot is already reserved for the selected time range. Please choose a different time or slot.';
       $show_reservation_form = true;
@@ -434,15 +437,23 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                         Current Status:
                         <?php
                         $statusColor = 'success';
-                        if ($slot['slot_status'] === 'occupied')
+                        $statusLabel = ucfirst($slot['slot_status']);
+
+                        if ($slot['slot_status'] === 'occupied') {
                           $statusColor = 'danger';
-                        if ($slot['slot_status'] === 'reserved')
+                        }
+                        if ($slot['slot_status'] === 'reserved') {
                           $statusColor = 'warning';
+                        }
+                        if ($slot['slot_status'] === 'unavailable') {
+                          $statusColor = 'secondary';
+                          $statusLabel = 'Maintenance';
+                        }
                         ?>
-                        <span class="badge badge-<?= $statusColor ?>"><?= ucfirst($slot['slot_status']) ?></span>
+                        <span class="badge badge-<?= $statusColor ?>"><?= $statusLabel ?></span>
                       </p>
                       <button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>"
-                        class="btn btn-warning btn-block" <?= $has_active_reservation ? 'disabled' : '' ?>>Reserve</button>
+                        class="btn btn-warning btn-block" <?= ($has_active_reservation || $slot['slot_status'] === 'unavailable' || $slot['slot_status'] === 'occupied' || $slot['slot_status'] === 'reserved') ? 'disabled' : '' ?>>Reserve</button>
                     </div>
                   </div>
                 </div>
