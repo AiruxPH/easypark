@@ -79,7 +79,7 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Handle slot status update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
     $slot_id = $_POST['slot_id'];
-    $new_status = $_POST['new_status'];
+    $new_status = $_POST['slot_status'];
     $winning_res_id = $_POST['winning_reservation_id'] ?? null;
 
     if (in_array($new_status, ['available', 'reserved', 'occupied', 'unavailable'])) {
