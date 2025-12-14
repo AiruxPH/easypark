@@ -195,17 +195,19 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">From</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from"
+                        value="<?= htmlspecialchars($dateFrom) ?>">
                 </div>
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">To</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to"
+                        value="<?= htmlspecialchars($dateTo) ?>">
                 </div>
 
                 <button type="submit" class="btn btn-sm btn-primary shadow-sm mb-2">
                     <i class="fa fa-filter"></i> Apply
                 </button>
-                <button type="submit" formaction="?section=vehicles&export=true" formmethod="GET" class="btn btn-sm btn-success shadow-sm mb-2 ml-2">
+                <button type="submit" name="export" value="true" class="btn btn-sm btn-success shadow-sm mb-2 ml-2">
                     <i class="fa fa-download"></i> Export
                 </button>
                 <?php if ($search || $filterType || $filterBrand || $dateFrom || $dateTo): ?>
