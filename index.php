@@ -37,15 +37,6 @@ if (isset($_SESSION['user_id'])) {
       transition: transform 0.3s ease-in-out;
     }
 
-    .bg-image-dark {
-      background-image: url('images/nav-bg.jpg');
-      background-size: 100% auto;
-      background-position: top left;
-      background-repeat: repeat-y;
-
-
-    }
-
     .bg-car {
       background-image: url('images/bg-car.jpg');
       background-size: cover;
@@ -70,14 +61,6 @@ if (isset($_SESSION['user_id'])) {
 
     .custom-hover:hover {
       opacity: 1;
-    }
-
-    #navbar {
-      transition: background 1s ease-in-out;
-    }
-
-    .scrolled {
-      background: rgba(0, 0, 0, 0.3);
     }
 
     #opp {
@@ -265,19 +248,9 @@ if (isset($_SESSION['user_id'])) {
   <script src="js/jquery.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  
 
-  <script>
-    const navbar = document.getElementById('navbar');
 
-    window.addEventListener('scroll', function () {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-  </script>
+
 
 
 

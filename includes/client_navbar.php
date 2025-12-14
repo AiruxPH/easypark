@@ -72,4 +72,90 @@ if (isset($_SESSION['user_id'])) {
             <?php endif; ?>
         </ul>
     </div>
+    </div>
 </nav>
+
+<style>
+    /* Navbar Base Styles */
+    #navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        background-color: rgba(0, 0, 0, 0.3);
+        /* The underlying "scrolled" color */
+        /* CSS Variable for opacity, defaults to 1 (fully visible image) */
+        --nav-image-opacity: 1;
+    }
+
+    /* Pseudo-element for the Background Image */
+    #navbar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: url('images/nav-bg.jpg');
+        background-size: cover;
+        background-position: top center;
+        background-repeat: no-repeat;
+        opacity: var(--nav-image-opacity);
+        transition: opacity 0.1s linear;
+        /* Smooths out scroll updates slightly */
+        pointer-events: none;
+        /* Let clicks pass through if needed */
+    }
+
+    /* Keep brand/nav text colors */
+    .navbar-dark .navbar-brand,
+    .navbar-dark .navbar-nav .nav-link {
+        color: #fff;
+    }
+
+    .navbar-dark .navbar-brand:hover,
+    .navbar-dark .navbar-nav .nav-link:hover {
+        color: #ccc;
+    }
+
+    .navbar-nav .nav-item {
+        margin-right: 15px;
+    }
+
+    /* Custom size class from original dashboard */
+    .custom-size {
+        color: #ffc107;
+        transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    .custom-size:hover {
+        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+        color: white;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbar = document.getElementById('navbar');
+
+        function updateNavbarOpacity() {
+            const scrollY = window.scrollY;
+            const fadeDistance = 300; // Pixels to scroll before image is fully transparent
+
+            // Calculate opacity: 1 at top, 0 at fadeDistance
+            let opacity = 1 - (scrollY / fadeDistance);
+
+            // Clamp between 0 and 1
+            opacity = Math.max(0, Math.min(1, opacity));
+
+            // Apply to CSS variable
+            navbar.style.setProperty('--nav-image-opacity', opacity);
+        }
+
+        // Listen for scroll events
+        window.addEventListener('scroll', updateNavbarOpacity);
+
+        // Initial call
+        updateNavbarOpacity();
+    });
+</script>

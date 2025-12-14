@@ -53,14 +53,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       transition: transform 0.3s ease-in-out;
     }
 
-    .bg-image-dark {
-      background-image: url('images/nav-bg.jpg');
-      background-size: 100% auto;
-      background-position: top left;
-      background-repeat: repeat-y;
 
-
-    }
 
     .bg-car {
       background-image: url('images/bg-car.jpg');
@@ -69,15 +62,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       background-repeat: no-repeat;
     }
 
-    .custom-size {
-      color: #ffc107;
-      transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
-    }
 
-    .custom-size:hover {
-      text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
-      color: white;
-    }
 
     .custom-hover {
       opacity: 0.5;
@@ -262,17 +247,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
   <script src="js/bootstrap.bundle.min.js"></script>
 
 
-  <script>
-    const navbar = document.getElementById('navbar');
 
-    window.addEventListener('scroll', function () {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-  </script>
 
 
 

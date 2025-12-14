@@ -34,28 +34,6 @@ if ($is_logged_in) {
       background-position: center;
       background-repeat: no-repeat;
     }
-
-    #navbar {
-      transition: background 1s ease-in-out;
-    }
-
-    .scrolled {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .navbar-dark .navbar-brand,
-    .navbar-dark .navbar-nav .nav-link {
-      color: #fff;
-    }
-
-    .navbar-dark .navbar-brand:hover,
-    .navbar-dark .navbar-nav .nav-link:hover {
-      color: #ccc;
-    }
-
-    .navbar-nav .nav-item {
-      margin-right: 15px;
-    }
   </style>
 </head>
 

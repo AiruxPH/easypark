@@ -210,39 +210,6 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
   <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <style>
-    // ...copy navbar/bg styles from dashboard.php for consistency...
-    .bg-image-dark {
-      background-image: url('images/nav-bg.jpg');
-      background-size: 100% auto;
-      background-position: top left;
-      background-repeat: repeat-y;
-    }
-
-    .bg-car {
-      background-image: url('images/bg-car.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
-    #navbar {
-      transition: background 1s ease-in-out;
-    }
-
-    .scrolled {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .navbar-dark .navbar-brand,
-    .navbar-dark .navbar-nav .nav-link {
-      color: #fff;
-    }
-
-    .navbar-dark .navbar-brand:hover,
-    .navbar-dark .navbar-nav .nav-link:hover {
-      color: #ccc;
-    }
-
     .navbar-nav .nav-item {
       margin-right: 15px;
     }
