@@ -92,7 +92,7 @@ $available_slots_count = $stmt->fetchColumn();
 <div class="section-card mt-4">
     <h4 class="mb-3 text-warning"><i class="fa fa-info-circle"></i> Quick Actions</h4>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 text-white">
             <p>Use the navigation menu to:</p>
             <ul>
                 <li><strong>Bookings:</strong> Review and confirm pending reservations.</li>
