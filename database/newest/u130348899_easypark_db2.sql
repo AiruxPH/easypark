@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 14, 2025 at 01:54 PM
+-- Generation Time: Dec 14, 2025 at 04:46 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -31,7 +31,7 @@ CREATE TABLE `parking_slots` (
   `parking_slot_id` int(11) NOT NULL,
   `slot_number` varchar(10) NOT NULL,
   `slot_type` enum('two_wheeler','compact','standard','large') NOT NULL,
-  `slot_status` enum('available','reserved','occupied') DEFAULT 'available'
+  `slot_status` enum('available','reserved','occupied','unavailable') DEFAULT 'available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

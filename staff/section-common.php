@@ -122,14 +122,14 @@ $active_total_pages = ceil($active_total / $per_page);
 $history_page = isset($_GET['history_page']) ? max(1, intval($_GET['history_page'])) : 1;
 $history_offset = ($history_page - 1) * $per_page;
 
-$history_where = ["r.status IN ('completed', 'cancelled', 'expired')"];
+$history_where = ["r.status IN ('completed', 'cancelled', 'expired', 'void')"];
 $history_params = [];
 
 if ($search) {
     $history_where[] = "(v.plate_number LIKE :h_search OR u.first_name LIKE :h_search OR u.last_name LIKE :h_search OR r.reservation_id LIKE :h_search)";
     $history_params[':h_search'] = "%$search%";
 }
-if ($filter_status && in_array($filter_status, ['completed', 'cancelled', 'expired'])) {
+if ($filter_status && in_array($filter_status, ['completed', 'cancelled', 'expired', 'void'])) {
     $history_where[] = "r.status = :h_status";
     $history_params[':h_status'] = $filter_status;
 }
@@ -233,6 +233,7 @@ function getBadgeClass($status)
         case 'occupied':
         case 'cancelled':
         case 'expired':
+        case 'void':
             return 'badge badge-danger';
         case 'ongoing':
             return 'badge badge-primary';
