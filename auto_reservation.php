@@ -58,7 +58,21 @@ try {
     $stmt_success->execute();
     $log .= "Successful payments: " . $stmt_success->rowCount() . "\n";
 
-    // Free up parking slots
+    // Mark slots with active reservations as 'reserved'
+    $stmt_reserve = $pdo->prepare("
+        UPDATE parking_slots
+        SET slot_status = 'reserved'
+        WHERE parking_slot_id IN (
+            SELECT parking_slot_id
+            FROM reservations
+            WHERE start_time <= :now AND end_time > :now
+            AND status IN ('confirmed', 'ongoing')
+        ) AND slot_status = 'available'
+    ");
+    $stmt_reserve->execute(['now' => $now]);
+    $log .= "Reserved slots: " . $stmt_reserve->rowCount() . "\n";
+
+    // Free up parking slots (Excluding those that are currently active)
     $stmt_free = $pdo->prepare("
         UPDATE parking_slots
         SET slot_status = 'available'
@@ -70,7 +84,8 @@ try {
         )
         AND parking_slot_id NOT IN (
             SELECT parking_slot_id FROM reservations
-            WHERE status IN ('pending', 'confirmed', 'ongoing')
+            WHERE start_time <= :now AND end_time > :now
+            AND status IN ('confirmed', 'ongoing')
         )
     ");
     $stmt_free->execute(['now' => $now]);

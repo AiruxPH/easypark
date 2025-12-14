@@ -51,13 +51,13 @@ $selected_slot = null;
 if (isset($_POST['reserve_slot_id']) && $selected_vehicle_id) {
   $slot_id = $_POST['reserve_slot_id'];
   // Fetch slot info using correct columns
-  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
+  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_type = ?');
   $stmt->execute([$slot_id, $selected_vehicle_type]);
   $selected_slot = $stmt->fetch(PDO::FETCH_ASSOC);
   if ($selected_slot) {
     $show_reservation_form = true;
   } else {
-    $reservation_error = 'Selected slot is no longer available.';
+    $reservation_error = 'Selected slot is invalid.';
   }
 }
 
@@ -88,7 +88,8 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
   $price = floatval($_POST['price']);
   $duration_value = intval($_POST['duration_value']);
   // Double-check slot is still available
-  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_status = "available" AND slot_type = ?');
+  // Double-check slot exists
+  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE parking_slot_id = ? AND slot_type = ?');
   $stmt->execute([$slot_id, $selected_vehicle_type]);
   $slot = $stmt->fetch(PDO::FETCH_ASSOC);
   if ($slot) {
@@ -139,7 +140,8 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $show_reservation_form = true;
     } else {
       $pdo->beginTransaction();
-      $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
+      // REMOVED: Static update of parking_slots status. Status is now dynamic based on reservations.
+      // $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
       // Insert reservation (with duration)
       $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
         $user_id,
@@ -174,11 +176,11 @@ $total_slots = 0;
 $available_slots = [];
 if ($selected_vehicle_type) {
   // Get total count for pagination
-  $stmt = $pdo->prepare('SELECT COUNT(*) FROM parking_slots WHERE slot_status = "available" AND slot_type = ?');
+  $stmt = $pdo->prepare('SELECT COUNT(*) FROM parking_slots WHERE slot_type = ?');
   $stmt->execute([$selected_vehicle_type]);
   $total_slots = $stmt->fetchColumn();
-  // Fetch only slots for current page
-  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE slot_status = "available" AND slot_type = ? LIMIT ? OFFSET ?');
+  // Fetch slots for current page (Show ALL slots, not just available ones, to allow future bookings)
+  $stmt = $pdo->prepare('SELECT * FROM parking_slots WHERE slot_type = ? LIMIT ? OFFSET ?');
   $stmt->bindValue(1, $selected_vehicle_type);
   $stmt->bindValue(2, $slots_per_page, PDO::PARAM_INT);
   $stmt->bindValue(3, $offset, PDO::PARAM_INT);
@@ -417,7 +419,18 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                   <div class="card bg-dark text-light">
                     <div class="card-body">
                       <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
-                      <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
+                      <p class="card-text">
+                        Type: <?= htmlspecialchars($slot['slot_type']) ?><br>
+                        Current Status:
+                        <?php
+                        $statusColor = 'success';
+                        if ($slot['slot_status'] === 'occupied')
+                          $statusColor = 'danger';
+                        if ($slot['slot_status'] === 'reserved')
+                          $statusColor = 'warning';
+                        ?>
+                        <span class="badge badge-<?= $statusColor ?>"><?= ucfirst($slot['slot_status']) ?></span>
+                      </p>
                       <button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>"
                         class="btn btn-warning btn-block" <?= $has_active_reservation ? 'disabled' : '' ?>>Reserve</button>
                     </div>

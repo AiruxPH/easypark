@@ -93,24 +93,31 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $window = 2; // how many pages to show on each side
     $start = max(1, $page - $window);
     $end = min($totalPages, $page + $window);
-    $queryStr = ($filterStatus ? '&status=' . urlencode($filterStatus) : '') . ($filterType ? '&type=' . urlencode($filterType) : '');
+
+    // Preserve all current GET parameters (like section, status, type, etc.)
+    $queryParams = $_GET;
+    unset($queryParams['page']); // Remove current page from params
+    unset($queryParams['ajax']); // Remove ajax flag so links load full page
+    $queryString = http_build_query($queryParams);
+    $queryPrefix = $queryString ? '&' . $queryString : '';
+
     if ($page > 1) {
-      echo '<li class="page-item"><a class="page-link" href="?page=1' . $queryStr . '">&laquo; First</a></li>';
-      echo '<li class="page-item"><a class="page-link" href="?page=' . ($page - 1) . $queryStr . '">&lsaquo; Prev</a></li>';
+      echo '<li class="page-item"><a class="page-link" href="?page=1' . $queryPrefix . '">&laquo; First</a></li>';
+      echo '<li class="page-item"><a class="page-link" href="?page=' . ($page - 1) . $queryPrefix . '">&lsaquo; Prev</a></li>';
     }
     if ($start > 1) {
       echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
     }
     for ($i = $start; $i <= $end; $i++) {
       $active = $i == $page ? ' active' : '';
-      echo '<li class="page-item' . $active . '"><a class="page-link" href="?page=' . $i . $queryStr . '">' . $i . '</a></li>';
+      echo '<li class="page-item' . $active . '"><a class="page-link" href="?page=' . $i . $queryPrefix . '">' . $i . '</a></li>';
     }
     if ($end < $totalPages) {
       echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
     }
     if ($page < $totalPages) {
-      echo '<li class="page-item"><a class="page-link" href="?page=' . ($page + 1) . $queryStr . '">Next &rsaquo;</a></li>';
-      echo '<li class="page-item"><a class="page-link" href="?page=' . $totalPages . $queryStr . '">Last &raquo;</a></li>';
+      echo '<li class="page-item"><a class="page-link" href="?page=' . ($page + 1) . $queryPrefix . '">Next &rsaquo;</a></li>';
+      echo '<li class="page-item"><a class="page-link" href="?page=' . $totalPages . $queryPrefix . '">Last &raquo;</a></li>';
     }
     ?>
   </ul>
