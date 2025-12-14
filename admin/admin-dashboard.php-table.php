@@ -1,4 +1,11 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
+  header('Location: ../login.php');
+  exit;
+}
 require_once '../includes/db.php';
 // Filtering by status/type
 $filterStatus = isset($_GET['status']) ? $_GET['status'] : '';

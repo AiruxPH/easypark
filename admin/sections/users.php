@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 $currentAdminEmail = $_SESSION['user_email'] ?? '';
 $isSuperAdmin = ($currentAdminEmail === 'admin@gmail.com');
 
