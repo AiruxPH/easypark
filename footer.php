@@ -21,10 +21,14 @@
       <!-- Social Links -->
       <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3 text-center">
         <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Follow Us</h5>
-        <a href="https://www.facebook.com/randythegreat000" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-facebook fa-lg"></i></a>
-        <a href="https://x.com/AiruxPH" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-twitter fa-lg"></i></a>
-        <a href="https://www.instagram.com/itsmerandythegreat" class="text-light mr-4" target="_blank" rel="noopener"><i class="fa fa-instagram fa-lg"></i></a>
-        <a href="https://www.linkedin.com/in/anecito-randy-calunod-jr-326680210" class="text-light" target="_blank" rel="noopener"><i class="fa fa-linkedin fa-lg"></i></a>
+        <a href="https://www.facebook.com/randythegreat000" class="text-light mr-4" target="_blank" rel="noopener"><i
+            class="fa fa-facebook fa-lg"></i></a>
+        <a href="https://x.com/AiruxPH" class="text-light mr-4" target="_blank" rel="noopener"><i
+            class="fa fa-twitter fa-lg"></i></a>
+        <a href="https://www.instagram.com/itsmerandythegreat" class="text-light mr-4" target="_blank" rel="noopener"><i
+            class="fa fa-instagram fa-lg"></i></a>
+        <a href="https://www.linkedin.com/in/anecito-randy-calunod-jr-326680210" class="text-light" target="_blank"
+          rel="noopener"><i class="fa fa-linkedin fa-lg"></i></a>
 
       </div>
     </div>
@@ -37,3 +41,4 @@
     </div>
   </div>
 </footer>
+<script src="js/ef9baa832e.js"></script>
