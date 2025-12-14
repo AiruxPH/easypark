@@ -1,18 +1,12 @@
 <?php
 // vehicles.php - Vehicles section for admin panel
 
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Ensure $pdo is available
 if (!isset($pdo)) {
     global $pdo;
 }
 if (!isset($pdo)) {
     echo '<div class="alert alert-danger">Database connection not available.</div>';
-    // Do not return, allow rest of page to render for debugging
 }
 
 // Handle search, filter, and sort parameters
@@ -30,7 +24,7 @@ $allowedSort = [
     'm.brand',
     'm.model',
     'v.color',
-    'u.first_name',
+    'u.first_name', // sort by owner
     'v.created_at'
 ];
 if (!in_array($sort, $allowedSort)) {
@@ -100,107 +94,155 @@ try {
     $types = [];
     $brands = [];
 }
+
+// Helper for sorting links
+function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $brand)
+{
+    $newOrder = ($currentSort === $col && $currentOrder === 'ASC') ? 'DESC' : 'ASC';
+    $icon = '';
+    if ($currentSort === $col) {
+        $icon = $currentOrder === 'ASC' ? '<i class="fa fa-sort-up ml-1"></i>' : '<i class="fa fa-sort-down ml-1"></i>';
+    } else {
+        $icon = '<i class="fa fa-sort text-gray-300 ml-1"></i>';
+    }
+
+    $url = "?section=vehicles&sort=$col&order=$newOrder&search=" . urlencode($search) .
+        "&type=" . urlencode($type) . "&brand=" . urlencode($brand);
+
+    return "<a href='$url' class='text-decoration-none text-dark font-weight-bold'>$label $icon</a>";
+}
 ?>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-dark font-weight-bold">Vehicles</h2>
+        <h2 class="h3 mb-0 text-gray-800">Vehicles Registry</h2>
     </div>
-    <!-- Search, Filter, Sort Form -->
-    <form class="mb-3" method="get" action="">
-        <input type="hidden" name="section" value="vehicles">
-        <div class="row g-2">
-            <div class="col-md-3">
-                <input type="text" name="search" class="form-control" placeholder="Search plate, owner, brand, model"
-                    value="<?= htmlspecialchars($search) ?>">
-            </div>
-            <div class="col-md-2">
-                <select name="type" class="form-select">
-                    <option value="">All Types</option>
-                    <?php foreach ($types as $type): ?>
-                        <option value="<?= htmlspecialchars($type) ?>" <?= $type === $filterType ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($type) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="brand" class="form-select">
-                    <option value="">All Brands</option>
-                    <?php foreach ($brands as $brand): ?>
-                        <option value="<?= htmlspecialchars($brand) ?>" <?= $brand === $filterBrand ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($brand) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="sort" class="form-select">
-                    <option value="v.vehicle_id" <?= $sort === 'v.vehicle_id' ? 'selected' : '' ?>>Sort by ID</option>
-                    <option value="v.plate_number" <?= $sort === 'v.plate_number' ? 'selected' : '' ?>>Sort by Plate
-                    </option>
-                    <option value="m.type" <?= $sort === 'm.type' ? 'selected' : '' ?>>Sort by Type</option>
-                    <option value="m.brand" <?= $sort === 'm.brand' ? 'selected' : '' ?>>Sort by Brand</option>
-                    <option value="m.model" <?= $sort === 'm.model' ? 'selected' : '' ?>>Sort by Model</option>
-                    <option value="v.color" <?= $sort === 'v.color' ? 'selected' : '' ?>>Sort by Color</option>
-                    <option value="u.first_name" <?= $sort === 'u.first_name' ? 'selected' : '' ?>>Sort by Owner</option>
-                    <option value="v.created_at" <?= $sort === 'v.created_at' ? 'selected' : '' ?>>Sort by Created</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <select name="order" class="form-select">
-                    <option value="desc" <?= $order === 'DESC' ? 'selected' : '' ?>>Desc</option>
-                    <option value="asc" <?= $order === 'ASC' ? 'selected' : '' ?>>Asc</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100" type="submit">Apply</button>
-            </div>
+
+    <!-- Filters -->
+    <div class="card mb-4 shadow-sm border-bottom-primary">
+        <div class="card-body py-3">
+            <form method="GET" class="form-inline justify-content-center">
+                <input type="hidden" name="section" value="vehicles">
+
+                <div class="input-group mr-2 mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                    </div>
+                    <input type="text" name="search" class="form-control bg-light border-0 small"
+                        placeholder="Search plate, name..." value="<?= htmlspecialchars($search) ?>">
+                </div>
+
+                <div class="input-group mr-2 mb-2">
+                    <select name="type" class="custom-select custom-select-sm border-0 bg-light">
+                        <option value="">All Types</option>
+                        <?php foreach ($types as $type): ?>
+                            <option value="<?= htmlspecialchars($type) ?>" <?= $type === $filterType ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($type) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="input-group mr-2 mb-2">
+                    <select name="brand" class="custom-select custom-select-sm border-0 bg-light">
+                        <option value="">All Brands</option>
+                        <?php foreach ($brands as $brand): ?>
+                            <option value="<?= htmlspecialchars($brand) ?>" <?= $brand === $filterBrand ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($brand) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-sm btn-primary shadow-sm mb-2">
+                    <i class="fa fa-filter"></i> Apply
+                </button>
+                <?php if ($search || $filterType || $filterBrand): ?>
+                    <a href="?section=vehicles" class="btn btn-sm btn-light ml-2 mb-2 text-danger">
+                        <i class="fa fa-times"></i> Clear
+                    </a>
+                <?php endif; ?>
+            </form>
         </div>
-    </form>
-    <div class="card">
-        <div class="card-body">
+    </div>
+
+    <!-- Vehicles Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body px-0 pt-0 pb-2">
             <div class="table-responsive">
-                <table class="table table-bordered table-striped mt-3">
-                    <thead>
+                <table class="table table-hover align-items-center table-flush" id="dataTable" width="100%"
+                    cellspacing="0">
+                    <thead class="thead-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Plate Number</th>
-                            <th>Type</th>
-                            <th>Brand</th>
-                            <th>Model</th>
-                            <th>Color</th>
-                            <th>Owner</th>
-                            <th>Created At</th>
+                            <th class="pl-4">
+                                <?= sortLinkV('v.vehicle_id', 'ID', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('v.plate_number', 'Plate Number', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('m.type', 'Type', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('m.brand', 'Brand', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('m.model', 'Model', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('v.color', 'Color', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('u.first_name', 'Owner', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
+                            <th><?= sortLinkV('v.created_at', 'Registered', $sort, $order, $search, $filterType, $filterBrand) ?>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if ($result && count($result) > 0): ?>
                             <?php foreach ($result as $row): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($row['vehicle_id']) ?></td>
-                                    <td><?= htmlspecialchars($row['plate_number']) ?></td>
-                                    <td><?= htmlspecialchars($row['type']) ?></td>
+                                    <td class="pl-4 font-weight-bold">#<?= htmlspecialchars($row['vehicle_id']) ?></td>
+                                    <td><span class="badge badge-light border text-dark p-2"
+                                            style="font-family: monospace; font-size: 1rem;"><?= htmlspecialchars($row['plate_number']) ?></span>
+                                    </td>
+                                    <td>
+                                        <?php if (strtolower($row['type']) == 'two_wheeler'): ?>
+                                            <i class="fa fa-motorcycle text-info"></i> Motorcycle
+                                        <?php else: ?>
+                                            <i class="fa fa-car text-primary"></i> Standard
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= htmlspecialchars($row['brand']) ?></td>
                                     <td><?= htmlspecialchars($row['model']) ?></td>
-                                    <td><?= htmlspecialchars($row['color']) ?></td>
-                                    <td><?= htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])) ?></td>
-                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                    <td>
+                                        <span class="badge badge-light border">
+                                            <i class="fa fa-circle"
+                                                style="color: <?= htmlspecialchars($row['color']) ?>; text-shadow: 0 0 2px #000;"></i>
+                                            <?= htmlspecialchars($row['color']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="font-weight-bold text-gray-700">
+                                            <?= htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])) ?></div>
+                                    </td>
+                                    <td class="text-muted small"><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center">No vehicles found.</td>
+                                <td colspan="8" class="text-center py-5 text-gray-500">
+                                    <i class="fa fa-folder-open fa-3x mb-3 text-gray-300"></i><br>
+                                    No vehicles found matching your criteria.
+                                </td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
+
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
+                <nav aria-label="Page navigation" class="mt-4 mb-3">
+                    <ul class="pagination pagination-sm justify-content-center">
                         <?php
                         // Helper to preserve search/filter/sort in links
-                        function buildQuery($overrides = [])
+                        function buildQueryV($overrides = [])
                         {
                             $params = $_GET;
                             foreach ($overrides as $k => $v)
@@ -210,10 +252,10 @@ try {
                         ?>
                         <?php if ($page > 1): ?>
                             <li class="page-item">
-                                <a class="page-link" href="<?= buildQuery(['page' => 1]) ?>">First</a>
+                                <a class="page-link" href="<?= buildQueryV(['page' => 1]) ?>">First</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="<?= buildQuery(['page' => $page - 1]) ?>">Previous</a>
+                                <a class="page-link" href="<?= buildQueryV(['page' => $page - 1]) ?>">Previous</a>
                             </li>
                         <?php endif; ?>
                         <?php
@@ -224,7 +266,7 @@ try {
                         }
                         for ($i = $start; $i <= $end; $i++) {
                             echo '<li class="page-item' . ($i === $page ? ' active' : '') . '">';
-                            echo '<a class="page-link" href="' . buildQuery(['page' => $i]) . '">' . $i . '</a>';
+                            echo '<a class="page-link" href="' . buildQueryV(['page' => $i]) . '">' . $i . '</a>';
                             echo '</li>';
                         }
                         if ($end < $totalPages) {
@@ -233,10 +275,10 @@ try {
                         ?>
                         <?php if ($page < $totalPages): ?>
                             <li class="page-item">
-                                <a class="page-link" href="<?= buildQuery(['page' => $page + 1]) ?>">Next</a>
+                                <a class="page-link" href="<?= buildQueryV(['page' => $page + 1]) ?>">Next</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="<?= buildQuery(['page' => $totalPages]) ?>">Last</a>
+                                <a class="page-link" href="<?= buildQueryV(['page' => $totalPages]) ?>">Last</a>
                             </li>
                         <?php endif; ?>
                     </ul>
