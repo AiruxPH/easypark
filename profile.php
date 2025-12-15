@@ -337,6 +337,11 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
       border-radius: 8px;
     }
 
+    .form-control option {
+      background: #333;
+      color: #fff;
+    }
+
     .form-control:focus {
       background: rgba(255, 255, 255, 0.1);
       border-color: var(--primary-color);
