@@ -17,6 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Configuration:
+    // IMPORTANT: On Hostinger/Live Servers, the 'From' email MUST be an actual email account created on that domain.
+    // Example: if your site is 'easypark.com', this must be 'no-reply@easypark.com' or 'support@easypark.com'.
+    // Using 'gmail.com' or non-existent domains here will cause the email to be blocked.
+    $senderEmail = "no-reply@" . $_SERVER['SERVER_NAME']; // Defines sender as no-reply@yourdomain.com automatically
+    // OR manually set it: $senderEmail = "admin@your-actual-domain.com";
+
     // Admin Email Configuration
     $adminEmail = "randythegreat000@gmail.com";
     $subjectAdmin = "New Contact Us Message from $name";
@@ -26,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "Message:\n$message\n\n" .
         "Date: " . date("Y-m-d H:i:s");
 
-    $headersAdmin = "From: no-reply@easypark.com" . "\r\n" .
+    // Header for Admin Email
+    // 'From' must be the server email. 'Reply-To' is the user's email so you can hit reply.
+    $headersAdmin = "From: EasyPark Site <$senderEmail>" . "\r\n" .
         "Reply-To: $email" . "\r\n" .
         "X-Mailer: PHP/" . phpversion();
 
@@ -38,8 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "Your Message:\n$message\n\n" .
         "Best Regards,\nEasyPark Team";
 
-    $headersUser = "From: no-reply@easypark.com" . "\r\n" .
-        "Reply-To: support@easypark.com" . "\r\n" .
+    // Header for User Email
+    $headersUser = "From: EasyPark Support <$senderEmail>" . "\r\n" .
+        "Reply-To: $adminEmail" . "\r\n" .
         "X-Mailer: PHP/" . phpversion();
 
     // Send Emails
@@ -47,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Attempt to send user acknowledgement even if admin mail fails, or depeding on logic.
     // Usually strict logic requires admin notification first.
-    $sentUser = false;
     if ($sentAdmin) {
         $sentUser = mail($email, $subjectUser, $bodyUser, $headersUser);
         echo json_encode(['status' => 'success', 'message' => 'Message sent successfully! Check your email for confirmation.']);
