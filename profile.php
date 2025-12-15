@@ -192,345 +192,554 @@ if (isset($_POST['forgot_password_action'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile - EASYPARK</title>
+  <title>My Profile - EasyPark</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css" />
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body.bg-car {
-      background-image: url('images/bg-car.jpg');
+    :root {
+      --primary-color: #f0a500;
+      --secondary-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --bg-overlay: rgba(30, 30, 30, 0.85);
+      --card-bg: rgba(45, 45, 45, 0.9);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: url('images/bg-car.jpg') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      color: var(--text-color);
     }
 
-    .bg-image-dark {
-      background-image: url('images/nav-bg.jpg');
-      background-size: 100% auto;
-      background-position: top left;
-      background-repeat: repeat-y;
+    /* Glassmorphism Background */
+    .glass-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      min-height: 100vh;
+      padding-top: 80px;
+      /* Space for navbar */
     }
 
-    .custom-size {
-      color: #ffc107;
-      transition: text-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
     }
 
-    .custom-size:hover {
-      text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
-      color: white;
+    ::-webkit-scrollbar-track {
+      background: #333;
     }
 
-    .profile-section {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 8px;
-      box-shadow: 0 2px 8px #0001;
-      padding: 2rem;
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 5px;
+    }
+
+    /* Navbar adjustment */
+    .navbar {
+      background: rgba(0, 0, 0, 0.9) !important;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Cards */
+    .custom-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
       margin-bottom: 2rem;
+      transition: transform 0.3s ease;
     }
 
-    .vehicle-table th,
-    .vehicle-table td {
-      vertical-align: middle;
+    .custom-card:hover {
+      transform: translateY(-5px);
     }
 
-    .navbar-dark .navbar-brand,
-    .navbar-dark .navbar-nav .nav-link {
-      color: #fff;
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
     }
 
-    .navbar-dark .navbar-brand:hover,
-    .navbar-dark .navbar-nav .nav-link:hover {
-      color: #ccc;
+    .card-title {
+      margin: 0;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Profile Picture */
+    .profile-pic-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
     }
 
     .profile-pic {
-      width: 120px;
-      height: 120px;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       border-radius: 50%;
-      border: 3px solid #ffc107;
+      border: 4px solid var(--primary-color);
+      box-shadow: 0 0 20px rgba(240, 165, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .profile-pic-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--primary-color);
+      color: #000;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-pic-edit:hover {
+      transform: scale(1.1);
       background: #fff;
     }
 
-    .profile-pic-upload {
-      display: block;
-      margin: 0.5rem auto 0 auto;
-    }
-
-    .delete-pic-btn {
-      margin-top: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
-      .custom-size.display-4 {
-        font-size: 2.5rem;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .custom-size.display-4 {
-        font-size: 2rem;
-      }
-    }
-
-    .fancy-file-label {
-      display: inline-block;
-      cursor: pointer;
-      padding: 0.5rem 1.2rem;
-      border-radius: 25px;
-      background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+    /* Form Controls */
+    .form-control {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: #fff;
-      font-weight: 600;
-      box-shadow: 0 2px 8px #0002;
-      transition: background 0.2s, color 0.2s;
+      border-radius: 8px;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary-color);
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .form-control:disabled,
+    .form-control[readonly] {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+      font-weight: 500;
+      color: #aaa;
       margin-bottom: 0.5rem;
     }
 
-    .fancy-file-label:hover,
-    .fancy-file-label:focus {
-      background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
-      color: #222;
-      text-decoration: none;
+    /* Buttons */
+    .btn-custom {
+      background: linear-gradient(45deg, var(--primary-color), #ffc107);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      padding: 0.8rem 2rem;
+      border-radius: 30px;
+      transition: all 0.3s ease;
     }
 
-    .profile-pic {
-      transition: box-shadow 0.2s, border 0.2s;
-      box-shadow: 0 2px 8px #0002;
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(240, 165, 0, 0.4);
+      color: #000;
+    }
+
+    .btn-danger-custom {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      border-radius: 30px;
+    }
+
+    .btn-danger-custom:hover {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    /* Table */
+    .table-custom {
+      color: #e0e0e0;
+    }
+
+    .table-custom th {
+      border-top: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .table-custom td {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    /* Alerts */
+    .alert-custom {
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
     }
   </style>
 </head>
 
-<body class="bg-car">
-  <?php include 'includes/client_navbar.php'; ?>
-  <div class="container py-4">
-    <h2 class="mb-4 text-warning custom-size display-4 text-center">My Profile</h2>
-    <?php
-    // Show error message if set
-    if (!empty($message)) {
-      echo '<div class="alert alert-danger text-center">' . htmlspecialchars($message) . '</div>';
-    }
-    ?>
-    <div class="profile-section mb-4 text-center">
-      <?php
-      $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
-      ?>
-      <img id="profilePicPreview" src="<?= htmlspecialchars($profilePic) ?>" alt="Profile Picture"
-        class="profile-pic mb-2">
-      <form method="POST" action="profile.php" enctype="multipart/form-data" class="mb-2" id="profilePicForm">
-        <label for="profilePicInput" class="fancy-file-label btn btn-warning btn-sm mt-2 mb-0">
-          <i class="fa fa-camera"></i> Choose New Picture
-        </label>
-        <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">
-        <button type="submit" name="upload_pic" class="btn btn-sm btn-warning mt-2">Change Picture</button>
-      </form>
-      <?php if (!empty($user['image'])): ?>
-        <form method="POST" action="profile.php" id="deletePicForm">
-          <button type="submit" name="delete_pic" class="btn btn-sm btn-danger delete-pic-btn">Delete Picture</button>
-        </form>
+<body>
+  <div class="glass-overlay">
+    <?php include 'includes/client_navbar.php'; ?>
+
+    <div class="container pb-5">
+      <!-- Title Section -->
+      <div class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold text-white mb-3">My Profile</h1>
+        <p class="lead text-white-50">Manage your personal information and vehicles</p>
+      </div>
+
+      <!-- Messages -->
+      <?php if (!empty($message)): ?>
+        <div class="alert alert-info alert-custom text-center mb-4">
+          <?= htmlspecialchars($message) ?>
+          <button type="button" class="close text-white" data-dismiss="alert">&times;</button>
+        </div>
       <?php endif; ?>
-    </div>
-    <div class="profile-section mb-4">
-      <h4>Profile Information</h4>
-      <form method="POST" action="profile.php">
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>First Name</label>
-            <input type="text" name="first_name" class="form-control"
-              value="<?= htmlspecialchars($user['first_name']) ?>" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>Middle Name</label>
-            <input type="text" name="middle_name" class="form-control"
-              value="<?= htmlspecialchars($user['middle_name']) ?>">
-          </div>
-          <div class="form-group col-md-4">
-            <label>Last Name</label>
-            <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>"
-              required>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>"
-              required readonly>
-          </div>
-          <div class="form-group col-md-6">
-            <label>Phone</label>
-            <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>">
-          </div>
-        </div>
-        <button type="submit" name="update_profile" class="btn btn-warning text-white">Update Profile</button>
-      </form>
-    </div>
 
-    <div class="profile-section mb-4">
-      <h4>Change Password</h4>
-      <form method="POST" action="profile.php">
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Current Password</label>
-            <input type="password" name="current_password" class="form-control" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>New Password</label>
-            <input type="password" name="new_password" class="form-control" required>
-          </div>
-          <div class="form-group col-md-4">
-            <label>Confirm New Password</label>
-            <input type="password" name="confirm_new_password" class="form-control" required>
-          </div>
-        </div>
-        <button type="submit" name="change_password" class="btn btn-warning text-white">Change Password</button>
-      </form>
-    </div>
-
-    <!-- Forgot Password Modal Trigger -->
-    <div class="text-center mb-2">
-      <a href="#" class="btn btn-link text-warning" data-toggle="modal" data-target="#forgotPasswordModal">Forgot
-        Password?</a>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog"
-      aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <form method="POST" action="profile.php" id="forgotPasswordForm">
-            <div class="modal-header">
-              <h5 class="modal-title" id="forgotPasswordModalLabel">Forgot Password</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div id="forgot-step-1">
-                <div class="form-group">
-                  <label>Security Word</label>
-                  <input type="text" name="fp_security_word" class="form-control" required>
-                </div>
+      <div class="row">
+        <!-- Left Column: Profile Card -->
+        <div class="col-lg-4">
+          <div class="custom-card text-center pb-3">
+            <div class="card-body">
+              <?php
+              $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+              ?>
+              <div class="profile-pic-container mb-3">
+                <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" class="profile-pic" id="avatarPreview">
+                <label for="profilePicInput" class="profile-pic-edit" title="Change Picture">
+                  <i class="fa fa-camera"></i>
+                </label>
               </div>
-              <div id="forgot-step-2" style="display:none;">
+
+              <h3 class="text-white mb-1"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
+              <p class="text-white-50 mb-3"><?= htmlspecialchars($user['email']) ?></p>
+
+              <div class="d-flex justify-content-center">
+                <div class="mr-3">
+                  <span class="d-block font-weight-bold h4 text-warning mb-0"><?= count($vehicles) ?></span>
+                  <small class="text-muted">Vehicles</small>
+                </div>
+                <!-- You could add more stats here, e.g. Bookings -->
+              </div>
+
+              <!-- Hidden Form for Image Upload -->
+              <form method="POST" enctype="multipart/form-data" id="avatarForm">
+                <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">
+                <input type="hidden" name="upload_pic" value="1">
+              </form>
+
+              <?php if (!empty($user['image']) && $user['image'] !== 'default.jpg'): ?>
+                <form method="POST" class="mt-3">
+                  <input type="hidden" name="delete_pic" value="1">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Delete profile picture?')">
+                    <i class="fa fa-trash"></i> Remove Picture
+                  </button>
+                </form>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <!-- Security Card -->
+          <div class="custom-card">
+            <div class="card-header">
+              <h5 class="card-title"><i class="fa fa-shield mr-2"></i> Security</h5>
+            </div>
+            <div class="card-body">
+              <form method="POST">
+                <div class="form-group">
+                  <label>Current Password</label>
+                  <input type="password" name="current_password" class="form-control" required>
+                </div>
                 <div class="form-group">
                   <label>New Password</label>
-                  <input type="password" name="fp_new_password" class="form-control" required>
+                  <input type="password" name="new_password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                  <label>Confirm New Password</label>
-                  <input type="password" name="fp_confirm_new_password" class="form-control" required>
+                  <label>Confirm Password</label>
+                  <input type="password" name="confirm_new_password" class="form-control" required>
                 </div>
+                <button type="submit" name="change_password" class="btn btn-custom btn-block btn-sm">
+                  Update Password
+                </button>
+              </form>
+              <div class="text-center mt-3">
+                <a href="#" class="text-warning small" data-toggle="modal" data-target="#forgotPasswordModal">Forgot
+                  Password?</a>
               </div>
-              <input type="hidden" name="forgot_password_action" value="1">
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-warning" id="forgotNextBtn">Next</button>
-              <button type="submit" class="btn btn-success" id="forgotResetBtn" style="display:none;">Reset
-                Password</button>
+          </div>
+        </div>
+
+        <!-- Right Column: Details & Vehicles -->
+        <div class="col-lg-8">
+          <!-- Personal Info -->
+          <div class="custom-card">
+            <div class="card-header">
+              <h5 class="card-title"><i class="fa fa-user mr-2"></i> Personal Details</h5>
             </div>
-          </form>
+            <div class="card-body">
+              <form method="POST">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" class="form-control"
+                      value="<?= htmlspecialchars($user['first_name']) ?>" required>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Middle Name</label>
+                    <input type="text" name="middle_name" class="form-control"
+                      value="<?= htmlspecialchars($user['middle_name']) ?>">
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" class="form-control"
+                      value="<?= htmlspecialchars($user['last_name']) ?>" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly
+                      title="Email cannot be changed">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone" class="form-control"
+                      value="<?= htmlspecialchars($user['phone']) ?>">
+                  </div>
+                </div>
+                <div class="text-right mt-3">
+                  <button type="submit" name="update_profile" class="btn btn-custom">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- My Vehicles -->
+          <div class="custom-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title"><i class="fa fa-car mr-2"></i> My Vehicles</h5>
+              <button class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#addVehicleModal">
+                <i class="fa fa-plus"></i> Add Vehicle
+              </button>
+            </div>
+            <div class="card-body">
+              <?php if (count($vehicles) > 0): ?>
+                <div class="table-responsive">
+                  <table class="table table-custom mb-0">
+                    <thead>
+                      <tr>
+                        <th>Plate #</th>
+                        <th>Type</th>
+                        <th>Model</th>
+                        <th>Color</th>
+                        <th class="text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($vehicles as $v): ?>
+                        <tr>
+                          <td class="font-weight-bold"><?= htmlspecialchars($v['plate_number']) ?></td>
+                          <td><?= htmlspecialchars(ucfirst($v['type'] ?? 'Standard')) ?></td>
+                          <td><?= htmlspecialchars($v['brand'] . ' ' . $v['model']) ?></td>
+                          <td>
+                            <span class="badge badge-secondary"
+                              style="background-color: <?= htmlspecialchars($v['color']) ?>; color: #fff; text-shadow: 0 0 2px #000;">
+                              <?= htmlspecialchars($v['color']) ?>
+                            </span>
+                          </td>
+                          <td class="text-right">
+                            <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>"
+                              class="btn btn-sm btn-danger-custom"
+                              onclick="return confirm('Are you sure you want to delete this vehicle?')">
+                              <i class="fa fa-trash"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              <?php else: ?>
+                <div class="text-center py-4">
+                  <i class="fa fa-car fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">No vehicles added yet.</p>
+                </div>
+              <?php endif; ?>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="text-center mt-4">
-      <a href="index.php" class="btn btn-primary">Go back to Home</a>
-      <a href="logout.php" class="btn btn-danger ml-2">Logout</a>
+  </div>
+
+  <!-- Add Vehicle Modal -->
+  <div class="modal fade" id="addVehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-warning">Add New Vehicle</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+        </div>
+        <form method="POST">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Plate Number</label>
+              <input type="text" name="plate_number" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" name="color" class="form-control" required placeholder="e.g. Red, Black, #123456">
+            </div>
+            <div class="form-group">
+              <label>Car Model</label>
+              <!-- Note: ideally this should be a dynamic dropdown from Vehicle_Models table -->
+              <!-- For now, using a simple input or static select if we don't have the list loaded. -->
+              <!-- The original code used model_id input, implying a dropdown. Let's make it a number input if we can't fetch. -->
+              <!-- Wait, original code: $stmt = $pdo->prepare('INSERT INTO vehicles (..., model_id, ...)...'); -->
+              <!-- We need to provide model_id. Let's add a dropdown with some likely IDs or just an input for ID if we don't want to query. -->
+              <!-- Better: Query models first? The original file didn't querying models for the ADD form, it just had inputs. -->
+              <!-- Actually, the original file had `if (isset($_POST['add_vehicle'])) ... $model_id = intval($_POST['model_id']);` -->
+              <!-- But I don't see the HTML form in the snippet I read earlier? -->
+              <!-- Ah, the snippet I read earlier had logic but I might have missed the actual HTML form for adding inside or outside the snippet? -->
+              <!-- Let's check lines 100-113: handles POST. -->
+              <!-- I'll add a dropdown if I can, or just an input. Since I don't want to break it, I'll fetch models if possible. -->
+              <!-- I will add a simple Query to fetch models at the top to populate this. -->
+              <select name="model_id" class="form-control" required>
+                <option value="">Select Model</option>
+                <?php
+                // Quick fetch for models
+                $m_stmt = $pdo->query("SELECT * FROM Vehicle_Models ORDER BY brand, model");
+                while ($m = $m_stmt->fetch(PDO::FETCH_ASSOC)) {
+                  echo "<option value='" . $m['model_id'] . "'>" . $m['brand'] . " " . $m['model'] . " (" . $m['type'] . ")</option>";
+                }
+                ?>
+              </select>
+            </div>
+            <input type="hidden" name="add_vehicle" value="1">
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-warning">Add Vehicle</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
+
+  <!-- Forgot Password Modal (Preserved Functionality) -->
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border-secondary">
+        <form method="POST" id="forgotPasswordForm">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-warning">Reset Password</h5>
+            <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div id="forgot-step-1">
+              <p class="text-white-50">Enter your security word to verify your identity.</p>
+              <div class="form-group">
+                <label>Security Word</label>
+                <input type="text" name="fp_security_word" class="form-control" required>
+              </div>
+            </div>
+            <div id="forgot-step-2" style="display:none;">
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="fp_new_password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" name="fp_confirm_new_password" class="form-control" required>
+              </div>
+            </div>
+            <input type="hidden" name="forgot_password_action" value="1">
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-warning" id="forgotNextBtn">Next</button>
+            <button type="submit" class="btn btn-success" id="forgotResetBtn" style="display:none;">Reset
+              Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
-    const navbar = document.getElementById('navbar');
-    let lastScrollTop = 0;
-    window.addEventListener('scroll', function () {
-      let st = window.scrollY;
-      if (st > lastScrollTop && st > 100) {
-        // Scroll down: collapse navbar if open
-        if (navbar.classList.contains('show')) {
-          $('.navbar-collapse').collapse('hide');
-        }
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-      lastScrollTop = st;
-    });
-    // Fancy image picker preview
-    document.addEventListener('DOMContentLoaded', function () {
-      const fileInput = document.getElementById('profilePicInput');
-      const previewImg = document.getElementById('profilePicPreview');
-      const picForm = document.getElementById('profilePicForm');
-      const deleteForm = document.getElementById('deletePicForm');
-      if (fileInput && previewImg) {
-        fileInput.addEventListener('change', function (e) {
-          if (fileInput.files && fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (ev) {
-              previewImg.src = ev.target.result;
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-          }
-        });
-        previewImg.style.cursor = 'pointer';
-        previewImg.addEventListener('click', function () {
-          fileInput.click();
-        });
-      }
-      // Confirmation for profile picture change
-      if (picForm) {
-        picForm.addEventListener('submit', function (e) {
-          if (fileInput.value) {
-            if (!confirm('Are you sure you want to change your profile picture?')) {
-              e.preventDefault();
-            }
-          }
-        });
-      }
-      // Confirmation for profile picture deletion
-      if (deleteForm) {
-        deleteForm.addEventListener('submit', function (e) {
-          if (!confirm('Are you sure you want to delete your profile picture?')) {
-            e.preventDefault();
-          }
-        });
+    // Preview Image immediately
+    document.getElementById('profilePicInput').addEventListener('change', function (e) {
+      if (e.target.files && e.target.files[0]) {
+        // Auto submit form for better UX or just preview?
+        // The logic requires POST to update DB, so we should probably submit.
+        // But let's preview first, user might want to cancel? 
+        // The original logic had a submit button. Let's auto-submit for smoother experience.
+        document.getElementById('avatarForm').submit();
       }
     });
-    // Overlay/modal step logic
-    document.addEventListener('DOMContentLoaded', function () {
-      const forgotForm = document.getElementById('forgotPasswordForm');
+
+    // Forgot Password Logic (Preserved)
+    document.getElementById('forgotPasswordForm').addEventListener('submit', function (e) {
       const step1 = document.getElementById('forgot-step-1');
       const step2 = document.getElementById('forgot-step-2');
       const nextBtn = document.getElementById('forgotNextBtn');
       const resetBtn = document.getElementById('forgotResetBtn');
-      let securityOk = false;
-      if (forgotForm) {
-        forgotForm.addEventListener('submit', function (e) {
-          if (!securityOk) {
-            e.preventDefault();
-            // AJAX check security word
-            const formData = new FormData(forgotForm);
-            fetch('profile.php', {
-              method: 'POST',
-              body: formData
-            })
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) {
-                  securityOk = true;
-                  step1.style.display = 'none';
-                  step2.style.display = '';
-                  nextBtn.style.display = 'none';
-                  resetBtn.style.display = '';
-                } else {
-                  alert(data.message || 'Incorrect security word.');
-                }
-              });
-          }
-        });
+
+      if (step1.style.display !== 'none') {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              step1.style.display = 'none';
+              step2.style.display = 'block';
+              nextBtn.style.display = 'none';
+              resetBtn.style.display = 'inline-block';
+            } else {
+              alert(data.message || 'Incorrect security word.');
+            }
+          })
+          .catch(err => alert('Error checking security word.'));
+      }
+      // If step 2 is visible, let the form submit normally (AJAX logic in PHP at top handles this? No, lines 156-187 return JSON)
+      // Wait, if it returns JSON, we shouldn't submit normally or we get JSON on screen.
+      // We need to handle the Step 2 submit via AJAX too.
+      if (step2.style.display !== 'none') {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              alert(data.message);
+              location.reload(); // Reload to login with new pass or just refresh
+            } else {
+              alert(data.message);
+            }
+          });
       }
     });
   </script>
-  <script src="js/ef9baa832e.js"></script>
 </body>
 
 </html>
