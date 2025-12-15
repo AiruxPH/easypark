@@ -20,7 +20,7 @@ $user_id = $_SESSION['user_id'];
 // Fetch user info
 $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Fetch user's vehicles with brand, model, and type from Vehicle_Models
 $stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.user_id = ?');
@@ -56,8 +56,8 @@ if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['pro
     $targetPath = 'images/' . $newName;
     if (move_uploaded_file($fileTmp, $targetPath)) {
       // Remove old pic if not default
-      if (!empty($user['image']) && $user['image'] !== 'default.jpg' && file_exists('images/' . $user['image'])) {
-        unlink('images/' . $user['image']);
+      if (!empty($userData['image']) && $userData['image'] !== 'default.jpg' && file_exists('images/' . $userData['image'])) {
+        unlink('images/' . $userData['image']);
       }
       $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
       $stmt->execute([$newName, $user_id]);
@@ -72,8 +72,8 @@ if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['pro
 }
 // Handle profile picture delete
 if (isset($_POST['delete_pic'])) {
-  if (!empty($user['image']) && $user['image'] !== 'default.jpg' && file_exists('images/' . $user['image'])) {
-    unlink('images/' . $user['image']);
+  if (!empty($userData['image']) && $userData['image'] !== 'default.jpg' && file_exists('images/' . $userData['image'])) {
+    unlink('images/' . $userData['image']);
   }
   $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
   $stmt->execute([$user_id]);
@@ -424,7 +424,7 @@ if (isset($_POST['forgot_password_action'])) {
         <div class="custom-card text-center pb-3">
           <div class="card-body">
             <?php
-            $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+            $profilePic = (!empty($userData['image']) && file_exists('images/' . $userData['image'])) ? 'images/' . $userData['image'] : 'images/default.jpg';
             ?>
             <div class="profile-pic-container mb-3">
               <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" class="profile-pic" id="avatarPreview">
@@ -433,8 +433,9 @@ if (isset($_POST['forgot_password_action'])) {
               </label>
             </div>
 
-            <h3 class="text-white mb-1"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
-            <p class="text-white-50 mb-3"><?= htmlspecialchars($user['email']) ?></p>
+            <h3 class="text-white mb-1"><?= htmlspecialchars($userData['first_name'] . ' ' . $userData['last_name']) ?>
+            </h3>
+            <p class="text-white-50 mb-3"><?= htmlspecialchars($userData['email']) ?></p>
 
             <div class="d-flex justify-content-center">
               <div class="mr-3">
@@ -450,7 +451,7 @@ if (isset($_POST['forgot_password_action'])) {
               <input type="hidden" name="upload_pic" value="1">
             </form>
 
-            <?php if (!empty($user['image']) && $user['image'] !== 'default.jpg'): ?>
+            <?php if (!empty($userData['image']) && $userData['image'] !== 'default.jpg'): ?>
               <form method="POST" class="mt-3">
                 <input type="hidden" name="delete_pic" value="1">
                 <button type="submit" class="btn btn-sm btn-outline-danger"
