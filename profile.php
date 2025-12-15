@@ -507,28 +507,29 @@ if (isset($_POST['forgot_password_action'])) {
                 <div class="form-group col-md-4">
                   <label>First Name</label>
                   <input type="text" name="first_name" class="form-control"
-                    value="<?= htmlspecialchars($user['first_name']) ?>" required>
+                    value="<?= htmlspecialchars($userData['first_name']) ?>" required>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Middle Name</label>
                   <input type="text" name="middle_name" class="form-control"
-                    value="<?= htmlspecialchars($user['middle_name']) ?>">
+                    value="<?= htmlspecialchars($userData['middle_name']) ?>">
                 </div>
                 <div class="form-group col-md-4">
                   <label>Last Name</label>
                   <input type="text" name="last_name" class="form-control"
-                    value="<?= htmlspecialchars($user['last_name']) ?>" required>
+                    value="<?= htmlspecialchars($userData['last_name']) ?>" required>
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">
                   <label>Email Address</label>
-                  <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly
+                  <input type="email" class="form-control" value="<?= htmlspecialchars($userData['email']) ?>" readonly
                     title="Email cannot be changed">
                 </div>
                 <div class="form-group col-md-6">
                   <label>Phone Number</label>
-                  <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>">
+                  <input type="text" name="phone" class="form-control"
+                    value="<?= htmlspecialchars($userData['phone']) ?>">
                 </div>
               </div>
               <div class="text-right mt-3">
