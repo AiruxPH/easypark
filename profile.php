@@ -213,12 +213,15 @@ if (isset($_POST['forgot_password_action'])) {
       color: var(--text-color);
     }
 
-    /* Glassmorphism Background */
+    /* Fixed Glass Fixed Overlay */
     .glass-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0, 0, 0, 0.7);
-      min-height: 100vh;
-      padding-top: 80px;
-      /* Space for navbar */
+      z-index: -1;
     }
 
     /* Scrollbar */
@@ -393,196 +396,199 @@ if (isset($_POST['forgot_password_action'])) {
 </head>
 
 <body>
-  <div class="glass-overlay">
-    <?php include 'includes/client_navbar.php'; ?>
+  <!-- Fixed Background Overlay -->
+  <div class="glass-overlay"></div>
 
-    <div class="container pb-5">
-      <!-- Title Section -->
-      <div class="text-center mb-5">
-        <h1 class="display-4 font-weight-bold text-white mb-3">My Profile</h1>
-        <p class="lead text-white-50">Manage your personal information and vehicles</p>
+  <!-- Navbar -->
+  <?php include 'includes/client_navbar.php'; ?>
+
+  <!-- Content -->
+  <div class="container pb-5 pt-5">
+    <!-- Title Section -->
+    <div class="text-center mb-5">
+      <h1 class="display-4 font-weight-bold text-white mb-3">My Profile</h1>
+      <p class="lead text-white-50">Manage your personal information and vehicles</p>
+    </div>
+
+    <!-- Messages -->
+    <?php if (!empty($message)): ?>
+      <div class="alert alert-info alert-custom text-center mb-4">
+        <?= htmlspecialchars($message) ?>
+        <button type="button" class="close text-white" data-dismiss="alert">&times;</button>
       </div>
+    <?php endif; ?>
 
-      <!-- Messages -->
-      <?php if (!empty($message)): ?>
-        <div class="alert alert-info alert-custom text-center mb-4">
-          <?= htmlspecialchars($message) ?>
-          <button type="button" class="close text-white" data-dismiss="alert">&times;</button>
-        </div>
-      <?php endif; ?>
-
-      <div class="row">
-        <!-- Left Column: Profile Card -->
-        <div class="col-lg-4">
-          <div class="custom-card text-center pb-3">
-            <div class="card-body">
-              <?php
-              $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
-              ?>
-              <div class="profile-pic-container mb-3">
-                <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" class="profile-pic" id="avatarPreview">
-                <label for="profilePicInput" class="profile-pic-edit" title="Change Picture">
-                  <i class="fa fa-camera"></i>
-                </label>
-              </div>
-
-              <h3 class="text-white mb-1"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
-              <p class="text-white-50 mb-3"><?= htmlspecialchars($user['email']) ?></p>
-
-              <div class="d-flex justify-content-center">
-                <div class="mr-3">
-                  <span class="d-block font-weight-bold h4 text-warning mb-0"><?= count($vehicles) ?></span>
-                  <small class="text-muted">Vehicles</small>
-                </div>
-                <!-- You could add more stats here, e.g. Bookings -->
-              </div>
-
-              <!-- Hidden Form for Image Upload -->
-              <form method="POST" enctype="multipart/form-data" id="avatarForm">
-                <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">
-                <input type="hidden" name="upload_pic" value="1">
-              </form>
-
-              <?php if (!empty($user['image']) && $user['image'] !== 'default.jpg'): ?>
-                <form method="POST" class="mt-3">
-                  <input type="hidden" name="delete_pic" value="1">
-                  <button type="submit" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('Delete profile picture?')">
-                    <i class="fa fa-trash"></i> Remove Picture
-                  </button>
-                </form>
-              <?php endif; ?>
+    <div class="row">
+      <!-- Left Column: Profile Card -->
+      <div class="col-lg-4">
+        <div class="custom-card text-center pb-3">
+          <div class="card-body">
+            <?php
+            $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+            ?>
+            <div class="profile-pic-container mb-3">
+              <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile" class="profile-pic" id="avatarPreview">
+              <label for="profilePicInput" class="profile-pic-edit" title="Change Picture">
+                <i class="fa fa-camera"></i>
+              </label>
             </div>
-          </div>
 
-          <!-- Security Card -->
-          <div class="custom-card">
-            <div class="card-header">
-              <h5 class="card-title"><i class="fa fa-shield mr-2"></i> Security</h5>
+            <h3 class="text-white mb-1"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h3>
+            <p class="text-white-50 mb-3"><?= htmlspecialchars($user['email']) ?></p>
+
+            <div class="d-flex justify-content-center">
+              <div class="mr-3">
+                <span class="d-block font-weight-bold h4 text-warning mb-0"><?= count($vehicles) ?></span>
+                <small class="text-muted">Vehicles</small>
+              </div>
+              <!-- You could add more stats here, e.g. Bookings -->
             </div>
-            <div class="card-body">
-              <form method="POST">
-                <div class="form-group">
-                  <label>Current Password</label>
-                  <input type="password" name="current_password" class="form-control" required>
-                </div>
-                <div class="form-group">
-                  <label>New Password</label>
-                  <input type="password" name="new_password" class="form-control" required>
-                </div>
-                <div class="form-group">
-                  <label>Confirm Password</label>
-                  <input type="password" name="confirm_new_password" class="form-control" required>
-                </div>
-                <button type="submit" name="change_password" class="btn btn-custom btn-block btn-sm">
-                  Update Password
+
+            <!-- Hidden Form for Image Upload -->
+            <form method="POST" enctype="multipart/form-data" id="avatarForm">
+              <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">
+              <input type="hidden" name="upload_pic" value="1">
+            </form>
+
+            <?php if (!empty($user['image']) && $user['image'] !== 'default.jpg'): ?>
+              <form method="POST" class="mt-3">
+                <input type="hidden" name="delete_pic" value="1">
+                <button type="submit" class="btn btn-sm btn-outline-danger"
+                  onclick="return confirm('Delete profile picture?')">
+                  <i class="fa fa-trash"></i> Remove Picture
                 </button>
               </form>
-              <div class="text-center mt-3">
-                <a href="#" class="text-warning small" data-toggle="modal" data-target="#forgotPasswordModal">Forgot
-                  Password?</a>
-              </div>
-            </div>
+            <?php endif; ?>
           </div>
         </div>
 
-        <!-- Right Column: Details & Vehicles -->
-        <div class="col-lg-8">
-          <!-- Personal Info -->
-          <div class="custom-card">
-            <div class="card-header">
-              <h5 class="card-title"><i class="fa fa-user mr-2"></i> Personal Details</h5>
-            </div>
-            <div class="card-body">
-              <form method="POST">
-                <div class="form-row">
-                  <div class="form-group col-md-4">
-                    <label>First Name</label>
-                    <input type="text" name="first_name" class="form-control"
-                      value="<?= htmlspecialchars($user['first_name']) ?>" required>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label>Middle Name</label>
-                    <input type="text" name="middle_name" class="form-control"
-                      value="<?= htmlspecialchars($user['middle_name']) ?>">
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label>Last Name</label>
-                    <input type="text" name="last_name" class="form-control"
-                      value="<?= htmlspecialchars($user['last_name']) ?>" required>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Email Address</label>
-                    <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly
-                      title="Email cannot be changed">
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label>Phone Number</label>
-                    <input type="text" name="phone" class="form-control"
-                      value="<?= htmlspecialchars($user['phone']) ?>">
-                  </div>
-                </div>
-                <div class="text-right mt-3">
-                  <button type="submit" name="update_profile" class="btn btn-custom">Save Changes</button>
-                </div>
-              </form>
+        <!-- Security Card -->
+        <div class="custom-card">
+          <div class="card-header">
+            <h5 class="card-title"><i class="fa fa-shield mr-2"></i> Security</h5>
+          </div>
+          <div class="card-body">
+            <form method="POST">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="current_password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_new_password" class="form-control" required>
+              </div>
+              <button type="submit" name="change_password" class="btn btn-custom btn-block btn-sm">
+                Update Password
+              </button>
+            </form>
+            <div class="text-center mt-3">
+              <a href="#" class="text-warning small" data-toggle="modal" data-target="#forgotPasswordModal">Forgot
+                Password?</a>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- My Vehicles -->
-          <div class="custom-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-title"><i class="fa fa-car mr-2"></i> My Vehicles</h5>
-              <button class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#addVehicleModal">
-                <i class="fa fa-plus"></i> Add Vehicle
-              </button>
-            </div>
-            <div class="card-body">
-              <?php if (count($vehicles) > 0): ?>
-                <div class="table-responsive">
-                  <table class="table table-custom mb-0">
-                    <thead>
+      <!-- Right Column: Details & Vehicles -->
+      <div class="col-lg-8">
+        <!-- Personal Info -->
+        <div class="custom-card">
+          <div class="card-header">
+            <h5 class="card-title"><i class="fa fa-user mr-2"></i> Personal Details</h5>
+          </div>
+          <div class="card-body">
+            <form method="POST">
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>First Name</label>
+                  <input type="text" name="first_name" class="form-control"
+                    value="<?= htmlspecialchars($user['first_name']) ?>" required>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Middle Name</label>
+                  <input type="text" name="middle_name" class="form-control"
+                    value="<?= htmlspecialchars($user['middle_name']) ?>">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Last Name</label>
+                  <input type="text" name="last_name" class="form-control"
+                    value="<?= htmlspecialchars($user['last_name']) ?>" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Email Address</label>
+                  <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly
+                    title="Email cannot be changed">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Phone Number</label>
+                  <input type="text" name="phone" class="form-control"
+                    value="<?= htmlspecialchars($user['phone']) ?>">
+                </div>
+              </div>
+              <div class="text-right mt-3">
+                <button type="submit" name="update_profile" class="btn btn-custom">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- My Vehicles -->
+        <div class="custom-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title"><i class="fa fa-car mr-2"></i> My Vehicles</h5>
+            <button class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#addVehicleModal">
+              <i class="fa fa-plus"></i> Add Vehicle
+            </button>
+          </div>
+          <div class="card-body">
+            <?php if (count($vehicles) > 0): ?>
+              <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                  <thead>
+                    <tr>
+                      <th>Plate #</th>
+                      <th>Type</th>
+                      <th>Model</th>
+                      <th>Color</th>
+                      <th class="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php foreach ($vehicles as $v): ?>
                       <tr>
-                        <th>Plate #</th>
-                        <th>Type</th>
-                        <th>Model</th>
-                        <th>Color</th>
-                        <th class="text-right">Actions</th>
+                        <td class="font-weight-bold"><?= htmlspecialchars($v['plate_number']) ?></td>
+                        <td><?= htmlspecialchars(ucfirst($v['type'] ?? 'Standard')) ?></td>
+                        <td><?= htmlspecialchars($v['brand'] . ' ' . $v['model']) ?></td>
+                        <td>
+                          <span class="badge badge-secondary"
+                            style="background-color: <?= htmlspecialchars($v['color']) ?>; color: #fff; text-shadow: 0 0 2px #000;">
+                            <?= htmlspecialchars($v['color']) ?>
+                          </span>
+                        </td>
+                        <td class="text-right">
+                          <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>"
+                            class="btn btn-sm btn-danger-custom"
+                            onclick="return confirm('Are you sure you want to delete this vehicle?')">
+                            <i class="fa fa-trash"></i>
+                          </a>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      <?php foreach ($vehicles as $v): ?>
-                        <tr>
-                          <td class="font-weight-bold"><?= htmlspecialchars($v['plate_number']) ?></td>
-                          <td><?= htmlspecialchars(ucfirst($v['type'] ?? 'Standard')) ?></td>
-                          <td><?= htmlspecialchars($v['brand'] . ' ' . $v['model']) ?></td>
-                          <td>
-                            <span class="badge badge-secondary"
-                              style="background-color: <?= htmlspecialchars($v['color']) ?>; color: #fff; text-shadow: 0 0 2px #000;">
-                              <?= htmlspecialchars($v['color']) ?>
-                            </span>
-                          </td>
-                          <td class="text-right">
-                            <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>"
-                              class="btn btn-sm btn-danger-custom"
-                              onclick="return confirm('Are you sure you want to delete this vehicle?')">
-                              <i class="fa fa-trash"></i>
-                            </a>
-                          </td>
-                        </tr>
-                      <?php endforeach; ?>
-                    </tbody>
-                  </table>
-                </div>
-              <?php else: ?>
-                <div class="text-center py-4">
-                  <i class="fa fa-car fa-3x text-muted mb-3"></i>
-                  <p class="text-muted">No vehicles added yet.</p>
-                </div>
-              <?php endif; ?>
-            </div>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            <?php else: ?>
+              <div class="text-center py-4">
+                <i class="fa fa-car fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No vehicles added yet.</p>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
