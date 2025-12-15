@@ -16,31 +16,10 @@ if ($_SESSION['user_type'] != 'client') {
 }
 $user_id = $_SESSION['user_id'];
 
-
-// Fetch user info
-$stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
-$stmt->execute([$user_id]);
-$userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Fetch user's vehicles with brand, model, and type from Vehicle_Models
-$stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.user_id = ?');
-$stmt->execute([$user_id]);
-$vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// For each vehicle, check if it has an active reservation and fetch details if so
-$vehicle_active_reservations = [];
-foreach ($vehicles as $vehicle) {
-  $stmt = $pdo->prepare('SELECT * FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND status IN ("confirmed", "ongoing") AND end_time > NOW() ORDER BY start_time DESC LIMIT 1');
-  $stmt->execute([$vehicle['vehicle_id']]);
-  $active_res = $stmt->fetch(PDO::FETCH_ASSOC);
-  if ($active_res) {
-    $vehicle_active_reservations[$vehicle['vehicle_id']] = $active_res;
-  }
-}
-
-// Fetch available parking slots
-$slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
-$available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
+// Initial Setup
+$user_id = $_SESSION['user_id'];
+$message = '';
+// Fetch logic moved to bottom after POST handling
 
 $message = '';
 // Handle profile update, vehicle add/edit/delete, reservation here (to be implemented)
@@ -55,9 +34,13 @@ if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['pro
     $newName = 'profile_' . $user_id . '_' . time() . '.' . $fileExt;
     $targetPath = 'images/' . $newName;
     if (move_uploaded_file($fileTmp, $targetPath)) {
-      // Remove old pic if not default
-      if (!empty($userData['image']) && $userData['image'] !== 'default.jpg' && file_exists('images/' . $userData['image'])) {
-        unlink('images/' . $userData['image']);
+      // Fetch current image to delete old one
+      $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
+      $stmt->execute([$user_id]);
+      $curr = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($curr && !empty($curr['image']) && $curr['image'] !== 'default.jpg' && file_exists('images/' . $curr['image'])) {
+        unlink('images/' . $curr['image']);
       }
       $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
       $stmt->execute([$newName, $user_id]);
@@ -72,8 +55,13 @@ if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['pro
 }
 // Handle profile picture delete
 if (isset($_POST['delete_pic'])) {
-  if (!empty($userData['image']) && $userData['image'] !== 'default.jpg' && file_exists('images/' . $userData['image'])) {
-    unlink('images/' . $userData['image']);
+  // Fetch current image
+  $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
+  $stmt->execute([$user_id]);
+  $curr = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($curr && !empty($curr['image']) && $curr['image'] !== 'default.jpg' && file_exists('images/' . $curr['image'])) {
+    unlink('images/' . $curr['image']);
   }
   $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
   $stmt->execute([$user_id]);
