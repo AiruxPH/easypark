@@ -40,10 +40,6 @@ if (isset($_SESSION['user_id'])) {
             </li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'vehicles.php') ? 'active' : '' ?>" href="vehicles.php">My
-                        Vehicles</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php">My
                         Bookings</a>
                 </li>

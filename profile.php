@@ -629,28 +629,27 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
               <input type="text" name="color" class="form-control" required placeholder="e.g. Red, Black, #123456">
             </div>
             <div class="form-group">
-              <label>Car Model</label>
-              <!-- Note: ideally this should be a dynamic dropdown from Vehicle_Models table -->
-              <!-- For now, using a simple input or static select if we don't have the list loaded. -->
-              <!-- The original code used model_id input, implying a dropdown. Let's make it a number input if we can't fetch. -->
-              <!-- Wait, original code: $stmt = $pdo->prepare('INSERT INTO vehicles (..., model_id, ...)...'); -->
-              <!-- We need to provide model_id. Let's add a dropdown with some likely IDs or just an input for ID if we don't want to query. -->
-              <!-- Better: Query models first? The original file didn't querying models for the ADD form, it just had inputs. -->
-              <!-- Actually, the original file had `if (isset($_POST['add_vehicle'])) ... $model_id = intval($_POST['model_id']);` -->
-              <!-- But I don't see the HTML form in the snippet I read earlier? -->
-              <!-- Ah, the snippet I read earlier had logic but I might have missed the actual HTML form for adding inside or outside the snippet? -->
-              <!-- Let's check lines 100-113: handles POST. -->
-              <!-- I'll add a dropdown if I can, or just an input. Since I don't want to break it, I'll fetch models if possible. -->
-              <!-- I will add a simple Query to fetch models at the top to populate this. -->
-              <select name="model_id" class="form-control" required>
-                <option value="">Select Model</option>
+              <label>Type</label>
+              <select id="vehicleTypeInput" class="form-control" required>
+                <option value="">Select Type</option>
                 <?php
-                // Quick fetch for models
-                $m_stmt = $pdo->query("SELECT * FROM Vehicle_Models ORDER BY brand, model");
-                while ($m = $m_stmt->fetch(PDO::FETCH_ASSOC)) {
-                  echo "<option value='" . $m['model_id'] . "'>" . $m['brand'] . " " . $m['model'] . " (" . $m['type'] . ")</option>";
+                $types = $pdo->query('SELECT DISTINCT type FROM Vehicle_Models')->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($types as $type) {
+                  echo '<option value="' . htmlspecialchars($type) . '">' . htmlspecialchars($type) . '</option>';
                 }
                 ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Brand</label>
+              <select id="brandInput" class="form-control" required disabled>
+                <option value="">Select Brand</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <select name="model_id" id="modelInput" class="form-control" required disabled>
+                <option value="">Select Model</option>
               </select>
             </div>
             <input type="hidden" name="add_vehicle" value="1">
@@ -707,6 +706,59 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
   <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
+    // Nested dropdown for type > brand > model
+    $(function () {
+      var allBrands = {};
+      var allModels = {};
+      <?php
+      $models = $pdo->query('SELECT model_id, brand, model, type FROM Vehicle_Models')->fetchAll(PDO::FETCH_ASSOC);
+      $brandTypeMap = [];
+      $modelTypeBrandMap = [];
+      foreach ($models as $m) {
+        $brandTypeMap[$m['type']][] = $m['brand'];
+        $modelTypeBrandMap[$m['type']][$m['brand']][] = ['model' => $m['model'], 'model_id' => $m['model_id']];
+      }
+      echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
+      echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
+      ?>
+      $('#vehicleTypeInput').on('change', function () {
+        var type = $(this).val();
+        var brandSel = $('#brandInput');
+        var modelSel = $('#modelInput');
+        brandSel.empty().append('<option value="">Select Brand</option>');
+        modelSel.empty().append('<option value="">Select Model</option>').prop('disabled', true);
+        if (type && allBrands[type]) {
+          var uniqueBrands = [...new Set(allBrands[type])];
+          uniqueBrands.forEach(function (brand) {
+            brandSel.append('<option value="' + brand + '">' + brand + '</option>');
+          });
+          brandSel.prop('disabled', false);
+        } else {
+          brandSel.prop('disabled', true);
+        }
+      });
+      $('#brandInput').on('change', function () {
+        var type = $('#vehicleTypeInput').val();
+        var brand = $(this).val();
+        var modelSel = $('#modelInput');
+        modelSel.empty().append('<option value="">Select Model</option>');
+        if (type && brand && allModels[type] && allModels[type][brand]) {
+          allModels[type][brand].forEach(function (obj) {
+            modelSel.append('<option value="' + obj.model_id + '">' + obj.model + '</option>');
+          });
+          modelSel.prop('disabled', false);
+        } else {
+          modelSel.prop('disabled', true);
+        }
+      });
+      // On modal open, reset dropdowns
+      $('#addVehicleModal').on('show.bs.modal', function () {
+        $('#vehicleTypeInput').val('');
+        $('#brandInput').empty().append('<option value="">Select Brand</option>').prop('disabled', true);
+        $('#modelInput').empty().append('<option value="">Select Model</option>').prop('disabled', true);
+      });
+    });
+
     // Preview Image immediately
     document.getElementById('profilePicInput').addEventListener('change', function (e) {
       if (e.target.files && e.target.files[0]) {
