@@ -45,20 +45,22 @@ if ($is_logged_in) {
     <div class="card bg-dark text-light mb-4">
       <div class="card-body">
         <h5 class="card-title text-warning">Send Us a Message</h5>
-        <form>
+        <div id="alert-container"></div>
+        <form id="contactForm">
           <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" placeholder="Your Name" required>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
           </div>
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="Your Email" required>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" required>
           </div>
           <div class="form-group">
             <label for="message">Message</label>
-            <textarea class="form-control" id="message" rows="4" placeholder="Your Message" required></textarea>
+            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Your Message"
+              required></textarea>
           </div>
-          <button type="submit" class="btn btn-warning">Send Message</button>
+          <button type="submit" class="btn btn-warning" id="submitBtn">Send Message</button>
         </form>
       </div>
     </div>
@@ -76,6 +78,46 @@ if ($is_logged_in) {
       } else {
         navbar.classList.remove('scrolled');
       }
+    });
+
+    $(document).ready(function () {
+      $('#contactForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var submitBtn = $('#submitBtn');
+        var originalText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('Sending...');
+
+        $.ajax({
+          url: 'process_contact.php',
+          type: 'POST',
+          data: $(this).serialize(),
+          dataType: 'json',
+          success: function (response) {
+            var alertClass = response.status === 'success' ? 'alert-success' : 'alert-danger';
+            var alertHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
+              response.message +
+              '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+              '<span aria-hidden="true">&times;</span></button></div>';
+
+            $('#alert-container').html(alertHtml);
+
+            if (response.status === 'success') {
+              $('#contactForm')[0].reset();
+            }
+          },
+          error: function () {
+            var alertHtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+              'An error occurred. Please try again later.' +
+              '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+              '<span aria-hidden="true">&times;</span></button></div>';
+            $('#alert-container').html(alertHtml);
+          },
+          complete: function () {
+            submitBtn.prop('disabled', false).text(originalText);
+          }
+        });
+      });
     });
   </script>
 </body>
