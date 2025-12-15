@@ -194,7 +194,7 @@ if (isset($_POST['forgot_password_action'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile - EasyPark</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <script src="js/ef9baa832e.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -527,8 +527,7 @@ if (isset($_POST['forgot_password_action'])) {
                 </div>
                 <div class="form-group col-md-6">
                   <label>Phone Number</label>
-                  <input type="text" name="phone" class="form-control"
-                    value="<?= htmlspecialchars($user['phone']) ?>">
+                  <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>">
                 </div>
               </div>
               <div class="text-right mt-3">
@@ -572,8 +571,7 @@ if (isset($_POST['forgot_password_action'])) {
                           </span>
                         </td>
                         <td class="text-right">
-                          <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>"
-                            class="btn btn-sm btn-danger-custom"
+                          <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>" class="btn btn-sm btn-danger-custom"
                             onclick="return confirm('Are you sure you want to delete this vehicle?')">
                             <i class="fa fa-trash"></i>
                           </a>
