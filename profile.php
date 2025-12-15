@@ -174,6 +174,33 @@ if (isset($_POST['forgot_password_action'])) {
   exit;
 }
 ?>
+<?php
+// --- DATA FETCHING (After Updates) ---
+// Fetch user info
+$stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
+$stmt->execute([$user_id]);
+$userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Fetch user's vehicles with brand, model, and type from Vehicle_Models
+$stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.user_id = ?');
+$stmt->execute([$user_id]);
+$vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Active reservations
+$vehicle_active_reservations = [];
+foreach ($vehicles as $vehicle) {
+  $stmt = $pdo->prepare('SELECT * FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND status IN ("confirmed", "ongoing") AND end_time > NOW() ORDER BY start_time DESC LIMIT 1');
+  $stmt->execute([$vehicle['vehicle_id']]);
+  $active_res = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($active_res) {
+    $vehicle_active_reservations[$vehicle['vehicle_id']] = $active_res;
+  }
+}
+
+// Fetch available parking slots
+$slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
+$available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
