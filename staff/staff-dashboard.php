@@ -271,6 +271,17 @@ if (isset($_POST['delete_pic'])) {
       box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25) !important;
     }
 
+    /* Input Placeholders */
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Select Options */
+    select.glass-input option {
+      background: #333;
+      color: #fff;
+    }
+
     /* Tables */
     .table-responsive {
       border-radius: 15px;
@@ -341,6 +352,16 @@ if (isset($_POST['delete_pic'])) {
       font-weight: 500;
       letter-spacing: 0.5px;
       border-radius: 6px;
+    }
+
+    /* Text Utilities Overrides for Glass Theme */
+    .text-muted {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .text-dark {
+      color: #fff !important;
+      /* Force readable text if class exists */
     }
   </style>
 </head>

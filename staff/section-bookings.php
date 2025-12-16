@@ -9,7 +9,7 @@ require_once __DIR__ . '/section-common.php';
     <h4 class="text-warning mb-0"><i class="fas fa-calendar-check mr-2"></i> Manage Expected Bookings</h4>
   </div>
 
-  <div class="alert alert-light bg-dark border-secondary text-white-50 mb-4 shadow-sm">
+  <div class="p-3 mb-4 rounded border border-secondary" style="background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.7);">
     <i class="fas fa-info-circle mr-2 text-warning"></i>
     Only upcoming <strong>pending</strong> bookings are shown. Use action buttons to Confirm or Cancel requests.
   </div>
