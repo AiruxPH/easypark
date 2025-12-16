@@ -53,6 +53,91 @@ if (isset($_SESSION['user_id'])) {
             </li>
 
             <?php if (isset($_SESSION['user_id'])): ?>
+                <?php
+                // Include Notifications Helper
+                require_once __DIR__ . '/notifications.php';
+
+                // Fetch Notifications
+                $unreadCount = 0;
+                $notifications = [];
+                if (isset($pdo)) {
+                    $unreadCount = countUnreadNotifications($pdo, $_SESSION['user_id']);
+                    $notifications = getUnreadNotifications($pdo, $_SESSION['user_id'], 5);
+                }
+                ?>
+                <li class="nav-item dropdown mr-3">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw" style="font-size: 1.2rem;"></i>
+                        <?php if ($unreadCount > 0): ?>
+                            <span class="badge badge-danger badge-counter position-absolute"
+                                style="top: 0; right: 0; font-size: 0.6rem;"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in p-0"
+                        aria-labelledby="alertsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                        <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
+                            Notifications Center
+                        </h6>
+                        <?php if (empty($notifications)): ?>
+                            <a class="dropdown-item d-flex align-items-center py-3 text-muted justify-content-center" href="#">
+                                <small>No new notifications</small>
+                            </a>
+                        <?php else: ?>
+                            <?php foreach ($notifications as $notif): ?>
+                                <?php
+                                $bgClass = $notif['is_read'] ? 'bg-white' : 'bg-light';
+                                $iconClass = 'info-circle text-primary';
+                                $iconBg = 'bg-primary';
+                                switch ($notif['type']) {
+                                    case 'success':
+                                        $iconClass = 'check text-white';
+                                        $iconBg = 'bg-success';
+                                        break;
+                                    case 'warning':
+                                        $iconClass = 'exclamation-triangle text-white';
+                                        $iconBg = 'bg-warning';
+                                        break;
+                                    case 'error':
+                                        $iconClass = 'times text-white';
+                                        $iconBg = 'bg-danger';
+                                        break; // Matches 'error' enum
+                                    case 'info':
+                                    default:
+                                        $iconClass = 'info text-white';
+                                        $iconBg = 'bg-info';
+                                        break;
+                                }
+                                ?>
+                                <a class="dropdown-item d-flex align-items-center py-2 border-bottom notification-item <?= $bgClass ?>"
+                                    href="<?= $notif['link'] ? htmlspecialchars($notif['link']) : '#' ?>"
+                                    data-id="<?= $notif['notification_id'] ?>"
+                                    onclick="markAsRead(event, <?= $notif['notification_id'] ?>, '<?= $notif['link'] ?>')">
+                                    <div class="mr-3">
+                                        <div class="icon-circle <?= $iconBg ?> d-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 35px; height: 35px;">
+                                            <i class="fas fa-<?= $iconClass ?>"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">
+                                            <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
+                                        </div>
+                                        <div class="font-weight-bold text-truncate" style="max-width: 200px;">
+                                            <?= htmlspecialchars($notif['title']) ?>
+                                        </div>
+                                        <div class="small text-dark text-truncate" style="max-width: 200px;">
+                                            <?= htmlspecialchars($notif['message']) ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <a class="dropdown-item text-center small text-gray-500 py-2 bg-light" href="#"
+                            onclick="markAllRead(event)">Mark all as Read</a>
+                    </div>
+                </li>
+
                 <li class="nav-item">
                     <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
                         style="padding: 0.375rem 1rem;">
@@ -175,4 +260,36 @@ if (isset($_SESSION['user_id'])) {
         // Initial call
         updateNavbarOpacity();
     });
+
+    // Mark as Read JS
+    function markAsRead(event, id, link) {
+        event.preventDefault(); // Stop default link behavior momentarily
+
+        fetch('mark_read.php', {
+            method: 'POST',
+            body: JSON.stringify({ notification_id: id }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(() => {
+            // Find badge and decrement
+            const item = event.currentTarget;
+            item.classList.remove('bg-light');
+            item.classList.add('bg-white');
+
+            // Redirect if link exists
+            if (link && link !== "#" && link !== "") {
+                window.location.href = link;
+            }
+        }).catch(err => console.error(err));
+    }
+
+    function markAllRead(event) {
+        event.preventDefault();
+        fetch('mark_read.php', {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(() => {
+            location.reload(); // Simple reload to clear badges
+        });
+    }
 </script>
