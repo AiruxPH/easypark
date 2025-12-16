@@ -159,10 +159,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .text-muted {
       color: rgba(255, 255, 255, 0.6) !important;
     }
+
+    /* Preloader */
+    #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f0f0f; /* Match Index Preloader */
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.8s ease-out;
+    }
+    
+    .loader-logo {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 20px;
+        animation: pulse 1s infinite alternate;
+    }
+    
+    .car-loader {
+        position: relative;
+        width: 100px;
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .car-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 50%;
+        background: var(--primary);
+        animation: drive 1.5s infinite linear;
+        border-radius: 4px;
+    }
+    
+    @keyframes pulse {
+        from { opacity: 0.6; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1.05); }
+    }
+    
+    @keyframes drive {
+        0% { left: -50%; }
+        100% { left: 100%; }
+    }
+    
+    .hide-loader {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Card Entry Animation */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .glass-card {
+      /* existing styles... */
+      animation: fadeInUp 0.8s ease-out;
+    }
   </style>
 </head>
 
 <body class="p-4">
+
+  <!-- Preloader -->
+  <div id="preloader">
+      <div class="loader-logo">EASYPARK</div>
+      <div class="car-loader">
+          <div class="car-bar"></div>
+      </div>
+      <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
+  </div>
 
   <div class="glass-card">
     <!-- Website Name/Logo -->
@@ -262,6 +341,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `);
           $('#loginToast').toast('show');
       }
+      // Preloader Logic
+      window.addEventListener('load', function() {
+          const loader = document.getElementById('preloader');
+          setTimeout(function() {
+              loader.classList.add('hide-loader');
+          }, 800); // 0.8s delay for login
+      });
     });
   </script>
 </body>
