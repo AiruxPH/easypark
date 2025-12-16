@@ -56,105 +56,183 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Forgot Password - EASYPARK</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
+    :root {
+      --primary: #f0a500;
+      --dark: #1a1a1a;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
     }
 
-    .bg-image {
+    body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      background: url('images/bg-car.jpg') no-repeat center center/cover;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body::before {
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      opacity: 0.3;
-      z-index: -1;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.85) 100%);
+      z-index: 0;
+    }
+
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 450px;
+      background: rgba(30, 30, 30, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 10px;
+      height: 50px;
+      padding-left: 15px;
     }
 
     .form-control:focus {
-      border-color: #ffc107;
-      box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+      background: rgba(0, 0, 0, 0.5);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25);
+      color: #fff;
     }
 
     .btn-warning {
-      background-color: #ffc107;
-      border-color: #ffc107;
+      background: var(--primary);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      border-radius: 10px;
+      height: 50px;
+      transition: all 0.3s ease;
     }
 
     .btn-warning:hover {
-      background-color: #6610f2;
-      border-color: #6610f2;
+      background: #e09b00;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(240, 165, 0, 0.3);
+    }
+
+    .text-primary {
+      color: var(--primary) !important;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
     }
   </style>
 </head>
 
-<body class="d-flex align-items-center justify-content-center p-4">
-  <img class="bg-image" src="bg-car.jpg" alt="parking bg" />
-  <div class="card bg-white shadow-lg p-4" style="max-width: 400px; background: rgba(255, 255, 255, 0.9) !important;">
-    <div class="text-center mb-4">
-      <h1 class="display-5 font-weight-bold text-warning">Forgot Password</h1>
-      <p class="text-muted small">Reset your EASYPARK account password</p>
+<body class="p-4">
+
+  <div class="glass-card">
+    <div class="text-center mb-5">
+      <h1 class="font-weight-bold text-white mb-0 h3">RESET PASSWORD</h1>
+      <p class="text-muted small">Recover access to your account.</p>
     </div>
+
     <?php if ($message): ?>
-      <div class="alert alert-warning small mb-4"><?= $message ?></div>
+      <div class="alert alert-warning mb-4"><?= $message ?></div>
     <?php endif; ?>
+
     <?php if ($step == 1): ?>
       <form action="forgot_password.php" method="POST">
         <input type="hidden" name="step" value="1">
-        <div class="form-group">
-          <label for="email" class="small font-weight-bold text-muted">
-            Email Address <span class="text-danger">*</span>
-          </label>
-          <input type="email" name="email" id="email" required placeholder="Email address" class="form-control"
+        <div class="form-group mb-4">
+          <label for="email" class="small font-weight-bold text-muted mb-2">EMAIL ADDRESS <span
+              class="text-danger">*</span></label>
+          <input type="email" name="email" id="email" required placeholder="name@example.com" class="form-control"
             value="<?= htmlspecialchars($email) ?>" />
         </div>
-        <div class="form-group">
-          <label for="security_word" class="small font-weight-bold text-muted">
-            Security Word <span class="text-danger">*</span>
-          </label>
-          <input type="text" name="security_word" id="security_word" required placeholder="Your security word"
+        <div class="form-group mb-4">
+          <label for="security_word" class="small font-weight-bold text-muted mb-2">SECURITY WORD <span
+              class="text-danger">*</span></label>
+          <input type="text" name="security_word" id="security_word" required placeholder="Verification answer"
             class="form-control" />
         </div>
-        <button type="submit" class="btn btn-warning btn-block text-white font-weight-bold">Verify</button>
+        <button type="submit" class="btn btn-warning btn-block text-black font-weight-bold mt-4">Verify Identity</button>
       </form>
+
     <?php elseif ($step == 2): ?>
       <form action="forgot_password.php" method="POST">
         <input type="hidden" name="step" value="2">
         <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
-        <div class="form-group">
-          <label for="new_password" class="small font-weight-bold text-muted">
-            New Password <span class="text-danger">*</span>
-          </label>
-          <input type="password" name="new_password" id="new_password" required placeholder="New password"
-            class="form-control" />
+        <div class="form-group mb-4">
+          <label for="new_password" class="small font-weight-bold text-muted mb-2">NEW PASSWORD <span
+              class="text-danger">*</span></label>
+          <div class="position-relative">
+            <input type="password" name="new_password" id="new_password" required placeholder="New password"
+              class="form-control" />
+            <button type="button" onclick="togglePassword('new_password', 'toggleNew')"
+              class="btn btn-link position-absolute text-white-50" style="right: 10px; top: 5px;">
+              <i class="fas fa-eye" id="toggleNew"></i>
+            </button>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="confirm_password" class="small font-weight-bold text-muted">
-            Confirm Password <span class="text-danger">*</span>
-          </label>
-          <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm password"
-            class="form-control" />
+        <div class="form-group mb-4">
+          <label for="confirm_password" class="small font-weight-bold text-muted mb-2">CONFIRM PASSWORD <span
+              class="text-danger">*</span></label>
+          <div class="position-relative">
+            <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm password"
+              class="form-control" />
+            <button type="button" onclick="togglePassword('confirm_password', 'toggleConfirm')"
+              class="btn btn-link position-absolute text-white-50" style="right: 10px; top: 5px;">
+              <i class="fas fa-eye" id="toggleConfirm"></i>
+            </button>
+          </div>
         </div>
-        <button type="submit" class="btn btn-warning btn-block text-white font-weight-bold">Reset Password</button>
+        <button type="submit" class="btn btn-warning btn-block text-black font-weight-bold mt-4">Reset Password</button>
       </form>
+
     <?php elseif ($step == 3): ?>
       <div class="text-center mt-3">
-        <a href="login.php" class="btn btn-success">Back to Login</a>
+        <a href="login.php" class="btn btn-warning px-5">Back to Login</a>
       </div>
     <?php endif; ?>
-    <div class="text-center mt-3 text-muted">
-      <a href="index.php" class="text-primary">Go back to home</a>
+
+    <div class="text-center mt-4 border-top border-secondary pt-3">
+      <a href="index.php" class="small text-white-50"><i class="fas fa-arrow-left mr-1"></i> Back to Home</a>
     </div>
   </div>
-  <script src="js/jquery.slim.min.js"></script>
+
+  <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  <script src="js/ef9baa832e.js"></script>
+  <script>
+    function togglePassword(inputId, iconId) {
+      const pwd = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (pwd.type === "password") {
+        pwd.type = "text";
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        icon.classList.add('text-primary');
+      } else {
+        pwd.type = "password";
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        icon.classList.remove('text-primary');
+      }
+    }
+  </script>
 </body>
 
 </html>
