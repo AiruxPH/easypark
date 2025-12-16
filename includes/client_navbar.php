@@ -37,15 +37,12 @@ if (isset($_SESSION['user_id'])) {
                 <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php"
                     data-toggle="tooltip" title="Return to Homepage" data-placement="bottom">Home</a>
             </li>
-            <li class="nav-item">
-                <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>" href="reservations.php"
                         data-toggle="tooltip" title="Book a parking slot" data-placement="bottom">Reserve</a>
-                <?php else: ?>
-                    <a class="nav-link" href="login.php?msg=login_required" data-toggle="tooltip" title="Login to Book"
-                        data-placement="bottom">Reserve</a>
-                <?php endif; ?>
-            </li>
+                </li>
+            <?php endif; ?>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php"
