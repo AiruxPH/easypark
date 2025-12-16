@@ -19,6 +19,10 @@ switch ($section) {
         global $conn;
         require_once 'sections/payments.php';
         break;
+    case 'activity_logs':
+        global $conn;
+        require_once 'sections/activity_logs.php';
+        break;
     default:
         require_once 'sections/dashboard.php';
 }
