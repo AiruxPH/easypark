@@ -86,6 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
         $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
         $stmt->execute([$new_status, $slot_id]);
 
+        // Log Activity
+        logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_status_update', "Updated slot ID $slot_id status to '$new_status'");
+
         // RACE CONDITION RESOLUTION:
         if ($new_status === 'occupied') {
             if ($winning_res_id) {
