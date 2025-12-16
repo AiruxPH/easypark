@@ -50,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ");
         $insert->execute([$firstName, $middleName, $lastName, $fullPhone, $email, $password, $user_type, $securityWord]);
+        
+        $newUserId = $pdo->lastInsertId();
+        logActivity($pdo, $newUserId, 'client', 'register', "New user registered: $email");
+
         $message = "✅ Registration successful!";
       }
     } catch (\PDOException $e) {

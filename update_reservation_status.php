@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['reservation_id'])) {
     exit();
 }
 require_once 'includes/db.php';
+require_once 'includes/functions.php';
 require_once 'includes/constants.php';
 $reservation_id = intval($_POST['reservation_id']);
 $action = isset($_POST['action']) ? $_POST['action'] : '';
@@ -43,6 +44,7 @@ if ($action === 'cancel') {
         $r_user_id = $stmt->fetchColumn();
         if ($r_user_id) {
             sendNotification($pdo, $r_user_id, 'Booking Cancelled', 'Your reservation (ID: ' . $reservation_id . ') has been cancelled.', 'info', 'bookings.php');
+            logActivity($pdo, $r_user_id, 'client', 'reservation_cancelled', "Reservation ID $reservation_id cancelled by user");
         }
 
         echo json_encode(['success' => true, 'message' => 'Booking cancelled.']);
@@ -120,6 +122,7 @@ if ($action === 'cancel') {
                 $stmt->execute([$slot_id]);
             }
         }
+        logActivity($pdo, $user_id, 'client', 'reservation_completed', "Reservation ID $reservation_id completed (Overstay: " . ($to_charge > 0 ? 'Yes' : 'No') . ")");
         echo json_encode(['success' => true, 'message' => 'Booking completed. Overstay fees applied if applicable.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Unable to complete booking or invalid status.']);

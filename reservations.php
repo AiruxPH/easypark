@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
   exit();
 }
 require_once 'includes/db.php';
+require_once 'includes/functions.php';
 require_once 'includes/constants.php';
 $user_id = $_SESSION['user_id'];
 // Fetch user's vehicles with brand/model/type
@@ -193,6 +194,8 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         // Notification
         require_once 'includes/notifications.php';
         sendNotification($pdo, $user_id, 'Reservation Confirmed', 'Your booking for slot ' . $slot_number . ' is confirmed.', 'success', 'bookings.php');
+
+        logActivity($pdo, $user_id, 'client', 'reservation_created', "User booked slot $slot_number (ID: $reservation_id)");
 
         $show_reservation_form = false;
       }

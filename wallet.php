@@ -2,6 +2,7 @@
 // wallet.php - My Wallet / Top-Up page
 session_start();
 require_once 'includes/db.php';
+require_once 'includes/functions.php';
 require_once 'includes/constants.php';
 
 // Ensure user is logged in
@@ -55,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             // Notification
             require_once 'includes/notifications.php';
             sendNotification($pdo, $user_id, 'Wallet Top-Up', 'You have successfully added ' . number_format($amountCoins, 2) . ' coins.', 'success', 'wallet.php');
+
+            logActivity($pdo, $user_id, 'client', 'wallet_topup', "User topped up " . number_format($amountCoins, 2) . " coins via " . ucfirst($paymentMethod));
 
             // PRG Pattern: Redirect to prevent re-submission
             $_SESSION['flash_success'] = "Successfully topped up " . number_format($amountCoins, 2) . " Coins!";

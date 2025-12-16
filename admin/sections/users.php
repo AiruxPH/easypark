@@ -171,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($updateParams);
+        logActivity($pdo, $_SESSION['user_id'], 'admin', 'user_update', "Admin updated user ID: $editUserId");
         echo '<div class="alert alert-success shadow-sm" id="user-success-msg">User updated successfully.</div>';
     }
 }
@@ -197,6 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     } else {
         $stmt = $pdo->prepare("DELETE FROM users WHERE user_id=?");
         $stmt->execute([$deleteUserId]);
+        logActivity($pdo, $_SESSION['user_id'], 'admin', 'user_delete', "Admin deleted user ID: $deleteUserId ($targetEmail)");
         echo '<div class="alert alert-success shadow-sm" id="user-success-msg">User deleted successfully.</div>';
     }
 }
@@ -243,6 +245,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manage_coins'])) {
                 // Update Balance
                 $stmt = $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?");
                 $stmt->execute([$amount, $targetUserId]);
+
+                logActivity($pdo, $_SESSION['user_id'], 'admin', 'admin_coin_adjustment', "Admin adjusted coins for User ID $targetUserId by " . number_format($amount, 2));
 
                 // Log Transaction
                 $logDesc = "Admin Adjustment: " . $description;

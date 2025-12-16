@@ -1,5 +1,5 @@
-<?php
 include 'includes/db.php';
+include 'includes/functions.php';
 include 'includes/constants.php';
 
 $logFile = __DIR__ . '/cron_log.txt';
@@ -297,6 +297,12 @@ try {
     $log .= "Freed parking slots: " . $stmt_free->rowCount() . "\n";
 
     $log .= "Cron job finished successfully.\n\n";
+
+    // Log Key Stats to DB
+    $summary = "Cron Run: Cancelled(" . $stmt_cancel->rowCount() . "), Expired(" . $stmt_expire->rowCount() . "), Freed(" . $stmt_free->rowCount() . ")";
+    if ($stmt_cancel->rowCount() > 0 || $stmt_expire->rowCount() > 0 || $stmt_free->rowCount() > 0) {
+        logActivity($pdo, null, 'system', 'cron_job', $summary);
+    }
 } catch (PDOException $e) {
     $log .= "Error: " . $e->getMessage() . "\n\n";
 }
