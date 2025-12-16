@@ -230,6 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manage_coins'])) {
             $error = "You cannot modify the Super Admin's wallet.";
         } elseif (!$isSuperAdmin && $targetType === 'admin') {
             $error = "You do not have permission to modify Admin wallets.";
+        } elseif ($targetType !== 'client') {
+            $error = "Coins can only be managed for Client accounts.";
         }
 
         if ($error) {
@@ -427,11 +429,13 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 </td>
                                 <td class="text-right pr-4">
                                     <?php if ($canEditDelete): ?>
-                                        <button class="btn btn-sm btn-outline-warning shadow-sm"
-                                            onclick="manageCoins(<?= htmlspecialchars(json_encode($user)) ?>)"
-                                            title="Manage Coins">
-                                            <i class="fas fa-coins"></i>
-                                        </button>
+                                        <?php if ($user['user_type'] === 'client'): ?>
+                                            <button class="btn btn-sm btn-outline-warning shadow-sm"
+                                                onclick="manageCoins(<?= htmlspecialchars(json_encode($user)) ?>)"
+                                                title="Manage Coins">
+                                                <i class="fas fa-coins"></i>
+                                            </button>
+                                        <?php endif; ?>
                                         <button class="btn btn-sm btn-outline-primary shadow-sm ml-1"
                                             onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)" title="Edit User">
                                             <i class="fa fa-pen"></i>
