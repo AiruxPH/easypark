@@ -72,37 +72,96 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
 
     /* Glassmorphism Table */
     .glass-panel {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     }
 
     .table-glass {
-        color: #fff;
-        margin-bottom: 0;
-    }
-    
-    .table-glass thead th {
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        border-top: none;
-        color: #f0a500; /* Primary/Warning color */
-        font-weight: 600;
-        cursor: pointer;
+      color: #fff;
+      margin-bottom: 0;
     }
 
-    .table-glass td, .table-glass th {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        vertical-align: middle;
+    .table-glass thead th {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      border-top: none;
+      color: #f0a500;
+      /* Primary/Warning color */
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .table-glass td,
+    .table-glass th {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      vertical-align: middle;
     }
 
     .table-glass tbody tr:hover {
-        background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Modal Upgrade */
+    .modal-glass .modal-content {
+      background: rgba(30, 30, 30, 0.95);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      color: #fff;
+    }
+
+    .modal-glass .modal-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+    }
+
+    .modal-glass .modal-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem 1.5rem;
+    }
+
+    .modal-glass .close {
+      color: #fff;
+      opacity: 0.7;
+      text-shadow: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-glass .close:hover {
+      opacity: 1;
+    }
+
+    /* Detail Grid */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .detail-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #aaa;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #fff;
     }
 
     .btn-action {
-        margin: 2px;
+      margin: 2px;
     }
   </style>
 </head>
@@ -111,7 +170,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
   <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-5">
     <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">My Bookings</h2>
-    
+
     <!-- Filter Panel -->
     <div class="glass-panel p-3 mb-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between">
@@ -128,7 +187,8 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
           </select>
         </div>
         <div class="form-inline">
-          <input type="text" id="searchInput" class="form-control form-control-sm mr-2 bg-dark text-white border-secondary"
+          <input type="text" id="searchInput"
+            class="form-control form-control-sm mr-2 bg-dark text-white border-secondary"
             placeholder="Search bookings...">
           <button class="btn btn-sm btn-outline-light" id="clearSearch">Clear</button>
         </div>
@@ -139,105 +199,106 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
     <div class="glass-panel p-0 overflow-hidden">
       <div class="table-responsive">
         <table class="table table-glass align-middle text-center" id="bookingsTable">
-        <thead>
-          <tr>
-            <th>Ref #</th>
-            <th>Slot</th>
-            <th>Vehicle</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Duration</th>
-            <th>Res. Status</th>
-            <th>Amount</th>
-            <th>Pay Status</th>
-            <th>Method</th>
-            <th>Pay Date</th>
-            <th>Actions</th> 
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (count($bookings) === 0): ?>
+          <thead>
             <tr>
-              <td colspan="12" class="text-center py-5 text-white-50">No bookings found.</td>
+              <th>Ref #</th>
+              <th>Slot</th>
+              <th>Vehicle</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Duration</th>
+              <th>Res. Status</th>
+              <th>Amount</th>
+              <th>Pay Status</th>
+              <th>Method</th>
+              <th>Pay Date</th>
+              <th>Actions</th>
             </tr>
-          <?php else:
-            foreach ($bookings as $b):
-              $isConfirmed = ($b['status'] === 'confirmed' || $b['status'] === 'ongoing');
-              $now = date('Y-m-d H:i:s');
-              $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
-              $rowData = htmlspecialchars(json_encode($b));
-              // Calculate remaining time for duration column
-              $remaining = '';
-              if ($isConfirmed && $b['end_time'] > $now) {
-                $end = new DateTime($b['end_time']);
-                $nowDT = new DateTime($now);
-                $interval = $nowDT->diff($end);
-                if ($interval->days > 0) {
-                  $remaining = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
-                  if ($interval->h > 0) {
-                    $remaining .= ' ' . $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
-                  }
-                  $remaining .= ' left';
-                } elseif ($interval->h > 0) {
-                  $remaining = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' left';
-                } elseif ($interval->i > 0) {
-                  $remaining = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' left';
-                } else {
-                  $remaining = $interval->s . ' second' . ($interval->s > 1 ? 's' : '') . ' left';
-                }
-              }
-              ?>
-              <tr class="booking-row" data-booking='<?= $rowData ?>'>
-                <td class="font-weight-bold opacity-75"><?= htmlspecialchars($b['reservation_id']) ?></td>
-                <td><?= htmlspecialchars($b['slot_number']) ?> <small>(<?= htmlspecialchars($b['slot_type']) ?>)</small></td>
-                <td>
-                    <div style="line-height:1.2;">
-                        <small class="d-block text-white-50"><?= htmlspecialchars($b['brand'] . ' ' . $b['model']) ?></small>
-                        <span><?= htmlspecialchars($b['plate_number']) ?></span>
-                    </div>
-                </td>
-                <td class="small"><?= htmlspecialchars($b['start_time']) ?></td>
-                <td class="small"><?= htmlspecialchars($b['end_time']) ?></td>
-                <td>
-                  <?php
-                  // Display original duration with unit
-                  $durationText = $b['duration'];
-                  // Try to infer unit (hours/days) from the value
-                  if (is_numeric($durationText)) {
-                    if ($durationText == 1) {
-                      $durationText .= ' hour';
-                    } elseif ($durationText < 24) {
-                      $durationText .= ' hours';
-                    } elseif ($durationText % 24 == 0) {
-                      $days = $durationText / 24;
-                      $durationText = $days . ' day' . ($days > 1 ? 's' : '');
-                    } else {
-                      $days = floor($durationText / 24);
-                      $hours = $durationText % 24;
-                      $durationText = $days . ' day' . ($days > 1 ? 's' : '');
-                      if ($hours > 0)
-                        $durationText .= ' ' . $hours . ' hour' . ($hours > 1 ? 's' : '');
+          </thead>
+          <tbody>
+            <?php if (count($bookings) === 0): ?>
+              <tr>
+                <td colspan="12" class="text-center py-5 text-white-50">No bookings found.</td>
+              </tr>
+            <?php else:
+              foreach ($bookings as $b):
+                $isConfirmed = ($b['status'] === 'confirmed' || $b['status'] === 'ongoing');
+                $now = date('Y-m-d H:i:s');
+                $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
+                $rowData = htmlspecialchars(json_encode($b));
+                // Calculate remaining time for duration column
+                $remaining = '';
+                if ($isConfirmed && $b['end_time'] > $now) {
+                  $end = new DateTime($b['end_time']);
+                  $nowDT = new DateTime($now);
+                  $interval = $nowDT->diff($end);
+                  if ($interval->days > 0) {
+                    $remaining = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
+                    if ($interval->h > 0) {
+                      $remaining .= ' ' . $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
                     }
+                    $remaining .= ' left';
+                  } elseif ($interval->h > 0) {
+                    $remaining = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' left';
+                  } elseif ($interval->i > 0) {
+                    $remaining = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' left';
+                  } else {
+                    $remaining = $interval->s . ' second' . ($interval->s > 1 ? 's' : '') . ' left';
                   }
-                  echo htmlspecialchars($durationText);
-                  ?>
-                  <?php if ($isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now): ?>
+                }
+                ?>
+                <tr class="booking-row" data-booking='<?= $rowData ?>'>
+                  <td class="font-weight-bold opacity-75"><?= htmlspecialchars($b['reservation_id']) ?></td>
+                  <td><?= htmlspecialchars($b['slot_number']) ?> <small>(<?= htmlspecialchars($b['slot_type']) ?>)</small>
+                  </td>
+                  <td>
+                    <div style="line-height:1.2;">
+                      <small class="d-block text-white-50"><?= htmlspecialchars($b['brand'] . ' ' . $b['model']) ?></small>
+                      <span><?= htmlspecialchars($b['plate_number']) ?></span>
+                    </div>
+                  </td>
+                  <td class="small"><?= htmlspecialchars($b['start_time']) ?></td>
+                  <td class="small"><?= htmlspecialchars($b['end_time']) ?></td>
+                  <td>
                     <?php
-                    $end = new DateTime($b['end_time']);
-                    $nowDT = new DateTime($now);
-                    $interval = $nowDT->diff($end);
-                    $parts = [];
-                    if ($interval->days > 0)
-                      $parts[] = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
-                    if ($interval->h > 0)
-                      $parts[] = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
-                    if ($interval->i > 0)
-                      $parts[] = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '');
-                    if ($interval->days == 0 && $interval->h == 0 && $interval->i == 0 && $interval->s > 0)
-                      $parts[] = $interval->s . ' second' . ($interval->s > 1 ? 's' : '');
-                    $remaining = $parts ? implode(' ', $parts) . ' left' : '';
+                    // Display original duration with unit
+                    $durationText = $b['duration'];
+                    // Try to infer unit (hours/days) from the value
+                    if (is_numeric($durationText)) {
+                      if ($durationText == 1) {
+                        $durationText .= ' hour';
+                      } elseif ($durationText < 24) {
+                        $durationText .= ' hours';
+                      } elseif ($durationText % 24 == 0) {
+                        $days = $durationText / 24;
+                        $durationText = $days . ' day' . ($days > 1 ? 's' : '');
+                      } else {
+                        $days = floor($durationText / 24);
+                        $hours = $durationText % 24;
+                        $durationText = $days . ' day' . ($days > 1 ? 's' : '');
+                        if ($hours > 0)
+                          $durationText .= ' ' . $hours . ' hour' . ($hours > 1 ? 's' : '');
+                      }
+                    }
+                    echo htmlspecialchars($durationText);
                     ?>
-                    <?php
+                    <?php if ($isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now): ?>
+                      <?php
+                      $end = new DateTime($b['end_time']);
+                      $nowDT = new DateTime($now);
+                      $interval = $nowDT->diff($end);
+                      $parts = [];
+                      if ($interval->days > 0)
+                        $parts[] = $interval->days . ' day' . ($interval->days > 1 ? 's' : '');
+                      if ($interval->h > 0)
+                        $parts[] = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '');
+                      if ($interval->i > 0)
+                        $parts[] = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '');
+                      if ($interval->days == 0 && $interval->h == 0 && $interval->i == 0 && $interval->s > 0)
+                        $parts[] = $interval->s . ' second' . ($interval->s > 1 ? 's' : '');
+                      $remaining = $parts ? implode(' ', $parts) . ' left' : '';
+                      ?>
+                      <?php
                       // Calculate rate for overstay penalty
                       $rate = 0;
                       if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
@@ -245,107 +306,114 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                       }
                       $timerEnd = $b['end_time'];
                       ?>
-                    <div class="mt-1">
+                      <div class="mt-1">
                         <span id="timer-<?= $b['reservation_id'] ?>" class="timer badge badge-info"
-                        data-end="<?= $timerEnd ?>" data-rate="<?= $rate ?>">Checking...</span>
-                    </div>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <?php
-                  $status = $b['status'];
-                  $badge = 'secondary';
-                  if ($status === 'pending')
-                    $badge = 'warning';
-                  elseif ($status === 'confirmed' || $status === 'ongoing')
-                    $badge = 'success';
-                  elseif ($status === 'cancelled' || $status === 'void')
-                    $badge = 'danger';
-                  elseif ($status === 'completed')
-                    $badge = 'primary';
-                  elseif ($status === 'expired')
-                    $badge = 'dark';
-                  ?>
-                  <span class="badge badge-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
-                </td>
-                <td><span class="text-warning font-weight-bold">🪙</span> <?= number_format($b['amount'], 2) ?></td>
-                <td>
-                  <?php
-                  $pay = $b['payment_status'];
-                  $payBadge = 'secondary';
-                  if ($pay === 'pending')
-                    $payBadge = 'warning';
-                  elseif ($pay === 'successful')
-                    $payBadge = 'success';
-                  elseif ($pay === 'failed' || $pay === 'refunded')
-                    $payBadge = 'danger';
-                  ?>
-                  <span class="badge badge-<?= $payBadge ?>"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
-                </td>
-                <td class="small"><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
-                <td class="small"><?= htmlspecialchars($b['payment_date']) ?></td>
-                <td class="text-nowrap">
-                   <!-- View Button -->
-                   <button class="btn btn-sm btn-info btn-action action-view" title="View Details">
-                        <i class="fa fa-eye"></i>
-                   </button>
-
-                  <?php
-                  $status = $b['status'];
-                  // Show Cancel for pending or confirmed, Complete for ongoing
-                  if ($status === 'pending' || $status === 'confirmed'):
+                          data-end="<?= $timerEnd ?>" data-rate="<?= $rate ?>">Checking...</span>
+                      </div>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <?php
+                    $status = $b['status'];
+                    $badge = 'secondary';
+                    if ($status === 'pending')
+                      $badge = 'warning';
+                    elseif ($status === 'confirmed' || $status === 'ongoing')
+                      $badge = 'success';
+                    elseif ($status === 'cancelled' || $status === 'void')
+                      $badge = 'danger';
+                    elseif ($status === 'completed')
+                      $badge = 'primary';
+                    elseif ($status === 'expired')
+                      $badge = 'dark';
                     ?>
-                    <button class="btn btn-sm btn-danger btn-action action-cancel" data-id="<?= $b['reservation_id'] ?>" title="Cancel Booking">
+                    <span class="badge badge-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
+                  </td>
+                  <td><span class="text-warning font-weight-bold">🪙</span> <?= number_format($b['amount'], 2) ?></td>
+                  <td>
+                    <?php
+                    $pay = $b['payment_status'];
+                    $payBadge = 'secondary';
+                    if ($pay === 'pending')
+                      $payBadge = 'warning';
+                    elseif ($pay === 'successful')
+                      $payBadge = 'success';
+                    elseif ($pay === 'failed' || $pay === 'refunded')
+                      $payBadge = 'danger';
+                    ?>
+                    <span class="badge badge-<?= $payBadge ?>"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
+                  </td>
+                  <td class="small"><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
+                  <td class="small"><?= htmlspecialchars($b['payment_date']) ?></td>
+                  <td class="text-nowrap">
+                    <!-- View Button -->
+                    <button class="btn btn-sm btn-info btn-action action-view" title="View Details">
+                      <i class="fa fa-eye"></i>
+                    </button>
+
+                    <?php
+                    $status = $b['status'];
+                    // Show Cancel for pending or confirmed
+                    if ($status === 'pending' || $status === 'confirmed'):
+                      ?>
+                      <button class="btn btn-sm btn-danger btn-action action-cancel" data-id="<?= $b['reservation_id'] ?>"
+                        title="Cancel Booking">
                         <i class="fa fa-times"></i>
-                    </button>
-                  <?php elseif ($status === 'ongoing'): ?>
-                    <button class="btn btn-sm btn-success btn-action action-complete" data-id="<?= $b['reservation_id'] ?>" title="Complete Booking">
+                      </button>
+                    <?php elseif ($status === 'ongoing'): ?>
+                      <button class="btn btn-sm btn-success btn-action action-complete" data-id="<?= $b['reservation_id'] ?>"
+                        title="Complete Booking">
                         <i class="fa fa-check"></i>
-                    </button>
-                  <?php endif; ?>
-                </td>
-              </tr>
-            <?php endforeach; endif; ?>
-        </tbody>
-      </table>
+                      </button>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; endif; ?>
+          </tbody>
+        </table>
       </div>
     </div>
     <a href="dashboard.php" class="btn btn-secondary mt-4">Go back to Home</a>
   </div>
   <!-- Reservation Details Modal -->
-  <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
+  <div class="modal fade modal-glass" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content bg-dark text-light">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document"> <!-- Changed to lg for better width -->
+      <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="bookingModalLabel">Reservation Details</h5>
-          <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+          <h5 class="modal-title font-weight-bold text-warning" id="bookingModalLabel"><i class="fa fa-ticket mr-2"></i>
+            Reservation Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body" id="modalBodyContent">
+        <div class="modal-body p-4" id="modalBodyContent">
           <!-- Details will be injected here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
   <!-- Action Confirmation Modal -->
-  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="actionModalLabel"
+  <div class="modal fade modal-glass" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="actionModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content bg-dark text-light">
+      <div class="modal-content"> <!-- Keeping internal bg-dark logic or overriding with CSS above -->
+        <!-- The CSS above targets .modal-glass .modal-content so it overrides bg-dark if applied correctly -->
         <div class="modal-header">
-          <h5 class="modal-title" id="actionModalLabel">Confirm Action</h5>
-          <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+          <h5 class="modal-title text-warning" id="actionModalLabel">Confirm Action</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body" id="actionModalBody">
+        <div class="modal-body p-4" id="actionModalBody">
           <!-- Confirmation text injected here -->
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="actionModalConfirmBtn">Confirm</button>
+          <button type="button" class="btn btn-secondary rounded-pill" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4" id="actionModalConfirmBtn">Confirm</button>
         </div>
       </div>
     </div>
