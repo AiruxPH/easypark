@@ -120,11 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="text-muted small">Your Smart Parking Solution</p>
     </div>
 
-    <!-- Error/Success Message -->
-    <?php if ($message): ?>
-      <div class="alert alert-warning small mb-4"><?= htmlspecialchars($message) ?></div>
-    <?php endif; ?>
-
     <!-- Login Form -->
     <form action="login.php" method="POST">
       <div class="form-group">
@@ -183,6 +178,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
   </script>
+
+  <?php if ($message): ?>
+    <script>
+      $(document).ready(function () {
+        $('body').append(`
+                <div class="position-fixed p-3" style="z-index: 5; top: 20px; right: 20px;">
+                    <div id="loginToast" class="toast hide text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+                        <div class="toast-body">
+                            <i class="fas fa-exclamation-circle mr-2"></i> <?= htmlspecialchars($message) ?>
+                        </div>
+                    </div>
+                </div>
+            `);
+        $('#loginToast').toast('show');
+      });
+    </script>
+  <?php endif; ?>
 </body>
 
 </html>
