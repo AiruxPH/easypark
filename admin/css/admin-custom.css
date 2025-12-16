@@ -117,6 +117,12 @@ textarea,
     border: 1px solid var(--border-color) !important;
 }
 
+/* Fix for Select Options being white on Windows */
+select option {
+    background-color: var(--card-bg);
+    color: #fff !important;
+}
+
 input::placeholder,
 .form-control::placeholder {
     color: var(--text-muted) !important;
