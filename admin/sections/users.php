@@ -115,6 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
             1,
             'default.jpg'
         ]);
+
+        $newUserId = $pdo->lastInsertId();
+        logActivity($pdo, $_SESSION['user_id'], 'admin', 'user_create', "Admin created new user: " . trim($_POST['email']) . " (Role: $newUserType)");
+
         echo '<div class="alert alert-success shadow-sm" id="user-success-msg">User added successfully.</div>';
     }
 }
