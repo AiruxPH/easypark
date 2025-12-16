@@ -284,7 +284,7 @@ $overstayCount = count($overstays);
     document.addEventListener("DOMContentLoaded", function () {
         // Determine font family from CSS
         Chart.defaults.font.family = 'Inter';
-        Chart.defaults.color = '#858796';
+        Chart.defaults.color = '#e2e8f0'; // Light text for dark mode
 
         fetch('ajax/get_dashboard_analytics.php')
             .then(response => response.json())
@@ -293,6 +293,8 @@ $overstayCount = count($overstays);
                     console.error("Failed to load chart data", data.error);
                     return;
                 }
+
+                const gridColor = "rgba(255, 255, 255, 0.1)"; // Subtle grid for dark mode
 
                 // 1. Revenue Chart
                 const ctxRev = document.getElementById("revenueChart");
@@ -303,14 +305,14 @@ $overstayCount = count($overstays);
                         datasets: [{
                             label: "Revenue (Coins)",
                             lineTension: 0.3,
-                            backgroundColor: "rgba(78, 115, 223, 0.05)",
-                            borderColor: "rgba(78, 115, 223, 1)",
+                            backgroundColor: "rgba(99, 102, 241, 0.1)", // Primary color low opacity
+                            borderColor: "#6366f1", // Primary color (Indigo 500)
                             pointRadius: 3,
-                            pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                            pointBorderColor: "rgba(78, 115, 223, 1)",
+                            pointBackgroundColor: "#6366f1",
+                            pointBorderColor: "#6366f1",
                             pointHoverRadius: 3,
-                            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                            pointHoverBackgroundColor: "#4f46e5",
+                            pointHoverBorderColor: "#4f46e5",
                             pointHitRadius: 10,
                             pointBorderWidth: 2,
                             data: data.revenue_data,
@@ -321,7 +323,7 @@ $overstayCount = count($overstays);
                         layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
                         scales: {
                             x: { grid: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 7 } },
-                            y: { ticks: { maxTicksLimit: 5, padding: 10, callback: function (value) { return value; } }, grid: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } },
+                            y: { ticks: { maxTicksLimit: 5, padding: 10, callback: function (value) { return value; } }, grid: { color: gridColor, zeroLineColor: gridColor, drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } },
                         },
                         plugins: {
                             legend: { display: false },
@@ -340,9 +342,9 @@ $overstayCount = count($overstays);
                         labels: ['12AM', '1', '2', '3', '4', '5', '6', '7AM', '8', '9', '10', '11', '12PM', '1', '2', '3', '4', '5', '6', '7PM', '8', '9', '10', '11'],
                         datasets: [{
                             label: "Bookings",
-                            backgroundColor: "#4e73df",
-                            hoverBackgroundColor: "#2e59d9",
-                            borderColor: "#4e73df",
+                            backgroundColor: "#3b82f6", // Info color
+                            hoverBackgroundColor: "#2563eb",
+                            borderColor: "#3b82f6",
                             data: data.hourly_data,
                         }],
                     },
@@ -350,7 +352,7 @@ $overstayCount = count($overstays);
                         maintainAspectRatio: false,
                         scales: {
                             x: { grid: { display: false, drawBorder: false } },
-                            y: { ticks: { maxTicksLimit: 5, padding: 10 }, grid: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } },
+                            y: { ticks: { maxTicksLimit: 5, padding: 10 }, grid: { color: gridColor, zeroLineColor: gridColor, drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } },
                         },
                         plugins: { legend: { display: false } },
                     },
