@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 16, 2025 at 09:07 AM
+-- Generation Time: Dec 16, 2025 at 10:14 AM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -863,6 +863,7 @@ INSERT INTO `parking_slots` (`parking_slot_id`, `slot_number`, `slot_type`, `slo
 
 CREATE TABLE `payments` (
   `reference_number` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `reservation_id` int(11) DEFAULT NULL,
   `amount` decimal(12,2) NOT NULL,
   `payment_date` timestamp NULL DEFAULT current_timestamp(),
@@ -875,11 +876,11 @@ CREATE TABLE `payments` (
 -- Dumping data for table `payments`
 --
 
-INSERT INTO `payments` (`reference_number`, `reservation_id`, `amount`, `payment_date`, `method`, `updated_at`, `status`) VALUES
-(1, 1, 480.00, '2025-05-16 01:01:12', 'cash', '2025-05-16 02:12:53', 'successful'),
-(2, 2, 480.00, '2025-05-16 10:10:25', 'cash', '2025-05-19 07:06:05', 'refunded'),
-(3, 3, 480.00, '2025-05-19 05:04:54', 'cash', '2025-05-19 13:04:04', 'refunded'),
-(4, 4, 240.00, '2025-05-19 12:24:04', 'cash', '2025-05-20 20:23:03', 'refunded');
+INSERT INTO `payments` (`reference_number`, `user_id`, `reservation_id`, `amount`, `payment_date`, `method`, `updated_at`, `status`) VALUES
+(1, 1, 1, 480.00, '2025-05-16 01:01:12', 'cash', '2025-12-16 10:11:17', 'successful'),
+(2, 2206, 2, 480.00, '2025-05-16 10:10:25', 'cash', '2025-12-16 10:11:17', 'refunded'),
+(3, 1, 3, 480.00, '2025-05-19 05:04:54', 'cash', '2025-12-16 10:11:17', 'refunded'),
+(4, 2207, 4, 240.00, '2025-05-19 12:24:04', 'cash', '2025-12-16 10:11:17', 'refunded');
 
 -- --------------------------------------------------------
 
@@ -3372,7 +3373,8 @@ ALTER TABLE `parking_slots`
 --
 ALTER TABLE `payments`
   ADD PRIMARY KEY (`reference_number`),
-  ADD KEY `FK_reservations_TO_payments` (`reservation_id`);
+  ADD KEY `FK_reservations_TO_payments` (`reservation_id`),
+  ADD KEY `FK_users_TO_payments` (`user_id`);
 
 --
 -- Indexes for table `reservations`
@@ -3415,7 +3417,7 @@ ALTER TABLE `Vehicle_Models`
 -- AUTO_INCREMENT for table `coin_transactions`
 --
 ALTER TABLE `coin_transactions`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `parking_slots`
@@ -3467,7 +3469,8 @@ ALTER TABLE `coin_transactions`
 -- Constraints for table `payments`
 --
 ALTER TABLE `payments`
-  ADD CONSTRAINT `FK_reservations_TO_payments` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `FK_reservations_TO_payments` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_users_TO_payments` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reservations`
