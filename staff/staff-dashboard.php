@@ -367,36 +367,37 @@ if (isset($_POST['delete_pic'])) {
 
     /* Pagination */
     .pagination .page-item .page-link {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff;
-        margin: 0 5px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      margin: 0 5px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
 
     .pagination .page-item:first-child .page-link,
     .pagination .page-item:last-child .page-link {
-        border-radius: 8px; /* Override bootstrap rounding */
+      border-radius: 8px;
+      /* Override bootstrap rounding */
     }
 
     .pagination .page-item .page-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
     }
 
     .pagination .page-item.active .page-link {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: #000;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(240, 165, 0, 0.3);
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(240, 165, 0, 0.3);
     }
 
     .pagination .page-item.disabled .page-link {
-        background: rgba(0, 0, 0, 0.1);
-        color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.05);
     }
   </style>
 </head>
@@ -421,7 +422,8 @@ if (isset($_POST['delete_pic'])) {
           <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
         </div>
         <div class="d-flex align-items-center">
-          <a href="profile.php" class="d-flex align-items-center nav-link p-0 mr-4"
+          <a href="javascript:void(0)" onclick="loadSection('profile')"
+            class="d-flex align-items-center nav-link p-0 mr-4"
             style="color: rgba(255,255,255,0.8); text-decoration: none;">
             <img
               src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>"
