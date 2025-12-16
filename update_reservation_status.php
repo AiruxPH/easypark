@@ -68,13 +68,28 @@ if ($action === 'cancel') {
             // Calculate hours (ceil)
             $diffSeconds = $now->getTimestamp() - $end->getTimestamp();
             $overhours = ceil($diffSeconds / 3600);
-            $penalty = $overhours * $rate;
 
-            if ($penalty > 0) {
+            // DIFFERENTIAL BILLING LOGIC:
+            // 1. Get Base Price
+            $stmt_base = $pdo->prepare("SELECT amount FROM payments WHERE reservation_id = ? ORDER BY payment_date ASC LIMIT 1");
+            $stmt_base->execute([$reservation_id]);
+            $base_price = floatval($stmt_base->fetchColumn());
+
+            // 2. Get Total Paid
+            $stmt_total = $pdo->prepare("SELECT SUM(amount) FROM payments WHERE reservation_id = ?");
+            $stmt_total->execute([$reservation_id]);
+            $total_paid = floatval($stmt_total->fetchColumn());
+
+            // 3. Required Total
+            $required_total = $base_price + ($overhours * $rate);
+
+            $to_charge = $required_total - $total_paid;
+
+            if ($to_charge > 0) {
                 // Deduct coins (allow debt)
-                $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$penalty, $user_id]);
-                // Update payment record to reflect total cost
-                $pdo->prepare("UPDATE payments SET amount = amount + ? WHERE reservation_id = ?")->execute([$penalty, $reservation_id]);
+                $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$to_charge, $user_id]);
+                // Record the penalty payment as new row
+                $pdo->prepare("INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, 'successful', 'wallet_penalty', NOW())")->execute([$reservation_id, $to_charge]);
             }
         }
 
