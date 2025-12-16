@@ -10,17 +10,28 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// 1: Retrieve Flash Messages
 $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 
 // --- 1. HANDLE FORM SUBMISSION (Top-Up) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'topup') {
     $amountCoins = floatval($_POST['amount_coins']);
     $paymentMethod = $_POST['payment_method'] ?? 'online';
-    
+
     if ($amountCoins < 5 || $amountCoins > 3000) {
-        $error = "Top-up amount must be between 5 and 3000 Coins.";
+        $_SESSION['flash_error'] = "Top-up amount must be between 5 and 3000 Coins.";
+        header("Location: wallet.php");
+        exit;
     } else {
         try {
             $pdo->beginTransaction();
@@ -34,22 +45,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt = $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description, transaction_date) VALUES (?, ?, 'topup', ?, NOW())");
             $stmt->execute([$user_id, $amountCoins, $transaction_desc]);
 
-            // 3. Log to payments (Financial Record) - Optional but good for Admin Revenue
-            // Using a placeholder for reservation_id since it's NULL
+            // 3. Log to payments (Financial Record)
             $stmt = $pdo->prepare("INSERT INTO payments (user_id, amount, method, status, payment_date) VALUES (?, ?, ?, 'successful', NOW())");
-            // Assuming amount in payments reflects the PRICE paid (1:1 ratio for custom, but packages might differ. For now assuming 1:1 or passed cost)
-            // Ideally we pass the real cost. Let's trust the POST cost if strictly for display, but for security we should recalc.
-            // For this implementation, we use the cost passed or calculate 1:1.
-            $costPhp = floatval($_POST['cost_php']); 
+            $costPhp = floatval($_POST['cost_php']);
             $stmt->execute([$user_id, $costPhp, 'online']);
 
             $pdo->commit();
-            $success = "Successfully topped up " . number_format($amountCoins, 2) . " Coins!";
-            
-            // Re-fetch user balance to update session if needed (though navbar fetches from DB mostly)
+
+            // PRG Pattern: Redirect to prevent re-submission
+            $_SESSION['flash_success'] = "Successfully topped up " . number_format($amountCoins, 2) . " Coins!";
+            header("Location: wallet.php");
+            exit;
+
         } catch (Exception $e) {
             $pdo->rollBack();
-            $error = "Transaction failed: " . $e->getMessage();
+            $_SESSION['flash_error'] = "Transaction failed: " . $e->getMessage();
+            header("Location: wallet.php");
+            exit;
         }
     }
 }
@@ -83,7 +95,8 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .glass-panel {
-            background: rgba(43, 45, 66, 0.85); /* Darker glass for contrast */
+            background: rgba(43, 45, 66, 0.85);
+            /* Darker glass for contrast */
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -101,18 +114,20 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .coin-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        
+
         .table-glass {
             color: #fff;
         }
+
         .table-glass thead th {
-            border-color: rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
         }
+
         .table-glass td {
-            border-color: rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -159,9 +174,13 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <!-- Package 2 -->
                         <div class="col-md-4 mb-3">
-                            <div class="card coin-card h-100" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);" onclick="openPaymentModal(50, 48, 'Value')">
-                                <div class="card-body text-center d-flex flex-column justify-content-center position-relative">
-                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-4%</div>
+                            <div class="card coin-card h-100"
+                                style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"
+                                onclick="openPaymentModal(50, 48, 'Value')">
+                                <div
+                                    class="card-body text-center d-flex flex-column justify-content-center position-relative">
+                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-4%
+                                    </div>
                                     <h5 class="font-weight-bold">Value</h5>
                                     <h3><i class="fas fa-coins fa-xs"></i> 50</h3>
                                     <p class="mb-0 small">₱48.00</p>
@@ -170,9 +189,13 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <!-- Package 3 -->
                         <div class="col-md-4 mb-3">
-                            <div class="card coin-card h-100" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);" onclick="openPaymentModal(100, 95, 'Pro')">
-                                <div class="card-body text-center d-flex flex-column justify-content-center position-relative">
-                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-5%</div>
+                            <div class="card coin-card h-100"
+                                style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"
+                                onclick="openPaymentModal(100, 95, 'Pro')">
+                                <div
+                                    class="card-body text-center d-flex flex-column justify-content-center position-relative">
+                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-5%
+                                    </div>
                                     <h5 class="font-weight-bold">Pro</h5>
                                     <h3><i class="fas fa-coins fa-xs"></i> 100</h3>
                                     <p class="mb-0 small">₱95.00</p>
@@ -189,7 +212,9 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="input-group-prepend">
                                 <div class="input-group-text bg-dark text-white border-secondary">🪙</div>
                             </div>
-                            <input type="number" id="customAmount" class="form-control bg-dark text-white border-secondary" placeholder="Enter amount (5 - 3000)" min="5" max="3000">
+                            <input type="number" id="customAmount"
+                                class="form-control bg-dark text-white border-secondary"
+                                placeholder="Enter amount (5 - 3000)" min="5" max="3000">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit">Buy</button>
                             </div>
@@ -219,15 +244,19 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <?php foreach ($transactions as $t): ?>
                                     <tr>
                                         <td><?= date('M d, Y h:i A', strtotime($t['transaction_date'])) ?></td>
-                                        <td><span class="badge badge-light"><?= ucfirst($t['transaction_type']) ?></span></td>
+                                        <td><span class="badge badge-light"><?= ucfirst($t['transaction_type']) ?></span>
+                                        </td>
                                         <td><?= htmlspecialchars($t['description']) ?></td>
-                                        <td class="<?= $t['amount'] >= 0 ? 'text-success' : 'text-danger' ?> font-weight-bold">
-                                            <?= $t['amount'] >= 0 ? '+' : '' ?><?= number_format($t['amount'], 2) ?>
+                                        <td
+                                            class="<?= $t['amount'] >= 0 ? 'text-success' : 'text-danger' ?> font-weight-bold">
+                                            <?= $t['amount'] >= 0 ? '+' : '' ?>     <?= number_format($t['amount'], 2) ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($transactions)): ?>
-                                    <tr><td colspan="4" class="text-center text-white-50">No transactions found.</td></tr>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-white-50">No transactions found.</td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -250,14 +279,15 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>You are about to purchase <strong class="text-warning"><span id="modalCoins">0</span> Coins</strong>.</p>
+                    <p>You are about to purchase <strong class="text-warning"><span id="modalCoins">0</span>
+                            Coins</strong>.</p>
                     <p class="h4 mb-4">Total: ₱<span id="modalCost">0.00</span></p>
-                    
+
                     <form id="paymentForm" method="POST">
                         <input type="hidden" name="action" value="topup">
                         <input type="hidden" name="amount_coins" id="inputCoins">
                         <input type="hidden" name="cost_php" id="inputCost">
-                        
+
                         <div class="form-group">
                             <label>Select Payment Method</label>
                             <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
@@ -269,12 +299,13 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </label>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Account Number (Mock)</label>
-                            <input type="text" class="form-control bg-secondary text-white border-0" placeholder="09XX-XXX-XXXX" required>
+                            <input type="text" class="form-control bg-secondary text-white border-0"
+                                placeholder="09XX-XXX-XXXX" required>
                         </div>
-                        
+
                         <button type="submit" class="btn btn-success btn-block font-weight-bold mt-4">
                             PAY NOW <i class="fas fa-chevron-right ml-1"></i>
                         </button>
@@ -290,7 +321,7 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script>
         // Navbar scroll effect
         const navbar = document.getElementById('navbar');
-        if(navbar){
+        if (navbar) {
             window.addEventListener('scroll', function () {
                 if (window.scrollY > 50) navbar.classList.add('scrolled');
                 else navbar.classList.remove('scrolled');
@@ -316,4 +347,5 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </script>
 </body>
+
 </html>
