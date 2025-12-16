@@ -43,10 +43,10 @@ $overstayCount = count($overstays);
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-gray-800">Dashboard Overview</h2>
+        <h2 class="h3 mb-0">Dashboard Overview</h2>
 
         <!-- Date Filter Form -->
-        <form method="GET" class="form-inline shadow-sm p-2 bg-white rounded">
+        <form method="GET" class="form-inline shadow-sm p-2 rounded">
             <label class="mr-2 font-weight-bold text-gray-600"><i class="fa fa-filter"></i> Filter Date:</label>
             <input type="date" name="filter_date" class="form-control form-control-sm mr-2" value="<?= $filterDate ?>">
             <button type="submit" class="btn btn-sm btn-primary">Apply</button>
@@ -68,8 +68,8 @@ $overstayCount = count($overstays);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Revenue (<?= $filterDate === date('Y-m-d') ? 'Today' : $filterDate ?>)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><i
-                                    class="fas fa-coins text-warning"></i> <?= number_format($revenueToday, 2) ?></div>
+                            <div class="h5 mb-0 font-weight-bold"><i class="fas fa-coins text-warning"></i>
+                                <?= number_format($revenueToday, 2) ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-money fa-2x text-gray-300"></i>
@@ -87,7 +87,7 @@ $overstayCount = count($overstays);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Arrivals (<?= $filterDate === date('Y-m-d') ? 'Today' : $filterDate ?>)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $arrivalsToday ?></div>
+                            <div class="h5 mb-0 font-weight-bold"><?= $arrivalsToday ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-car fa-2x text-gray-300"></i>
@@ -105,7 +105,7 @@ $overstayCount = count($overstays);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Parking (Now)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $activeNow ?></div>
+                            <div class="h5 mb-0 font-weight-bold"><?= $activeNow ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-clock-o fa-2x text-gray-300"></i>
@@ -123,7 +123,7 @@ $overstayCount = count($overstays);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                 Overstaying Vehicles</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $overstayCount ?></div>
+                            <div class="h5 mb-0 font-weight-bold"><?= $overstayCount ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-exclamation-triangle fa-2x text-gray-300"></i>

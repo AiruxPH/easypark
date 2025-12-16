@@ -118,7 +118,7 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
 
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Payments Management</h1>
+        <h1 class="h3 mb-0">Payments Management</h1>
     </div>
 
     <!-- Revenue Summary Cards -->
@@ -131,8 +131,8 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Revenue (All
                                 Time)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><i
-                                    class="fas fa-coins text-warning"></i> <?= number_format($totalRevenue, 2) ?>
+                            <div class="h5 mb-0 font-weight-bold"><i class="fas fa-coins text-warning"></i>
+                                <?= number_format($totalRevenue, 2) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -150,8 +150,8 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Revenue (Today)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><i
-                                    class="fas fa-coins text-warning"></i> <?= number_format($todayRevenue, 2) ?>
+                            <div class="h5 mb-0 font-weight-bold"><i class="fas fa-coins text-warning"></i>
+                                <?= number_format($todayRevenue, 2) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -170,7 +170,7 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Payments
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $pendingCount ?></div>
+                            <div class="h5 mb-0 font-weight-bold"><?= $pendingCount ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-clock-o fa-2x text-gray-300"></i>
@@ -183,16 +183,16 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
 
     <!-- Filter & Search Bar -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-white">
+        <div class="card-header py-3">
             <form method="GET" class="form-row align-items-center">
                 <input type="hidden" name="section" value="payments">
 
                 <div class="col-auto">
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
-                            <div class="input-group-text bg-light border-0"><i class="fa fa-search"></i></div>
+                            <div class="input-group-text border-0"><i class="fa fa-search"></i></div>
                         </div>
-                        <input type="text" class="form-control bg-light border-0 small" name="search"
+                        <input type="text" class="form-control border-0 small" name="search"
                             value="<?= htmlspecialchars($search) ?>" placeholder="Search Ref# or Client...">
                     </div>
                 </div>
@@ -233,7 +233,7 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th>Ref #</th>
                             <th>Date</th>
@@ -261,7 +261,7 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                                         </div>
                                         <small class="text-muted"><?= htmlspecialchars($p['email']) ?></small>
                                     </td>
-                                    <td class="font-weight-bold text-gray-800">
+                                    <td class="font-weight-bold">
                                         <i class="fas fa-coins text-warning"></i> <?= number_format($p['amount'], 2) ?>
                                     </td>
                                     <td>
@@ -276,7 +276,8 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                                         <?php if ($p['reservation_id']): ?>
                                             <small class="text-muted">Res ID: <?= $p['reservation_id'] ?></small>
                                         <?php else: ?>
-                                            <span class="badge badge-success"><i class="fas fa-plus-circle"></i> Wallet Top-Up</span>
+                                            <span class="badge badge-success"><i class="fas fa-plus-circle"></i> Wallet
+                                                Top-Up</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

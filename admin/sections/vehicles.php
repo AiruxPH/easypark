@@ -150,13 +150,13 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
     $url = "?section=vehicles&sort=$col&order=$newOrder&search=" . urlencode($search) .
         "&type=" . urlencode($type) . "&brand=" . urlencode($brand);
 
-    return "<a href='$url' class='text-decoration-none text-dark font-weight-bold'>$label $icon</a>";
+    return "<a href='$url' class='text-decoration-none font-weight-bold'>$label $icon</a>";
 }
 ?>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-gray-800">Vehicles Registry</h2>
+        <h2 class="h3 mb-0">Vehicles Registry</h2>
     </div>
 
     <!-- Filters -->
@@ -167,14 +167,14 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend">
-                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                        <span class="input-group-text border-0"><i class="fa fa-search"></i></span>
                     </div>
-                    <input type="text" name="search" class="form-control bg-light border-0 small"
+                    <input type="text" name="search" class="form-control border-0 small"
                         placeholder="Search plate, name..." value="<?= htmlspecialchars($search) ?>">
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="type" class="custom-select custom-select-sm border-0 bg-light">
+                    <select name="type" class="custom-select custom-select-sm border-0">
                         <option value="">All Types</option>
                         <?php foreach ($types as $type): ?>
                             <option value="<?= htmlspecialchars($type) ?>" <?= $type === $filterType ? 'selected' : '' ?>>
@@ -185,7 +185,7 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="brand" class="custom-select custom-select-sm border-0 bg-light">
+                    <select name="brand" class="custom-select custom-select-sm border-0">
                         <option value="">All Brands</option>
                         <?php foreach ($brands as $brand): ?>
                             <option value="<?= htmlspecialchars($brand) ?>" <?= $brand === $filterBrand ? 'selected' : '' ?>>
@@ -197,12 +197,12 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">From</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from"
+                    <input type="date" class="form-control form-control-sm border-0" name="date_from"
                         value="<?= htmlspecialchars($dateFrom) ?>">
                 </div>
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">To</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to"
+                    <input type="date" class="form-control form-control-sm border-0" name="date_to"
                         value="<?= htmlspecialchars($dateTo) ?>">
                 </div>
 
@@ -227,7 +227,7 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
             <div class="table-responsive">
                 <table class="table table-hover align-items-center table-flush" id="dataTable" width="100%"
                     cellspacing="0">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th class="pl-4">
                                 <?= sortLinkV('v.vehicle_id', 'ID', $sort, $order, $search, $filterType, $filterBrand) ?>
@@ -253,7 +253,7 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
                             <?php foreach ($result as $row): ?>
                                 <tr>
                                     <td class="pl-4 font-weight-bold">#<?= htmlspecialchars($row['vehicle_id']) ?></td>
-                                    <td><span class="badge badge-light border text-dark p-2"
+                                    <td><span class="badge border p-2"
                                             style="font-family: monospace; font-size: 1rem;"><?= htmlspecialchars($row['plate_number']) ?></span>
                                     </td>
                                     <td>
