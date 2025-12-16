@@ -38,11 +38,17 @@ if (!empty($actionFilter)) {
 }
 
 // Order by newest first
+// Order by newest first
 $sql .= " ORDER BY l.created_at DESC LIMIT 100";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    echo '<div class="alert alert-danger">Database Query Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    $logs = [];
+}
 
 // Get unique actions for filter dropdown
 $actionStmt = $pdo->prepare("SELECT DISTINCT action FROM activity_logs ORDER BY action ASC");
