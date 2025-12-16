@@ -44,6 +44,10 @@ if (isset($_SESSION['user_id'])) {
                     <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php">My
                         Bookings</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'activity_logs.php') ? 'active' : '' ?>"
+                        href="activity_logs.php">Activity Logs</a>
+                </li>
             <?php endif; ?>
             <li class="nav-item">
                 <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>"
