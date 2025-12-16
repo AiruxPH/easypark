@@ -262,7 +262,8 @@ if (isset($_POST['delete_pic'])) {
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       color: #fff !important;
       border-radius: 10px;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 1rem;
+      height: auto;
     }
 
     .glass-input:focus {

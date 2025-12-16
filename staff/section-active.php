@@ -7,14 +7,14 @@ require_once __DIR__ . '/section-common.php';
 
   <!-- Filters -->
   <div class="row mb-4">
-    <div class="col-md-4 mb-2">
+    <div class="col-md-3 mb-2">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text bg-transparent border-secondary text-white-50"><i
               class="fas fa-search"></i></span>
         </div>
-        <input type="text" id="activeSearch" class="form-control glass-input border-left-0"
-          placeholder="Search active reservations..." value="<?= htmlspecialchars($search) ?>">
+        <input type="text" id="activeSearch" class="form-control glass-input border-left-0" placeholder="Search..."
+          value="<?= htmlspecialchars($search) ?>">
       </div>
     </div>
     <div class="col-md-3 mb-2">
@@ -24,7 +24,7 @@ require_once __DIR__ . '/section-common.php';
         <option value="ongoing" <?= $filter_status === 'ongoing' ? 'selected' : '' ?>>Ongoing</option>
       </select>
     </div>
-    <div class="col-md-5 mb-2">
+    <div class="col-md-6 mb-2">
       <div class="input-group">
         <div class="input-group-prepend"><span
             class="input-group-text bg-transparent border-secondary text-white-50">Filter Date</span></div>
