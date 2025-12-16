@@ -65,129 +65,242 @@ if (isset($_POST['delete_pic'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #f0a500;
+      --dark: #1a1a1a;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
     body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
       background: url('../images/bg-car.jpg') no-repeat center center fixed;
       background-size: cover;
-      min-height: 100vh;
+      color: #fff;
     }
 
     .bg-overlay {
-      background: rgba(20, 20, 20, 0.85);
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.85) 100%);
       min-height: 100vh;
       padding-bottom: 40px;
     }
 
-    .header-bar {
-      background: rgba(0, 0, 0, 0.7);
-      color: #ffc107;
-      padding: 1.5rem 2rem 1rem 2rem;
-      border-radius: 0 0 1rem 1rem;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .header-bar h2 {
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: 1px;
-      font-size: 2.2rem;
-    }
-
-    .header-bar .fa {
-      margin-right: 10px;
-    }
-
+    /* Staff Navbar */
     .staff-navbar {
-      background: #232526;
-      border-radius: 1rem;
+      background: rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0;
       margin-bottom: 2rem;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      padding: 1rem 2rem;
     }
 
     .staff-navbar .nav-link {
-      color: #ffc107;
-      font-weight: 600;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      margin: 0 5px;
     }
 
-    .staff-navbar .nav-link.active,
-    .staff-navbar .nav-link:focus {
-      background: #ffc107;
-      color: #232526 !important;
-      border-radius: 0.5rem;
+    .staff-navbar .nav-link:hover,
+    .staff-navbar .nav-link.active {
+      background: var(--glass);
+      color: var(--primary) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    @media (max-width: 767px) {
-      .header-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1rem;
+    .staff-navbar .nav-link i {
+      margin-right: 8px;
+    }
+
+    /* Header Bar (Profile Area) */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 3rem;
+    }
+
+    .page-title h2 {
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 2.2rem;
+      color: #fff;
+      margin: 0;
+    }
+
+    .page-title span {
+      color: var(--primary);
+    }
+
+    /* Glass Cards (for sections) */
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      margin-bottom: 2rem;
+    }
+
+    /* Preloader */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease-out;
+    }
+
+    .loader-logo {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 20px;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .car-loader {
+      position: relative;
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .car-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      background: var(--primary);
+      animation: drive 1.5s infinite linear;
+      border-radius: 4px;
+    }
+
+    @keyframes pulse {
+      from {
+        opacity: 0.6;
+        transform: scale(0.95);
       }
 
-      .section-card {
-        padding: 1rem;
+      to {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes drive {
+      0% {
+        left: -50%;
       }
 
-      .staff-navbar .nav-link {
-        font-size: 1rem;
+      100% {
+        left: 100%;
       }
+    }
+
+    .hide-loader {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="bg-overlay">
-    <div class="header-bar mb-4">
-      <h2><i class="fa fa-user-shield"></i> Staff Dashboard</h2>
-      <div class="d-flex align-items-center">
-        <a href="profile.php" class="d-flex align-items-center nav-link p-0 mr-3"
-          style="color: #ffc107; text-decoration: none;">
-          <img
-            src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>"
-            alt="Profile Picture" class="rounded-circle mr-2"
-            style="width:40px;height:40px;object-fit:cover;border:2px solid #ffc107;">
-          <span class="font-weight-bold" style="font-size:1.1rem;">
-            My Profile
-          </span>
-        </a>
-        <a href="../logout.php" class="btn btn-secondary ml-2"><i class="fa fa-sign-out"></i> Logout</a>
+
+  <!-- Preloader -->
+  <div id="preloader">
+      <div class="loader-logo">EASYPARK</div>
+      <div class="car-loader">
+          <div class="car-bar"></div>
       </div>
-    </div>
+      <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
+  </div>
+
+  <div class="bg-overlay">
     <div class="container">
-      <!-- Responsive Navbar for Sections -->
-      <nav class="staff-navbar navbar navbar-expand-md navbar-dark mb-4">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staffNav"
-          aria-controls="staffNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="staffNav">
-          <ul class="navbar-nav w-100 justify-content-between">
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="dashboard"><i
-                  class="fa fa-tachometer-alt"></i> Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i
-                  class="fa fa-calendar-check-o"></i> Bookings</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i
-                  class="fa fa-play-circle"></i> Active</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i
-                  class="fa fa-history"></i> History</a></li>
-            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i
-                  class="fa fa-car"></i> Slots</a></li>
-          </ul>
+        <!-- Header Bar -->
+        <div class="header-bar">
+            <div class="page-title">
+                <h2>Staff <span>Dashboard</span></h2>
+                <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="profile.php" class="d-flex align-items-center nav-link p-0 mr-4"
+                style="color: rgba(255,255,255,0.8); text-decoration: none;">
+                <img
+                    src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>"
+                    alt="Profile Picture" class="rounded-circle mr-2 shadow"
+                    style="width:40px;height:40px;object-fit:cover;border:2px solid var(--primary);">
+                <span style="font-size:1rem;">
+                    My Profile
+                </span>
+                </a>
+                <a href="../logout.php" class="btn btn-outline-light btn-sm px-3 rounded-pill"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
         </div>
-      </nav>
-      <!-- Section Content Loader -->
-      <div id="section-content"></div>
+
+        <!-- Navigation -->
+        <nav class="staff-navbar navbar navbar-expand-md navbar-dark mb-4">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staffNav"
+            aria-controls="staffNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="staffNav">
+            <ul class="navbar-nav w-100 justify-content-center">
+                <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" data-section="dashboard"><i
+                    class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i
+                    class="fas fa-calendar-check"></i> Bookings</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i
+                    class="fas fa-play-circle"></i> Active</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i
+                    class="fas fa-history"></i> History</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i
+                    class="fas fa-car"></i> Slots</a></li>
+            </ul>
+            </div>
+        </nav>
+
+        <!-- Section Content Loader -->
+        <div id="section-content"></div>
     </div>
   </div>
-  <script src="../js/bootstrap.bundle.min.js"></script>
+
   <script src="../js/jquery.min.js"></script>
+  <script src="../js/popper.min.js"></script>
+  <script src="../js/bootstrap.bundle.min.js"></script>
+
   <script>
+    // Preloader Logic
+    window.addEventListener('load', function() {
+        const loader = document.getElementById('preloader');
+        setTimeout(function() {
+            if(loader) loader.classList.add('hide-loader');
+        }, 1200); 
+    });
+
     // SPA-like section navigation
     const sectionFiles = {
       dashboard: 'section-dashboard.php',
@@ -197,7 +310,8 @@ if (isset($_POST['delete_pic'])) {
       history: 'section-history.php',
       slots: 'section-slots.php'
     };
-    // Check for section in localStorage or URL hash
+    
+    // Check for section in localStorage or default
     let currentSection = localStorage.getItem('staffCurrentSection') || 'dashboard';
 
     // Auto-refresh interval reference
@@ -229,14 +343,9 @@ if (isset($_POST['delete_pic'])) {
       // Handle Auto-Refresh logic
       if (refreshInterval) clearInterval(refreshInterval);
       if (section === 'active' || section === 'slots' || section === 'dashboard') {
-        // Auto-refresh these sections every 30 seconds
         refreshInterval = setInterval(function () {
-          // Only refresh if no modal/input is active (simple check)
           if ($('input:focus').length === 0) {
-            // Reload silently (without fadeOut)
             let refreshUrl = sectionFiles[section];
-            // Preserve current usage? For improved UX, we might skip preserving detailed view state if it's too complex, 
-            // but re-loading the content keeps counters live.
             $('#section-content').load(refreshUrl);
             console.log('Auto-refreshing ' + section + '...');
           }
@@ -251,12 +360,12 @@ if (isset($_POST['delete_pic'])) {
         if (!section) return;
         loadSection(section);
       });
-      // Intercept pagination link clicks inside #section-content
+      
+      // Intercept pagination link clicks
       $('#section-content').on('click', '.pagination .page-link', function (e) {
         var href = $(this).attr('href');
         if (href && href !== '#' && href.indexOf('javascript:') !== 0) {
           e.preventDefault();
-          // Extract page param from href
           var params = {};
           var match = href.match(/([a-z_]+)_page=(\d+)/);
           if (match) {
@@ -265,58 +374,11 @@ if (isset($_POST['delete_pic'])) {
           loadSection(currentSection, params);
         }
       });
+      
       // Load last focused section on page load
       loadSection(currentSection);
     });
   </script>
-  <style>
-    th.sortable {
-      cursor: pointer;
-    }
-
-    th.asc:after {
-      content: ' \25B2';
-    }
-
-    th.desc:after {
-      content: ' \25BC';
-    }
-
-    /* Card Lift Animation */
-    .card.shadow {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card.shadow:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    /* Custom Pagination Styling (Yellow/Black) */
-    .pagination .page-item .page-link {
-      color: #ffc107;
-      background-color: #343a40;
-      border-color: #454d55;
-    }
-
-    .pagination .page-item.active .page-link {
-      background-color: #ffc107;
-      border-color: #ffc107;
-      color: #212529;
-    }
-
-    .pagination .page-item.disabled .page-link {
-      color: #6c757d;
-      background-color: #343a40;
-      border-color: #454d55;
-    }
-
-    .pagination .page-item .page-link:hover {
-      background-color: #e0a800;
-      color: #212529;
-    }
-  </style>
-  <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
 </body>
 
 </html>
