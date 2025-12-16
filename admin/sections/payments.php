@@ -62,7 +62,7 @@ $countSql = "
     SELECT COUNT(*) 
     FROM payments p
     LEFT JOIN reservations r ON p.reservation_id = r.reservation_id
-    LEFT JOIN users u ON r.user_id = u.user_id
+    LEFT JOIN users u ON u.user_id = COALESCE(p.user_id, r.user_id)
     $whereClause
 ";
 $countStmt = $pdo->prepare($countSql);
@@ -86,7 +86,7 @@ $sql = "
         u.email
     FROM payments p
     LEFT JOIN reservations r ON p.reservation_id = r.reservation_id
-    LEFT JOIN users u ON r.user_id = u.user_id
+    LEFT JOIN users u ON u.user_id = COALESCE(p.user_id, r.user_id)
     $whereClause
     ORDER BY p.payment_date DESC
     LIMIT :limit OFFSET :offset
@@ -273,7 +273,11 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                                         </span>
                                     </td>
                                     <td>
-                                        <small class="text-muted">Res ID: <?= $p['reservation_id'] ?></small>
+                                        <?php if ($p['reservation_id']): ?>
+                                            <small class="text-muted">Res ID: <?= $p['reservation_id'] ?></small>
+                                        <?php else: ?>
+                                            <span class="badge badge-success"><i class="fas fa-plus-circle"></i> Wallet Top-Up</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
