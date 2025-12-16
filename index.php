@@ -37,8 +37,9 @@ if (isset($_SESSION['user_id'])) {
     /* Hero Section */
     .hero-section {
       position: relative;
-      height: 100vh;
-      min-height: 600px;
+      /* Subtract approx navbar height to center content in viewport */
+      height: calc(100vh - 76px);
+      min-height: 500px;
       background: url('images/bg-car.jpg') no-repeat center center/cover;
       background-attachment: fixed;
       display: flex;
@@ -62,6 +63,27 @@ if (isset($_SESSION['user_id'])) {
       padding: 2rem;
       max-width: 900px;
       animation: fadeInUp 1s ease-out;
+      /* Slight upward nudge on mobile to counteract address bar */
+      margin-top: -2rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        height: auto;
+        min-height: 80vh;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+      }
+
+      .hero-content {
+        margin-top: 0;
+        padding: 1rem;
+      }
+
+      .display-title {
+        font-size: 2.5rem;
+        /* Ensure it fits */
+      }
     }
 
     /* Typography */

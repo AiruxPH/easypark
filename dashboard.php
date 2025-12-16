@@ -55,9 +55,9 @@ $user_name = $stmt->fetchColumn();
     /* Hero Section */
     .hero-section {
       position: relative;
-      height: 85vh;
-      /* Slightly shorter for dashboard */
-      min-height: 500px;
+      /* Subtract navbar height for better centering */
+      height: calc(90vh - 76px);
+      min-height: 450px;
       background: url('images/bg-car.jpg') no-repeat center center/cover;
       background-attachment: fixed;
       display: flex;
@@ -81,6 +81,22 @@ $user_name = $stmt->fetchColumn();
       padding: 2rem;
       max-width: 900px;
       animation: fadeInUp 1s ease-out;
+      margin-top: -2rem;
+      /* Nudge up */
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        height: auto;
+        min-height: 70vh;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+      }
+
+      .hero-content {
+        margin-top: 0;
+        padding: 1rem;
+      }
     }
 
     /* Typography */
