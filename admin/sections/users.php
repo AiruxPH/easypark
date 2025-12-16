@@ -596,33 +596,37 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
     <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST" id="addUserForm">
+                <form method="POST" id="addUserForm" autocomplete="off">
                     <div class="modal-header">
                         <h5 class="modal-title">Add New User</h5>
                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
                     <div class="modal-body">
+                        <!-- Trap for browser autofill -->
+                        <input type="text" style="display:none">
+                        <input type="password" style="display:none">
+
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label>First Name</label>
-                                <input type="text" class="form-control" name="first_name" required>
+                                <input type="text" class="form-control" name="first_name" required autocomplete="off">
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Middle Name</label>
-                                <input type="text" class="form-control" name="middle_name">
+                                <input type="text" class="form-control" name="middle_name" autocomplete="off">
                             </div>
                             <div class="form-group col-md-4">
                                 <label>Last Name</label>
-                                <input type="text" class="form-control" name="last_name" required>
+                                <input type="text" class="form-control" name="last_name" required autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" class="form-control" name="email" required>
+                            <input type="email" class="form-control" name="email" required autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label>Phone Number</label>
-                            <input type="tel" class="form-control" name="phone" required>
+                            <input type="tel" class="form-control" name="phone" required autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label>Role</label>
@@ -636,7 +640,8 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" class="form-control" name="password" required>
+                            <input type="password" class="form-control" name="password" required
+                                autocomplete="new-password">
                         </div>
                     </div>
                     <div class="modal-footer">
