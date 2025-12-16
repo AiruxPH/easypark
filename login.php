@@ -215,40 +215,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
   <script src="js/jquery.min.js"></script>
+  <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
-    function togglePassword() {
-      const pwd = document.getElementById('password');
-      const icon = document.getElementById('toggleIcon');
-      if (pwd.type === "password") {
-        pwd.type = "text";
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-        icon.classList.add('text-primary');
-      } else {
-        pwd.type = "password";
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-        icon.classList.remove('text-primary');
-      }
-    }
-  </script>
+    $(document).ready(function () {
+      $('#togglePassword').click(function () {
+        var input = $('#password');
+        var icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+          input.attr('type', 'text');
+          icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+          input.attr('type', 'password');
+          icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+      });
 
-  <?php if ($message): ?>
-    <script>
-      $(document).ready(function () {
+      // Show error toast if message exists
+      <?php if (!empty($message)): ?>
         $('body').append(`
+          <div class="position-fixed p-3" style="z-index: 5; top: 20px; right: 20px;">
+              <div id="errorToast" class="toast hide text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+                  <div class="toast-body d-flex align-items-center">
+                      <i class="fas fa-info-circle text-warning mr-3 fa-lg"></i> 
+                      <div><?= htmlspecialchars($message) ?></div>
+                  </div>
+              </div>
+          </div>
+        `);
+        $('#errorToast').toast('show');
+      <?php endif; ?>
+
+      // Handle URL messages
+      const urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.get('msg') === 'login_required'){
+          // Create and show a info toast
+          $('body').append(`
                 <div class="position-fixed p-3" style="z-index: 5; top: 20px; right: 20px;">
                     <div id="loginToast" class="toast hide text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
                         <div class="toast-body d-flex align-items-center">
-                            <i class="fas fa-info-circle text-warning mr-3 fa-lg"></i> 
-                            <div><?= htmlspecialchars($message) ?></div>
+                            <i class="fas fa-exclamation-circle text-warning mr-3 fa-lg"></i> 
+                            <div>Please log in to access that page.</div>
                         </div>
                     </div>
                 </div>
             `);
-        $('#loginToast').toast('show');
-      });
-    </script>
-  <?php endif; ?>
+          $('#loginToast').toast('show');
+      }
+    });
+  </script>
 </body>
 
 </html>
+```

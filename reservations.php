@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
-  header("Location: index.php");
+  header("Location: login.php?msg=login_required");
   exit();
 }
 require_once 'includes/db.php';
@@ -751,12 +751,12 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
           <div class="mt-5">
             <nav aria-label="Slot pagination" class="mb-3">
               <ul class="pagination justify-content-center">
-                
+
                 <!-- First -->
                 <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=1" title="First Page">
-                        <i class="fa fa-angle-double-left"></i>
-                    </a>
+                  <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=1" title="First Page">
+                    <i class="fa fa-angle-double-left"></i>
+                  </a>
                 </li>
 
                 <!-- Prev -->
@@ -770,20 +770,20 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                 <?php
                 $start = max(1, $page - $window);
                 $end = min($total_pages, $page + $window);
-                
+
                 if ($start > 1) {
-                    echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                  echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                 }
 
-                for ($i = $start; $i <= $end; $i++): 
-                ?>
+                for ($i = $start; $i <= $end; $i++):
+                  ?>
                   <li class="page-item <?= $i == $page ? 'active' : '' ?>">
                     <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $i ?>"><?= $i ?></a>
                   </li>
-                <?php endfor; 
-                
+                <?php endfor;
+
                 if ($end < $total_pages) {
-                    echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                  echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                 }
                 ?>
 
@@ -793,26 +793,27 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                     <i class="fa fa-chevron-right"></i>
                   </a>
                 </li>
-                
+
                 <!-- Last -->
                 <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $total_pages ?>" title="Last Page">
-                        <i class="fa fa-angle-double-right"></i>
-                    </a>
+                  <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $total_pages ?>"
+                    title="Last Page">
+                    <i class="fa fa-angle-double-right"></i>
+                  </a>
                 </li>
               </ul>
             </nav>
 
             <!-- Jump to Page -->
             <form action="" method="GET" class="form-inline justify-content-center">
-                 <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
-                 <div class="input-group input-group-sm">
-                    <input type="number" name="page" class="form-control bg-dark border-secondary text-white" 
-                           min="1" max="<?= $total_pages ?>" placeholder="Page" style="width: 70px;">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-warning" type="submit">Go</button>
-                    </div>
-                 </div>
+              <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
+              <div class="input-group input-group-sm">
+                <input type="number" name="page" class="form-control bg-dark border-secondary text-white" min="1"
+                  max="<?= $total_pages ?>" placeholder="Page" style="width: 70px;">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-warning" type="submit">Go</button>
+                </div>
+              </div>
             </form>
           </div>
         <?php endif; ?>

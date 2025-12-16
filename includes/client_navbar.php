@@ -38,8 +38,13 @@ if (isset($_SESSION['user_id'])) {
                     data-toggle="tooltip" title="Return to Homepage" data-placement="bottom">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>" href="reservations.php"
-                    data-toggle="tooltip" title="Book a parking slot" data-placement="bottom">Reserve</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>" href="reservations.php"
+                        data-toggle="tooltip" title="Book a parking slot" data-placement="bottom">Reserve</a>
+                <?php else: ?>
+                    <a class="nav-link" href="login.php?msg=login_required" data-toggle="tooltip" title="Login to Book"
+                        data-placement="bottom">Reserve</a>
+                <?php endif; ?>
             </li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
@@ -279,7 +284,8 @@ if (isset($_SESSION['user_id'])) {
     }
 
     .dropdown-header {
-        background: rgba(240, 165, 0, 0.9) !important; /* Primary color */
+        background: rgba(240, 165, 0, 0.9) !important;
+        /* Primary color */
         color: #000 !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         font-weight: 700;
@@ -300,31 +306,34 @@ if (isset($_SESSION['user_id'])) {
     .notification-item .text-gray-500 {
         color: #aaa !important;
     }
-    
+
     .notification-item .font-weight-bold {
         color: #fff !important;
     }
-    
+
     .notification-item .text-dark {
         color: #ccc !important;
     }
 
     .notification-item.bg-light {
-        background: rgba(255, 255, 255, 0.05) !important; /* Unread */
+        background: rgba(255, 255, 255, 0.05) !important;
+        /* Unread */
     }
 
     .notification-item.bg-white {
-        background: transparent !important; /* Read */
+        background: transparent !important;
+        /* Read */
     }
 
     /* Mark all as read button */
     a.dropdown-item.text-center {
         color: #f0a500 !important;
-        background: rgba(0,0,0,0.2) !important;
+        background: rgba(0, 0, 0, 0.2) !important;
         transition: all 0.2s;
     }
+
     a.dropdown-item.text-center:hover {
-        background: rgba(0,0,0,0.4) !important;
+        background: rgba(0, 0, 0, 0.4) !important;
         color: #fff !important;
     }
 </style>
