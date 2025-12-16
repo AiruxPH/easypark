@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
 
                 if ($stmt->rowCount() > 0) {
                     sendNotification($pdo, $u_id, 'Reservation Confirmed', "Your booking for slot $slot_num (ID: $r_id) has been confirmed by staff.", 'success', 'bookings.php');
+                    logActivity($pdo, $staff_id, 'staff', 'confirm_booking', "Confirmed booking #$r_id for slot $slot_num");
                 }
 
             } elseif ($action === 'cancel') {
@@ -46,29 +47,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
                 $stmt->execute([$r_id]);
 
                 if ($stmt->rowCount() > 0) {
-                    // Free up the slot (Simplistic approach: if we cancelled, we free it. 
-                    // Robust approach: Check if overlapping? 
-                    // For now, consistent with existing cancel logic: Free it.)
+                    // Free up the slot
                     $stmt_free = $pdo->prepare("UPDATE parking_slots SET slot_status = 'available' WHERE parking_slot_id = ?");
                     $stmt_free->execute([$slot_id]);
 
-                    // Refund if paid? (Reservations are prepaid)
-                    // Logic: Update payment status to refunded
+                    // Refund logic
                     $stmt_pay = $pdo->prepare("UPDATE payments SET status = 'refunded' WHERE reservation_id = ?");
                     $stmt_pay->execute([$r_id]);
 
                     // Refund coins?
-                    // We need to fetch the amount paid.
                     $stmt_amount = $pdo->prepare("SELECT amount FROM payments WHERE reservation_id = ? AND status = 'refunded' AND method = 'coins'");
                     $stmt_amount->execute([$r_id]);
                     $paid = $stmt_amount->fetchColumn();
 
+                    $refundMsg = "";
                     if ($paid > 0) {
                         $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?")->execute([$paid, $u_id]);
                         $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'refund', 'Refund for Reservation #$r_id')")->execute([$u_id, $paid]);
+                        $refundMsg = " (Refunded $paid coins)";
                     }
 
                     sendNotification($pdo, $u_id, 'Reservation Cancelled', "Your booking (ID: $r_id) has been cancelled by staff.", 'error', 'bookings.php');
+                    logActivity($pdo, $staff_id, 'staff', 'cancel_booking', "Cancelled booking #$r_id$refundMsg");
                 }
 
             } elseif ($action === 'accept') {
@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
 
                 if ($stmt->rowCount() > 0) {
                     sendNotification($pdo, $u_id, 'Parking Started', "You have checked in for slot $slot_num. Your timer has started.", 'info', 'bookings.php');
+                    logActivity($pdo, $staff_id, 'staff', 'mark_arrived', "Marked booking #$r_id as arrived (ongoing)");
                 }
             }
 

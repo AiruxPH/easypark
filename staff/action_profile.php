@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $pdo->prepare('UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, phone = ? WHERE user_id = ?');
                 $stmt->execute([$first_name, $middle_name, $last_name, $phone, $staff_id]);
+                logActivity($pdo, $staff_id, 'staff', 'update_profile', "Updated profile details");
                 $response = ['success' => true, 'message' => 'Profile details updated successfully.'];
             } catch (PDOException $e) {
                 $response['message'] = 'Database error: ' . $e->getMessage();
@@ -56,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hashed = password_hash($new, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
                 $stmt->execute([$hashed, $staff_id]);
+                logActivity($pdo, $staff_id, 'staff', 'change_password', "Changed account password");
                 $response = ['success' => true, 'message' => 'Password changed successfully.'];
             } else {
                 $response['message'] = 'Current password is incorrect.';
@@ -87,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
                     $stmt->execute([$newName, $staff_id]);
+                    logActivity($pdo, $staff_id, 'staff', 'upload_photo', "Uploaded new profile picture");
 
                     $response = [
                         'success' => true,
@@ -116,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
         $stmt->execute([$staff_id]);
+        logActivity($pdo, $staff_id, 'staff', 'delete_photo', "Removed profile picture");
 
         $response = ['success' => true, 'message' => 'Profile picture removed.', 'new_image_url' => '../images/default.jpg'];
     }

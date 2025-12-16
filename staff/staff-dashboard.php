@@ -456,6 +456,8 @@ if (isset($_POST['delete_pic'])) {
                   class="fas fa-history"></i> History</a></li>
             <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i
                   class="fas fa-car"></i> Slots</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="activity"><i
+                  class="fas fa-clipboard-list"></i> Activity</a></li>
           </ul>
         </div>
       </nav>
@@ -485,7 +487,8 @@ if (isset($_POST['delete_pic'])) {
       bookings: 'section-bookings.php',
       active: 'section-active.php',
       history: 'section-history.php',
-      slots: 'section-slots.php'
+      slots: 'section-slots.php',
+      activity: 'section-activity.php'
     };
 
     // Check for section in localStorage or default
