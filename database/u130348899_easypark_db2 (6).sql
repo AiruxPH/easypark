@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 16, 2025 at 11:29 AM
+-- Generation Time: Dec 16, 2025 at 12:52 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -20,6 +20,22 @@ SET time_zone = "+00:00";
 --
 -- Database: `u130348899_easypark_db2`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activity_logs`
+--
+
+CREATE TABLE `activity_logs` (
+  `log_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `user_type` enum('admin','staff','client') NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `details` text DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -48,7 +64,10 @@ INSERT INTO `coin_transactions` (`transaction_id`, `user_id`, `amount`, `transac
 (6, 2218, 10.00, 'topup', 'Top-up: 10.00 Coins via Gcash', '2025-12-16 10:39:33'),
 (7, 1, 10.00, 'topup', 'Top-up: 10.00 Coins via Gcash', '2025-12-16 10:50:07'),
 (8, 1, -240.00, 'payment', 'Reservation Payment', '2025-12-16 10:51:22'),
-(9, 2218, 100.00, 'topup', 'Top-up: 100.00 Coins via Gcash', '2025-12-16 11:11:58');
+(9, 2218, 100.00, 'topup', 'Top-up: 100.00 Coins via Gcash', '2025-12-16 11:11:58'),
+(10, 1, 80.00, '', 'Admin Adjustment: Refund', '2025-12-16 11:37:08'),
+(11, 1, 2000.00, 'topup', 'Top-up: 2,000.00 Coins via Gcash', '2025-12-16 11:48:04'),
+(12, 1, -100.00, 'payment', 'Reservation Payment', '2025-12-16 11:49:02');
 
 -- --------------------------------------------------------
 
@@ -66,6 +85,15 @@ CREATE TABLE `notifications` (
   `is_read` tinyint(1) DEFAULT 0,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `type`, `link`, `is_read`, `created_at`) VALUES
+(1, 1, 'Wallet Top-Up', 'You have successfully added 2,000.00 coins.', 'success', 'wallet.php', 1, '2025-12-16 11:48:04'),
+(2, 1, 'Reservation Confirmed', 'Your booking for slot TW-001 (ID: 6) has been confirmed by staff.', 'success', 'bookings.php', 1, '2025-12-16 11:51:36'),
+(3, 1, 'Parking Started', 'You have checked in for slot TW-001. Your timer has started.', 'info', 'bookings.php', 1, '2025-12-16 11:52:01');
 
 -- --------------------------------------------------------
 
@@ -918,8 +946,10 @@ INSERT INTO `payments` (`reference_number`, `user_id`, `reservation_id`, `amount
 (8, 2218, NULL, 10.00, '2025-12-16 10:36:09', 'online', NULL, 'successful'),
 (9, 2218, NULL, 10.00, '2025-12-16 10:39:33', 'online', NULL, 'successful'),
 (10, 1, NULL, 10.00, '2025-12-16 10:50:07', 'online', NULL, 'successful'),
-(11, 1, 5, 240.00, '2025-12-16 10:51:22', 'coins', NULL, 'successful'),
-(12, 2218, NULL, 95.00, '2025-12-16 11:11:58', 'online', NULL, 'successful');
+(11, 1, 5, 240.00, '2025-12-16 10:51:22', 'coins', '2025-12-16 11:42:03', 'refunded'),
+(12, 2218, NULL, 95.00, '2025-12-16 11:11:58', 'online', NULL, 'successful'),
+(13, 1, NULL, 2000.00, '2025-12-16 11:48:04', 'online', NULL, 'successful'),
+(14, 1, 6, 100.00, '2025-12-16 11:49:02', 'coins', NULL, 'successful');
 
 -- --------------------------------------------------------
 
@@ -945,10 +975,11 @@ CREATE TABLE `reservations` (
 --
 
 INSERT INTO `reservations` (`reservation_id`, `user_id`, `vehicle_id`, `parking_slot_id`, `start_time`, `end_time`, `duration`, `status`, `created_at`, `updated_at`) VALUES
+(6, 1, 1087, 4, '2025-12-16 19:48:00', '2025-12-17 19:48:00', '1', 'completed', '2025-12-16 11:49:02', '2025-12-16 11:52:31'),
 (4, 2207, 1090, 22, '2025-05-20 20:23:00', '2025-05-21 20:23:00', '24', 'cancelled', '2025-05-19 12:24:04', '2025-05-20 20:23:03'),
 (1, 1, 1, 404, '2025-05-16 09:01:00', '2025-05-17 09:01:00', '24', 'completed', '2025-05-16 01:01:12', '2025-05-19 03:43:06'),
 (3, 1, 1, 404, '2025-05-19 13:04:00', '2025-05-20 13:04:00', '24', 'cancelled', '2025-05-19 05:04:54', '2025-05-19 13:04:04'),
-(5, 1, 1, 404, '2025-12-16 18:50:00', '2025-12-17 06:50:00', '12', 'pending', '2025-12-16 10:51:22', NULL),
+(5, 1, 1, 404, '2025-12-16 18:50:00', '2025-12-17 06:50:00', '12', 'cancelled', '2025-12-16 10:51:22', '2025-12-16 11:41:59'),
 (2, 2206, 1088, 405, '2025-05-16 18:10:00', '2025-05-17 18:10:00', '24', 'expired', '2025-05-16 10:10:25', '2025-05-19 06:22:04');
 
 -- --------------------------------------------------------
@@ -979,7 +1010,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `first_name`, `middle_name`, `last_name`, `email`, `password`, `phone`, `user_type`, `security_word`, `created_at`, `updated_at`, `is_active`, `image`, `coins`) VALUES
-(1, 'Randy', 'Ebol', 'Calunod', 'randythegreat000@gmail.com', 'RandyBOY999999@', '9168811468', 'client', 'randy', '2025-04-22 02:17:26', '2025-12-16 10:51:22', 1, 'profile_1_1747392158.jpg', -80.00),
+(1, 'Randy', 'Ebol', 'Calunod', 'randythegreat000@gmail.com', 'RandyBOY999999@', '9168811468', 'client', 'randy', '2025-04-22 02:17:26', '2025-12-16 11:49:02', 1, 'profile_1_1747392158.jpg', 1900.00),
 (2, 'Admin', NULL, 'user', 'admin@gmail.com', 'admin', NULL, 'admin', 'randy', '2025-04-23 11:24:01', NULL, 1, 'default.jpg', 0.00),
 (4, 'Staff', '', 'User', 'staff@gmail.com', 'staff', '+639168811468', 'staff', 'easypark', '2025-05-13 06:37:29', NULL, 1, 'default.jpg', 0.00),
 (5, 'Megan', NULL, 'Chang', 'megan.chang@mail.com', 'MeganChang', '09113472403', 'client', 'easypark', '2025-03-28 09:47:57', NULL, 1, 'default.jpg', 0.00),
@@ -3398,6 +3429,13 @@ INSERT INTO `Vehicle_Models` (`model_id`, `brand`, `model`, `type`) VALUES
 --
 
 --
+-- Indexes for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD PRIMARY KEY (`log_id`),
+  ADD KEY `FK_users_TO_logs` (`user_id`);
+
+--
 -- Indexes for table `coin_transactions`
 --
 ALTER TABLE `coin_transactions`
@@ -3464,16 +3502,22 @@ ALTER TABLE `Vehicle_Models`
 --
 
 --
+-- AUTO_INCREMENT for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `coin_transactions`
 --
 ALTER TABLE `coin_transactions`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `parking_slots`
@@ -3485,13 +3529,13 @@ ALTER TABLE `parking_slots`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `reference_number` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `reference_number` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -3514,6 +3558,12 @@ ALTER TABLE `Vehicle_Models`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD CONSTRAINT `FK_users_TO_logs` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `coin_transactions`
