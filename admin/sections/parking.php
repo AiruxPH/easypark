@@ -32,7 +32,7 @@ if ($type) {
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Validation for sort
-$allowedSort = ['slot_number', 'slot_type', 'slot_status', 'price'];
+$allowedSort = ['slot_number', 'slot_type', 'slot_status'];
 $sort = in_array($sort, $allowedSort) ? $sort : 'slot_number';
 $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
 
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_slot'])) {
         if ($check->rowCount() > 0) {
             echo '<div class="alert alert-danger shadow-sm">Slot number ' . htmlspecialchars($slotNum) . ' already exists.</div>';
         } else {
-            $stmt = $pdo->prepare("INSERT INTO parking_slots (slot_number, slot_type, slot_status, price) VALUES (?, ?, 'available', 0.00)");
+            $stmt = $pdo->prepare("INSERT INTO parking_slots (slot_number, slot_type, slot_status) VALUES (?, ?, 'available')");
             $stmt->execute([$slotNum, $slotType]);
 
             $newId = $pdo->lastInsertId();
@@ -223,7 +223,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                         <option value="slot_number" <?= $sort === 'slot_number' ? 'selected' : '' ?>>Slot Number</option>
                         <option value="slot_status" <?= $sort === 'slot_status' ? 'selected' : '' ?>>Status</option>
                         <option value="slot_type" <?= $sort === 'slot_type' ? 'selected' : '' ?>>Type</option>
-                        <option value="price" <?= $sort === 'price' ? 'selected' : '' ?>>Price</option>
                     </select>
                     <select name="order" class="custom-select custom-select-sm border-0 ml-1"
                         onchange="this.form.submit()">
