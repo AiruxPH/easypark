@@ -75,7 +75,7 @@ if (isset($_SESSION['user_id'])) {
                         <?php endif; ?>
                     </a>
                     <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in p-0"
-                        aria-labelledby="alertsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                        aria-labelledby="alertsDropdown" style="width: 25rem; max-height: 400px; overflow-y: auto;">
                         <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
                             Notifications Center
                         </h6>
@@ -101,32 +101,35 @@ if (isset($_SESSION['user_id'])) {
                                     case 'error':
                                         $iconClass = 'times text-white';
                                         $iconBg = 'bg-danger';
-                                        break; // Matches 'error' enum
+                                        break;
                                     case 'info':
                                     default:
                                         $iconClass = 'info text-white';
                                         $iconBg = 'bg-info';
                                         break;
                                 }
+                                // Ensure link is not null
+                                $link = $notif['link'] ? $notif['link'] : '';
                                 ?>
-                                <a class="dropdown-item d-flex align-items-center py-2 border-bottom notification-item <?= $bgClass ?>"
-                                    href="<?= $notif['link'] ? htmlspecialchars($notif['link']) : '#' ?>"
-                                    data-id="<?= $notif['notification_id'] ?>"
-                                    onclick="markAsRead(event, <?= $notif['notification_id'] ?>, '<?= $notif['link'] ?>')">
+                                <a class="dropdown-item d-flex align-items-center py-3 border-bottom notification-item <?= $bgClass ?>"
+                                    href="#" data-id="<?= $notif['notification_id'] ?>" data-link="<?= htmlspecialchars($link) ?>"
+                                    data-title="<?= htmlspecialchars($notif['title']) ?>"
+                                    data-message="<?= htmlspecialchars($notif['message']) ?>"
+                                    onclick="handleNotificationClick(event)">
                                     <div class="mr-3">
                                         <div class="icon-circle <?= $iconBg ?> d-flex align-items-center justify-content-center rounded-circle"
-                                            style="width: 35px; height: 35px;">
+                                            style="width: 40px; height: 40px;">
                                             <i class="fas fa-<?= $iconClass ?>"></i>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div style="flex: 1; min-width: 0;">
                                         <div class="small text-gray-500">
                                             <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
                                         </div>
-                                        <div class="font-weight-bold text-truncate" style="max-width: 200px;">
+                                        <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">
                                             <?= htmlspecialchars($notif['title']) ?>
                                         </div>
-                                        <div class="small text-dark text-truncate" style="max-width: 200px;">
+                                        <div class="small text-dark text-truncate" style="font-size: 0.85rem;">
                                             <?= htmlspecialchars($notif['message']) ?>
                                         </div>
                                     </div>
@@ -176,6 +179,29 @@ if (isset($_SESSION['user_id'])) {
     </div>
     </div>
 </nav>
+
+<!-- Notification Details Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">Notification Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 id="notif-modal-title" class="font-weight-bold mb-2">Subject</h6>
+                <p id="notif-modal-message" class="text-dark">Message goes here...</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="notif-modal-link" class="btn btn-primary" style="display: none;">Go to Page</a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     /* Navbar Base Styles */
@@ -261,23 +287,37 @@ if (isset($_SESSION['user_id'])) {
         updateNavbarOpacity();
     });
 
-    // Mark as Read JS
-    function markAsRead(event, id, link) {
-        event.preventDefault(); // Stop default link behavior momentarily
+    // Enhanced Notification Handler
+    function handleNotificationClick(event) {
+        event.preventDefault();
+        const linkItem = event.currentTarget;
+        const id = linkItem.getAttribute('data-id');
+        const link = linkItem.getAttribute('data-link');
+        const title = linkItem.getAttribute('data-title');
+        const message = linkItem.getAttribute('data-message');
 
+        // 1. Mark as Read (AJAX)
         fetch('mark_read.php', {
             method: 'POST',
             body: JSON.stringify({ notification_id: id }),
             headers: { 'Content-Type': 'application/json' }
         }).then(() => {
-            // Find badge and decrement
-            const item = event.currentTarget;
-            item.classList.remove('bg-light');
-            item.classList.add('bg-white');
+            // Update UI: Remove highlighting
+            linkItem.classList.remove('bg-light');
+            linkItem.classList.add('bg-white');
 
-            // Redirect if link exists
+            // 2. Logic: If valid link -> Redirect. Else -> Open Modal.
             if (link && link !== "#" && link !== "") {
                 window.location.href = link;
+            } else {
+                // Open Modal
+                $('#notif-modal-title').text(title);
+                $('#notif-modal-message').text(message);
+
+                // Hide or update button in modal just in case
+                $('#notif-modal-link').hide();
+
+                $('#notificationModal').modal('show');
             }
         }).catch(err => console.error(err));
     }
