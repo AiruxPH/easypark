@@ -88,8 +88,10 @@ if ($action === 'cancel') {
             if ($to_charge > 0) {
                 // Deduct coins (allow debt)
                 $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$to_charge, $user_id]);
+                // Log transaction
+                $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Overstay Penalty (Manual Completion)')")->execute([$user_id, -$to_charge]);
                 // Record the penalty payment as new row
-                $pdo->prepare("INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, 'successful', 'wallet_penalty', NOW())")->execute([$reservation_id, $to_charge]);
+                $pdo->prepare("INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, 'successful', 'coins', NOW())")->execute([$reservation_id, $to_charge]);
             }
         }
 
