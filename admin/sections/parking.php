@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-gray-800">Parking Map Overview</h2>
+        <h2 class="h3 mb-0">Parking Map Overview</h2>
         <button class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#addSlotModal">
             <i class="fa fa-plus-circle fa-sm text-white-50"></i> Add New Slot
         </button>
@@ -138,14 +138,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend">
-                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                        <span class="input-group-text border-0"><i class="fa fa-search"></i></span>
                     </div>
-                    <input type="text" name="search" class="form-control bg-light border-0 small"
+                    <input type="text" name="search" class="form-control border-0 small"
                         placeholder="Search Slot (e.g. A-1)" value="<?= htmlspecialchars($search) ?>">
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="status" class="custom-select custom-select-sm border-0 bg-light">
+                    <select name="status" class="custom-select custom-select-sm border-0">
                         <option value="">All Statuses</option>
                         <option value="available" <?= $status === 'available' ? ' selected' : '' ?>>🟢 Available</option>
                         <option value="reserved" <?= $status === 'reserved' ? ' selected' : '' ?>>🟡 Reserved</option>
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="type" class="custom-select custom-select-sm border-0 bg-light text-capitalize">
+                    <select name="type" class="custom-select custom-select-sm border-0 text-capitalize">
                         <option value="">All Vehicle Types</option>
                         <?php foreach ($availableTypes as $t): ?>
                             <option value="<?= htmlspecialchars($t) ?>" <?= $type === $t ? ' selected' : '' ?>>
@@ -167,15 +167,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <label class="mr-2 small text-gray-600">Sort:</label>
-                    <select name="sort" class="custom-select custom-select-sm border-0 bg-light"
-                        onchange="this.form.submit()">
+                    <label class="mr-2 small">Sort:</label>
+                    <select name="sort" class="custom-select custom-select-sm border-0" onchange="this.form.submit()">
                         <option value="slot_number" <?= $sort === 'slot_number' ? 'selected' : '' ?>>Slot Number</option>
                         <option value="slot_status" <?= $sort === 'slot_status' ? 'selected' : '' ?>>Status</option>
                         <option value="slot_type" <?= $sort === 'slot_type' ? 'selected' : '' ?>>Type</option>
                         <option value="price" <?= $sort === 'price' ? 'selected' : '' ?>>Price</option>
                     </select>
-                    <select name="order" class="custom-select custom-select-sm border-0 bg-light ml-1"
+                    <select name="order" class="custom-select custom-select-sm border-0 ml-1"
                         onchange="this.form.submit()">
                         <option value="ASC" <?= $order === 'ASC' ? 'selected' : '' ?>>Asc</option>
                         <option value="DESC" <?= $order === 'DESC' ? 'selected' : '' ?>>Desc</option>

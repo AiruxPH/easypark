@@ -299,14 +299,14 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend">
-                        <span class="input-group-text bg-light border-0"><i class="fa fa-search"></i></span>
+                        <span class="input-group-text border-0"><i class="fa fa-search"></i></span>
                     </div>
-                    <input type="text" name="search" class="form-control bg-light border-0 small"
+                    <input type="text" name="search" class="form-control border-0 small"
                         placeholder="Search name or email..." value="<?= htmlspecialchars($search) ?>">
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="user_type" class="custom-select custom-select-sm border-0 bg-light">
+                    <select name="user_type" class="custom-select custom-select-sm border-0">
                         <option value="">All Roles</option>
                         <option value="admin" <?= $userType === 'admin' ? ' selected' : '' ?>>Admin</option>
                         <option value="staff" <?= $userType === 'staff' ? ' selected' : '' ?>>Staff</option>
@@ -315,7 +315,7 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                 </div>
 
                 <div class="input-group mr-2 mb-2">
-                    <select name="active" class="custom-select custom-select-sm border-0 bg-light">
+                    <select name="active" class="custom-select custom-select-sm border-0">
                         <option value="">All Status</option>
                         <option value="1" <?= $active === '1' ? 'selected' : '' ?>>Active</option>
                         <option value="0" <?= $active === '0' ? 'selected' : '' ?>>Inactive</option>
@@ -324,12 +324,12 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
 
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">From</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_from"
+                    <input type="date" class="form-control form-control-sm border-0" name="date_from"
                         value="<?= htmlspecialchars($dateFrom) ?>">
                 </div>
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text border-0 small">To</span></div>
-                    <input type="date" class="form-control form-control-sm border-0 bg-light" name="date_to"
+                    <input type="date" class="form-control form-control-sm border-0" name="date_to"
                         value="<?= htmlspecialchars($dateTo) ?>">
                 </div>
 
@@ -355,7 +355,7 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
             <div class="table-responsive">
                 <table class="table table-hover align-items-center table-flush" id="dataTable" width="100%"
                     cellspacing="0">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th class="pl-4">
                                 <?= sortLink('user_id', 'ID', $sort, $order, $search, $userType, $active) ?>
@@ -378,7 +378,7 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                             $canEditDelete = $isSuperAdmin || (!$isTargetAdmin && !$isSuperAdminUser);
                             ?>
                             <tr>
-                                <td class="pl-4 font-weight-bold text-gray-800">#<?= htmlspecialchars($user['user_id']) ?>
+                                <td class="pl-4 font-weight-bold">#<?= htmlspecialchars($user['user_id']) ?>
                                 </td>
                                 <td>
                                     <div class="font-weight-bold">
