@@ -338,6 +338,24 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
                             </li>
                         <?php endif; ?>
                     </ul>
+
+                    <!-- Jump to Page -->
+                    <form action="" method="GET" class="form-inline justify-content-center mt-2">
+                        <input type="hidden" name="section" value="vehicles">
+                        <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+                        <input type="hidden" name="type" value="<?= htmlspecialchars($filterType) ?>">
+                        <input type="hidden" name="brand" value="<?= htmlspecialchars($filterBrand) ?>">
+                        <input type="hidden" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
+                        <input type="hidden" name="date_to" value="<?= htmlspecialchars($dateTo) ?>">
+                        <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
+                        <input type="hidden" name="order" value="<?= htmlspecialchars($order) ?>">
+
+                        <label class="mr-2 text-muted small">Jump to:</label>
+                        <input type="number" name="page" min="1" max="<?= $totalPages ?>"
+                            class="form-control form-control-sm border-secondary" style="width: 70px;"
+                            placeholder="<?= $page ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+                    </form>
                 </nav>
             <?php endif; ?>
         </div>

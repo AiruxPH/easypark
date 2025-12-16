@@ -296,33 +296,61 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
 
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-                <nav aria-label="Page navigation" class="mt-4">
+                <nav aria-label="Page navigation" class="mt-4 mb-4">
                     <ul class="pagination justify-content-center">
                         <?php
-                        // Build query string for pagination links
                         $queryParams = $_GET;
-                        $queryParams['section'] = 'payments'; // ensure section is set
-                    
-                        // Previous
-                        if ($page > 1) {
-                            $queryParams['page'] = $page - 1;
-                            echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($queryParams) . '">Previous</a></li>';
-                        } else {
-                            echo '<li class="page-item disabled"><span class="page-link">Previous</span></li>';
-                        }
+                        $queryParams['section'] = 'payments';
 
-                        // Current status
-                        echo '<li class="page-item disabled"><span class="page-link">Page ' . $page . ' of ' . $totalPages . '</span></li>';
-
-                        // Next
-                        if ($page < $totalPages) {
-                            $queryParams['page'] = $page + 1;
-                            echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($queryParams) . '">Next</a></li>';
-                        } else {
-                            echo '<li class="page-item disabled"><span class="page-link">Next</span></li>';
+                        function buildUrl($page, $params)
+                        {
+                            $params['page'] = $page;
+                            return '?' . http_build_query($params);
                         }
                         ?>
+
+                        <!-- First & Previous -->
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= buildUrl(1, $queryParams) ?>">First</a>
+                        </li>
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= buildUrl($page - 1, $queryParams) ?>">Previous</a>
+                        </li>
+
+                        <!-- Window Loop -->
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($totalPages, $page + 2);
+                        for ($i = $start; $i <= $end; $i++):
+                            ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="<?= buildUrl($i, $queryParams) ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <!-- Next & Last -->
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= buildUrl($page + 1, $queryParams) ?>">Next</a>
+                        </li>
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= buildUrl($totalPages, $queryParams) ?>">Last</a>
+                        </li>
                     </ul>
+
+                    <!-- Jump to Page -->
+                    <form action="" method="GET" class="form-inline justify-content-center mt-2">
+                        <?php foreach ($queryParams as $k => $v): ?>
+                            <?php if ($k !== 'page'): ?>
+                                <input type="hidden" name="<?= htmlspecialchars($k) ?>" value="<?= htmlspecialchars($v) ?>">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+
+                        <label class="mr-2 text-muted small">Jump to:</label>
+                        <input type="number" name="page" min="1" max="<?= $totalPages ?>"
+                            class="form-control form-control-sm border-secondary" style="width: 70px;"
+                            placeholder="<?= $page ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+                    </form>
                 </nav>
             <?php endif; ?>
         </div>

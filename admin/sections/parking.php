@@ -291,28 +291,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
     </div>
 
     <!-- Pagination -->
+    <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
         <nav aria-label="Page navigation" class="mt-4 mb-5">
             <ul class="pagination pagination-sm justify-content-center">
-                <!-- Keep pagination links simpler for grid -->
-                <?php if ($page > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link"
-                            href="?section=parking&page=<?= $page - 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Previous</a>
-                    </li>
-                <?php endif; ?>
-
-                <li class="page-item disabled">
-                    <span class="page-link">Page <?= $page ?> of <?= $totalPages ?></span>
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?section=parking&page=1&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">First</a>
+                </li>
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?section=parking&page=<?= $page - 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Previous</a>
                 </li>
 
-                <?php if ($page < $totalPages): ?>
-                    <li class="page-item">
+                <!-- Window of 5 -->
+                <?php
+                $start = max(1, $page - 2);
+                $end = min($totalPages, $page + 2);
+                for ($i = $start; $i <= $end; $i++):
+                    ?>
+                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
                         <a class="page-link"
-                            href="?section=parking&page=<?= $page + 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Next</a>
+                            href="?section=parking&page=<?= $i ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>"><?= $i ?></a>
                     </li>
-                <?php endif; ?>
+                <?php endfor; ?>
+
+                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?section=parking&page=<?= $page + 1 ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Next</a>
+                </li>
+                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?section=parking&page=<?= $totalPages ?>&status=<?= urlencode($status) ?>&type=<?= urlencode($type) ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Last</a>
+                </li>
             </ul>
+
+            <!-- Jump to Page -->
+            <form action="" method="GET" class="form-inline justify-content-center mt-2">
+                <input type="hidden" name="section" value="parking">
+                <input type="hidden" name="status" value="<?= htmlspecialchars($status) ?>">
+                <input type="hidden" name="type" value="<?= htmlspecialchars($type) ?>">
+                <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+                <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
+                <input type="hidden" name="order" value="<?= htmlspecialchars($order) ?>">
+
+                <label class="mr-2 text-muted small">Jump to:</label>
+                <input type="number" name="page" min="1" max="<?= $totalPages ?>"
+                    class="form-control form-control-sm border-secondary" style="width: 70px;" placeholder="<?= $page ?>">
+                <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+            </form>
         </nav>
     <?php endif; ?>
 

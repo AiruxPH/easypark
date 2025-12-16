@@ -15,32 +15,50 @@ if ($current_user_type !== 'admin' && $current_user_type !== 'staff') {
     exit();
 }
 
-// Filter Logic
+// Filter & Pagination Logic
 $actionFilter = isset($_GET['action']) ? $_GET['action'] : '';
-$params = [];
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
 
-// Base Query
-// Base Query
-$sql = "SELECT l.*, u.first_name, u.last_name, u.email 
-        FROM activity_logs l 
-        LEFT JOIN users u ON l.user_id = u.user_id 
-        WHERE 1=1";
+$params = [];
+$whereClauses = ["1=1"];
 
 // Role-Based Filtering
 if ($current_user_type === 'staff') {
-    // Staff can only see logs for clients and other staff
-    $sql .= " AND l.user_type IN ('client', 'staff')";
+    $whereClauses[] = "l.user_type IN ('client', 'staff')";
 }
 
 // Action Filter
 if (!empty($actionFilter)) {
-    $sql .= " AND l.action = ?";
+    $whereClauses[] = "l.action = ?";
     $params[] = $actionFilter;
 }
 
-// Order by newest first
-// Order by newest first
-$sql .= " ORDER BY l.created_at DESC LIMIT 100";
+// Search Filter
+if (!empty($search)) {
+    $whereClauses[] = "(u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR l.details LIKE ? OR l.action LIKE ?)";
+    $term = "%$search%";
+    $params = array_merge($params, [$term, $term, $term, $term, $term]);
+}
+
+$whereSql = implode(' AND ', $whereClauses);
+
+// Count Total Records for Pagination
+$countSql = "SELECT COUNT(*) FROM activity_logs l LEFT JOIN users u ON l.user_id = u.user_id WHERE $whereSql";
+$stmt = $pdo->prepare($countSql);
+$stmt->execute($params);
+$totalRecords = $stmt->fetchColumn();
+$totalPages = ceil($totalRecords / $limit);
+
+// Fetch Logs
+$sql = "SELECT l.*, u.first_name, u.last_name, u.email 
+        FROM activity_logs l 
+        LEFT JOIN users u ON l.user_id = u.user_id 
+        WHERE $whereSql
+        ORDER BY l.created_at DESC 
+        LIMIT $limit OFFSET $offset";
 
 try {
     $stmt = $pdo->prepare($sql);
@@ -65,7 +83,13 @@ $actions = $actionStmt->fetchAll(PDO::FETCH_COLUMN);
 
                 <form class="form-inline" method="GET">
                     <input type="hidden" name="section" value="activity_logs">
-                    <label class="mr-2 text-muted">Filter by Action:</label>
+
+                    <!-- Search Input -->
+                    <input type="text" name="search"
+                        class="form-control form-control-sm bg-dark text-light border-secondary mr-2"
+                        placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+
+                    <label class="mr-2 text-muted">Filter:</label>
                     <select name="action" class="form-control form-control-sm bg-dark text-light border-secondary mr-2"
                         onchange="this.form.submit()">
                         <option value="">All Actions</option>
@@ -75,7 +99,10 @@ $actions = $actionStmt->fetchAll(PDO::FETCH_COLUMN);
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if ($actionFilter): ?>
+
+                    <button type="submit" class="btn btn-sm btn-primary mr-2"><i class="fa fa-search"></i></button>
+
+                    <?php if ($actionFilter || $search): ?>
                         <a href="?section=activity_logs" class="btn btn-sm btn-secondary">Clear</a>
                     <?php endif; ?>
                 </form>
@@ -142,6 +169,58 @@ $actions = $actionStmt->fetchAll(PDO::FETCH_COLUMN);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <?php if ($totalPages > 1): ?>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <!-- First & Prev -->
+                                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?section=activity_logs&page=1&action=<?= urlencode($actionFilter) ?>&search=<?= urlencode($search) ?>">First</a>
+                                </li>
+                                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?section=activity_logs&page=<?= $page - 1 ?>&action=<?= urlencode($actionFilter) ?>&search=<?= urlencode($search) ?>">Prev</a>
+                                </li>
+
+                                <!-- Page Numbers (Window of 5) -->
+                                <?php
+                                $start = max(1, $page - 2);
+                                $end = min($totalPages, $page + 2);
+                                for ($i = $start; $i <= $end; $i++):
+                                    ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link"
+                                            href="?section=activity_logs&page=<?= $i ?>&action=<?= urlencode($actionFilter) ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+
+                                <!-- Next & Last -->
+                                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?section=activity_logs&page=<?= $page + 1 ?>&action=<?= urlencode($actionFilter) ?>&search=<?= urlencode($search) ?>">Next</a>
+                                </li>
+                                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?section=activity_logs&page=<?= $totalPages ?>&action=<?= urlencode($actionFilter) ?>&search=<?= urlencode($search) ?>">Last</a>
+                                </li>
+                            </ul>
+
+                            <!-- Jump to Page -->
+                            <form action="" method="GET" class="form-inline justify-content-center mt-2">
+                                <input type="hidden" name="section" value="activity_logs">
+                                <input type="hidden" name="action" value="<?= htmlspecialchars($actionFilter) ?>">
+                                <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+                                <label class="mr-2 text-muted small">Jump to:</label>
+                                <input type="number" name="page" min="1" max="<?= $totalPages ?>"
+                                    class="form-control form-control-sm bg-dark text-light border-secondary"
+                                    style="width: 70px;" placeholder="<?= $page ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+                            </form>
+                        </nav>
+                    <?php endif; ?>
                     </table>
                 </div>
             </div>

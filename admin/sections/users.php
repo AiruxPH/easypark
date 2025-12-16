@@ -522,8 +522,28 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 <a class="page-link"
                                     href="?section=users&page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&user_type=<?= urlencode($userType) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Next</a>
                             </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?section=users&page=<?= $totalPages ?>&search=<?= urlencode($search) ?>&user_type=<?= urlencode($userType) ?>&sort=<?= $sort ?>&order=<?= $order ?>">Last</a>
+                            </li>
                         <?php endif; ?>
                     </ul>
+
+                    <!-- Jump to Page -->
+                    <form action="" method="GET" class="form-inline justify-content-center mt-2">
+                        <input type="hidden" name="section" value="users">
+                        <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+                        <input type="hidden" name="user_type" value="<?= htmlspecialchars($userType) ?>">
+                        <input type="hidden" name="active" value="<?= htmlspecialchars($active) ?>">
+                        <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
+                        <input type="hidden" name="order" value="<?= htmlspecialchars($order) ?>">
+
+                        <label class="mr-2 text-muted small">Jump to:</label>
+                        <input type="number" name="page" min="1" max="<?= $totalPages ?>"
+                            class="form-control form-control-sm border-secondary" style="width: 70px;"
+                            placeholder="<?= $page ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+                    </form>
                 </nav>
             <?php endif; ?>
         </div>
