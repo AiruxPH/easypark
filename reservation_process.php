@@ -48,8 +48,8 @@ if (!isset(SLOT_RATES[$slot_type][$duration_type])) {
 $rate = SLOT_RATES[$slot_type][$duration_type];
 $total_price = $rate * $duration_value;
 
-echo "Rate for {$slot_type} per {$duration_type}: ₱" . number_format($rate, 2) . "<br>";
-echo "Total for {$duration_value} {$duration_type}(s): ₱" . number_format($total_price, 2);
+echo "Rate for {$slot_type} per {$duration_type}: " . number_format($rate, 2) . " Coins<br>";
+echo "Total for {$duration_value} {$duration_type}(s): " . number_format($total_price, 2) . " Coins";
 
 
 ?>
