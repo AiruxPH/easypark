@@ -22,6 +22,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
+<script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
 <nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
     <a id="opp" class="navbar-brand" href="index.php">
         <h1 class="custom-size 75rem">EASYPARK</h1>

@@ -22,6 +22,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
 
 <body>
 
+    <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
         <div class="container-fluid">
