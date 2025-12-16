@@ -57,11 +57,11 @@ require_once __DIR__ . '/section-common.php';
               </td>
               <td>
                 <?php if ($b['status'] === 'pending'): ?>
-                  <form method="post" style="display:inline-block">
+                  <form method="post" action="action_booking.php" style="display:inline-block">
                     <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
                     <button type="submit" name="action" value="confirm" class="btn btn-success btn-sm">Confirm</button>
                   </form>
-                  <form method="post" style="display:inline-block">
+                  <form method="post" action="action_booking.php" style="display:inline-block">
                     <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
                     <button type="submit" name="action" value="cancel" class="btn btn-danger btn-sm">Cancel</button>
                   </form>

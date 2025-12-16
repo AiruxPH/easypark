@@ -56,7 +56,7 @@ require_once __DIR__ . '/section-common.php';
               <td>
                 <span class="<?= getBadgeClass($b['status']) ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
                 <?php if ($b['status'] === 'confirmed'): ?>
-                  <form method="post" style="display:inline-block">
+                  <form method="post" action="action_booking.php" style="display:inline-block">
                     <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
                     <button type="submit" name="action" value="accept" class="btn btn-success btn-sm ml-2">Accept</button>
                   </form>
