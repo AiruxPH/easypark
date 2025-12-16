@@ -12,6 +12,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require_once 'includes/db.php';
+require_once 'includes/functions.php';
 
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,6 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $_SESSION['user_type'] = $user['user_type'];
           $_SESSION['username'] = $user['first_name'];
 
+          // Log Successful Login
+          logActivity($pdo, $user['user_id'], $user['user_type'], 'login', 'User logged in successfully.');
+
 
           if ($user['user_type'] === 'admin') {
             header('Location: /admin/index.php');
@@ -46,9 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           exit;
         } else {
           $message = "❌ Invalid email or password.";
+          // Log Failed Login (Password mismatch)
+          logActivity($pdo, null, 'guest', 'login_failed', "Failed login attempt (password mismatch) for: $email");
         }
       } else {
         $message = "❌ No account found with this email.";
+        // Log Failed Login (Email not found)
+        logActivity($pdo, null, 'guest', 'login_failed', "Failed login attempt (email not found): $email");
       }
     } catch (\PDOException $e) {
       error_log("Database error during login: " . $e->getMessage());

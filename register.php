@@ -1,6 +1,7 @@
 <?php
 session_start(); // Start the session
 require_once 'includes/db.php';
+require_once 'includes/functions.php';
 
 // Redirect logged-in users to their respective dashboards
 if (isset($_SESSION['user_id'])) {
