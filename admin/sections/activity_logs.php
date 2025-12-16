@@ -20,7 +20,8 @@ $actionFilter = isset($_GET['action']) ? $_GET['action'] : '';
 $params = [];
 
 // Base Query
-$sql = "SELECT l.*, u.username, u.email 
+// Base Query
+$sql = "SELECT l.*, u.first_name, u.last_name, u.email 
         FROM activity_logs l 
         LEFT JOIN users u ON l.user_id = u.user_id 
         WHERE 1=1";
@@ -104,8 +105,8 @@ $actions = $actionStmt->fetchAll(PDO::FETCH_COLUMN);
                                         <td><?= htmlspecialchars($log['created_at']) ?></td>
                                         <td>
                                             <?php if ($log['user_id']): ?>
-                                                <?php if ($log['username']): ?>
-                                                    <?= htmlspecialchars($log['username']) ?>
+                                                <?php if (isset($log['first_name'])): ?>
+                                                    <?= htmlspecialchars($log['first_name'] . ' ' . $log['last_name']) ?>
                                                     <small class="d-block text-muted"><?= htmlspecialchars($log['email']) ?></small>
                                                 <?php else: ?>
                                                     <span class="text-danger">Deleted User (ID: <?= $log['user_id'] ?>)</span>
