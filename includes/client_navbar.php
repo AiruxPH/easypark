@@ -77,6 +77,11 @@ if (isset($_SESSION['user_id'])) {
                         🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
                     </a>
                 </li>
+                <li class="nav-item d-flex align-items-center ml-2">
+                    <a href="logout.php" class="btn btn-danger btn-sm shadow-sm" style="padding: 0.375rem 0.75rem;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
             <?php else: ?>
                 <li class="nav-item ml-2">
                     <a class="nav-link btn btn-primary px-4 text-white" href="login.php">Login/Sign Up</a>
