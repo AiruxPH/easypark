@@ -102,24 +102,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     if (!$isSuperAdmin && $newUserType === 'admin') {
         echo '<div class="alert alert-danger shadow-sm">You do not have permission to add admin accounts.</div>';
     } else {
-        $stmt = $pdo->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, phone, user_type, security_word, created_at, is_active, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
-        $stmt->execute([
-            trim($_POST['first_name']),
-            trim($_POST['middle_name']),
-            trim($_POST['last_name']),
-            trim($_POST['email']),
-            $_POST['password'],
-            trim($_POST['phone']),
-            $newUserType,
-            'default',
-            1,
-            'default.jpg'
-        ]);
+        // Sanitize inputs
+        $firstName = filter_var(trim($_POST['first_name']), FILTER_SANITIZE_STRING);
+        $middleName = trim($_POST['middle_name']);
+        $lastName = filter_var(trim($_POST['last_name']), FILTER_SANITIZE_STRING);
+        $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
+        $phone = trim($_POST['phone']);
+        $password = $_POST['password'];
 
-        $newUserId = $pdo->lastInsertId();
-        logActivity($pdo, $_SESSION['user_id'], 'admin', 'user_create', "Admin created new user: " . trim($_POST['email']) . " (Role: $newUserType)");
+        // Check if email already exists
+        $check = $pdo->prepare("SELECT email FROM users WHERE email = ?");
+        $check->execute([$email]);
 
-        echo '<div class="alert alert-success shadow-sm" id="user-success-msg">User added successfully.</div>';
+        if (!$email) {
+            echo '<div class="alert alert-danger shadow-sm">Invalid email address.</div>';
+        } elseif ($check->rowCount() > 0) {
+            echo '<div class="alert alert-danger shadow-sm">User with this email already exists.</div>';
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, phone, user_type, security_word, created_at, is_active, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
+            $stmt->execute([
+                $firstName,
+                $middleName,
+                $lastName,
+                $email,
+                $password, // Storing as plaintext as requested
+                $phone,
+                $newUserType,
+                'default', // Default security word
+                1,
+                'default.jpg'
+            ]);
+
+            $newUserId = $pdo->lastInsertId();
+            logActivity($pdo, $_SESSION['user_id'], 'admin', 'user_create', "Admin created new user: $email (Role: $newUserType)");
+
+            echo '<div class="alert alert-success shadow-sm" id="user-success-msg">User added successfully.</div>';
+        }
     }
 }
 
