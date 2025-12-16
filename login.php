@@ -162,69 +162,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* Preloader */
     #preloader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #0f0f0f; /* Match Index Preloader */
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.8s ease-out;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+      /* Match Index Preloader */
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease-out;
     }
-    
+
     .loader-logo {
-        font-size: 3rem;
-        font-weight: 800;
-        color: var(--primary);
-        margin-bottom: 20px;
-        animation: pulse 1s infinite alternate;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 20px;
+      animation: pulse 1s infinite alternate;
     }
-    
+
     .car-loader {
-        position: relative;
-        width: 100px;
-        height: 4px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 4px;
-        overflow: hidden;
+      position: relative;
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
     }
-    
+
     .car-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 50%;
-        background: var(--primary);
-        animation: drive 1.5s infinite linear;
-        border-radius: 4px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      background: var(--primary);
+      animation: drive 1.5s infinite linear;
+      border-radius: 4px;
     }
-    
+
     @keyframes pulse {
-        from { opacity: 0.6; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1.05); }
+      from {
+        opacity: 0.6;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.05);
+      }
     }
-    
+
     @keyframes drive {
-        0% { left: -50%; }
-        100% { left: 100%; }
+      0% {
+        left: -50%;
+      }
+
+      100% {
+        left: 100%;
+      }
     }
-    
+
     .hide-loader {
-        opacity: 0;
-        pointer-events: none;
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Card Entry Animation */
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    
+
     .glass-card {
       /* existing styles... */
       animation: fadeInUp 0.8s ease-out;
@@ -236,11 +256,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <!-- Preloader -->
   <div id="preloader">
-      <div class="loader-logo">EASYPARK</div>
-      <div class="car-loader">
-          <div class="car-bar"></div>
-      </div>
-      <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
+    <div class="loader-logo">EASYPARK</div>
+    <div class="car-loader">
+      <div class="car-bar"></div>
+    </div>
+    <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
   </div>
 
   <div class="glass-card">
@@ -327,9 +347,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       // Handle URL messages
       const urlParams = new URLSearchParams(window.location.search);
-      if(urlParams.get('msg') === 'login_required'){
-          // Create and show a info toast
-          $('body').append(`
+      if (urlParams.get('msg') === 'login_required') {
+        // Create and show a info toast
+        $('body').append(`
                 <div class="position-fixed p-3" style="z-index: 5; top: 20px; right: 20px;">
                     <div id="loginToast" class="toast hide text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
                         <div class="toast-body d-flex align-items-center">
@@ -339,16 +359,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             `);
-          $('#loginToast').toast('show');
+        $('#loginToast').toast('show');
       }
-      // Preloader Logic
-      window.addEventListener('load', function() {
-          const loader = document.getElementById('preloader');
-          setTimeout(function() {
-              loader.classList.add('hide-loader');
-          }, 800); // 0.8s delay for login
-      });
+
     });
+
+    // Preloader Logic (Outside document.ready to ensure it captures the event or state)
+    window.addEventListener('load', function () {
+      const loader = document.getElementById('preloader');
+      setTimeout(function () {
+        if (loader) loader.classList.add('hide-loader');
+      }, 800);
+    });
+
+    // Fallback: If window load already fired
+    if (document.readyState === 'complete') {
+      setTimeout(function () {
+        const loader = document.getElementById('preloader');
+        if (loader) loader.classList.add('hide-loader');
+      }, 800);
+    }
   </script>
 </body>
 
