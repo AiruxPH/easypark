@@ -62,6 +62,12 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                             <i class="fa fa-credit-card"></i> Payments
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link<?= isset($_GET['section']) && $_GET['section'] === 'activity_logs' ? ' active' : '' ?>"
+                            href="?section=activity_logs">
+                            <i class="fa fa-list-alt"></i> Activity Logs
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
