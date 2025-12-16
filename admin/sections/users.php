@@ -201,6 +201,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     }
 }
 
+// Handle Manage Coins
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manage_coins'])) {
+    $targetUserId = intval($_POST['user_id']);
+    $amount = floatval($_POST['amount']);
+    $description = trim($_POST['description']);
+    $type = $_POST['type']; // 'credit' or 'debit'
+
+    // Final amount based on type
+    if ($type === 'debit') {
+        $amount = -$amount;
+    }
+
+    // Identify target user
+    $target = $pdo->prepare("SELECT user_type, first_name, last_name, email FROM users WHERE user_id = ?");
+    $target->execute([$targetUserId]);
+    $targetRow = $target->fetch(PDO::FETCH_ASSOC);
+
+    if (!$targetRow) {
+        echo '<div class="alert alert-danger shadow-sm">User not found.</div>';
+    } else {
+        $targetType = $targetRow['user_type'];
+        $targetEmail = $targetRow['email'];
+
+        $error = null;
+        // Security: Only Super Admin can touch other Admins
+        if ($targetEmail === 'admin@gmail.com') {
+            $error = "You cannot modify the Super Admin's wallet.";
+        } elseif (!$isSuperAdmin && $targetType === 'admin') {
+            $error = "You do not have permission to modify Admin wallets.";
+        }
+
+        if ($error) {
+            echo '<div class="alert alert-danger shadow-sm">' . $error . '</div>';
+        } else {
+            try {
+                $pdo->beginTransaction();
+
+                // Update Balance
+                $stmt = $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?");
+                $stmt->execute([$amount, $targetUserId]);
+
+                // Log Transaction
+                $logDesc = "Admin Adjustment: " . $description;
+                $stmt = $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description, transaction_date) VALUES (?, ?, 'admin_adjustment', ?, NOW())");
+                $stmt->execute([$targetUserId, $amount, $logDesc]);
+
+                $pdo->commit();
+                echo '<div class="alert alert-success shadow-sm" id="user-success-msg">Coins updated successfully.</div>';
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                echo '<div class="alert alert-danger shadow-sm">Error updating coins: ' . $e->getMessage() . '</div>';
+            }
+        }
+    }
+}
+
 // Helper for sorting links
 function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $active)
 {
@@ -365,7 +421,12 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 </td>
                                 <td class="text-right pr-4">
                                     <?php if ($canEditDelete): ?>
-                                        <button class="btn btn-sm btn-outline-primary shadow-sm"
+                                        <button class="btn btn-sm btn-outline-warning shadow-sm"
+                                            onclick="manageCoins(<?= htmlspecialchars(json_encode($user)) ?>)"
+                                            title="Manage Coins">
+                                            <i class="fas fa-coins"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary shadow-sm ml-1"
                                             onclick="editUser(<?= htmlspecialchars(json_encode($user)) ?>)" title="Edit User">
                                             <i class="fa fa-pen"></i>
                                         </button>
@@ -429,6 +490,69 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                     </ul>
                 </nav>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Manage Coins Modal -->
+    <div class="modal fade" id="manageCoinsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" id="manageCoinsForm">
+                    <input type="hidden" name="manage_coins" value="1">
+                    <input type="hidden" name="user_id" id="coins_user_id">
+
+                    <div class="modal-header bg-warning text-white">
+                        <h5 class="modal-title"><i class="fas fa-coins"></i> Manage Coins</h5>
+                        <button type="button" class="close text-white"
+                            data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-4">
+                            <p class="text-muted mb-1">Adjusting Balance for:</p>
+                            <h5 class="font-weight-bold" id="coins_user_name">User Name</h5>
+                            <div class="badge badge-light border px-3 py-2 mt-2">
+                                Current Balance: <span class="text-warning font-weight-bold"
+                                    id="coins_current">0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Action</label>
+                            <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                <label class="btn btn-outline-success active">
+                                    <input type="radio" name="type" value="credit" checked> <i
+                                        class="fas fa-plus-circle"></i> Add Coins
+                                </label>
+                                <label class="btn btn-outline-danger">
+                                    <input type="radio" name="type" value="debit"> <i class="fas fa-minus-circle"></i>
+                                    Deduct Coins
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                                </div>
+                                <input type="number" step="0.01" min="1" class="form-control" name="amount" required
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Reason / Description</label>
+                            <input type="text" class="form-control" name="description" required
+                                placeholder="e.g. Refund, Bonus, Penalty">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">Confirm Adjustment</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -562,6 +686,13 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
 </div>
 
 <script>
+    function manageCoins(user) {
+        $('#coins_user_id').val(user.user_id);
+        $('#coins_user_name').text(user.first_name + ' ' + user.last_name);
+        $('#coins_current').text((parseFloat(user.coins) || 0).toFixed(2));
+        $('#manageCoinsModal').modal('show');
+    }
+
     function editUser(user) {
         $('#edit_user_id').val(user.user_id);
         $('#edit_first_name').val(user.first_name);
