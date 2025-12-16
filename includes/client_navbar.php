@@ -72,9 +72,10 @@ if (isset($_SESSION['user_id'])) {
                 $coinColor = ($coins >= 0) ? '#28a745' : '#dc3545';
                 ?>
                 <li class="nav-item d-flex align-items-center ml-2">
-                    <span class="badge badge-light px-3 py-2" style="font-size: 1rem; color: #333; font-weight: 700;">
+                    <a href="wallet.php" class="badge badge-light px-3 py-2 border shadow-sm"
+                        style="font-size: 1rem; color: #333; font-weight: 700; text-decoration: none;">
                         🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
-                    </span>
+                    </a>
                 </li>
             <?php else: ?>
                 <li class="nav-item ml-2">
