@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
   exit();
 }
 require_once 'includes/db.php';
+require_once 'includes/constants.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch all bookings for this user
@@ -193,8 +194,17 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                       $parts[] = $interval->s . ' second' . ($interval->s > 1 ? 's' : '');
                     $remaining = $parts ? implode(' ', $parts) . ' left' : '';
                     ?>
-                    <?php if ($remaining): ?>
-                      <br><span class="badge bg-info text-dark small">Remaining: <?= $remaining ?></span>
+                    <?php if (true): // Always show timer if active ?>
+                      <?php
+                      // Calculate rate for overstay penalty
+                      $rate = 0;
+                      if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
+                        $rate = SLOT_RATES[$b['slot_type']]['hour'];
+                      }
+                      $timerEnd = $b['end_time'];
+                      ?>
+                      <br><span id="timer-<?= $b['reservation_id'] ?>" class="timer badge badge-info"
+                        data-end="<?= $timerEnd ?>" data-rate="<?= $rate ?>">Checking...</span>
                     <?php endif; ?>
                   <?php endif; ?>
                 </td>
@@ -310,32 +320,35 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         // Parse as UTC to avoid timezone issues
         const end = new Date(timer.getAttribute('data-end').replace(' ', 'T'));
         const now = new Date();
-        let diff = Math.floor((end.getTime() - now.getTime()) / 1000);
-        if (diff > 0) {
+        const diffInSeconds = Math.floor((end.getTime() - now.getTime()) / 1000);
+
+        if (diffInSeconds > 0) {
+          // Future end time (Standard count down)
+          let diff = diffInSeconds;
           const h = Math.floor(diff / 3600);
           diff %= 3600;
           const m = Math.floor(diff / 60);
           const s = diff % 60;
           timer.textContent = `${h}h ${m}m ${s}s left`;
+          timer.classList.remove('text-danger', 'font-weight-bold');
         } else {
-          if (!timer.classList.contains('expired') && !reloadTriggered) {
-            timer.textContent = 'Expired';
-            timer.classList.add('expired');
-            reloadTriggered = true;
-            // Show spinner
-            timer.innerHTML = '<span class="spinner-border spinner-border-sm text-warning" role="status"></span> Updating...';
-            // Use vanilla JS for AJAX
-            const reservationId = timer.id.replace('timer-', '');
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'update_reservation_status.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function () {
-              if (xhr.readyState === 4) {
-                location.reload();
-              }
-            };
-            xhr.send('reservation_id=' + encodeURIComponent(reservationId));
-          }
+          // Overdue logic (Count up)
+          let diff = Math.abs(diffInSeconds);
+          const h = Math.floor(diff / 3600);
+          diff %= 3600;
+          const m = Math.floor(diff / 60);
+          const s = diff % 60;
+
+          // Calculate estimated penalty (assuming generic rate or need to pass rate)
+          // For simplicity in JS display, we just show time. 
+          // Ideally we pass rate via data attribute.
+          const ratePerHour = parseFloat(timer.getAttribute('data-rate')) || 0;
+          // Fee is charged per started hour of overstay (1s over = 1 hour charge)
+          const overstayHours = Math.ceil(Math.abs(diffInSeconds) / 3600);
+          const penalty = (overstayHours * ratePerHour).toFixed(2);
+
+          timer.innerHTML = `<span class="text-danger font-weight-bold">OVERDUE: ${h}h ${m}m ${s}s</span><br><small class="text-danger">Est. Penalty: 🪙${penalty}</small>`;
+          // Do NOT reload or auto-complete. Let it tick.
         }
       });
     }

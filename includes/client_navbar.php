@@ -61,6 +61,21 @@ if (isset($_SESSION['user_id'])) {
                         My Account (<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>)
                     </a>
                 </li>
+                <?php
+                // Fetch user coins
+                $coins = 0.00;
+                if (isset($_SESSION['user_id']) && isset($pdo)) {
+                    $stmt = $pdo->prepare('SELECT coins FROM users WHERE user_id = ?');
+                    $stmt->execute([$_SESSION['user_id']]);
+                    $coins = $stmt->fetchColumn() ?: 0.00;
+                }
+                $coinColor = ($coins >= 0) ? '#28a745' : '#dc3545';
+                ?>
+                <li class="nav-item d-flex align-items-center ml-2">
+                    <span class="badge badge-light px-3 py-2" style="font-size: 1rem; color: #333; font-weight: 700;">
+                        🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
+                    </span>
+                </li>
             <?php else: ?>
                 <li class="nav-item ml-2">
                     <a class="nav-link btn btn-primary px-4 text-white" href="login.php">Login/Sign Up</a>

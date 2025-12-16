@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['reservation_id'])) {
     exit();
 }
 require_once 'includes/db.php';
+require_once 'includes/constants.php';
 $reservation_id = intval($_POST['reservation_id']);
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 
@@ -39,14 +40,49 @@ if ($action === 'cancel') {
     }
     exit();
 } elseif ($action === 'complete') {
-    // Allow complete if status is ongoing
-    $stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ? AND status = 'ongoing'");
+    // Modify: Check for overstay and deduct coins
+    $stmt = $pdo->prepare("SELECT user_id, end_time, parking_slot_id FROM reservations WHERE reservation_id = ? AND status = 'ongoing'");
     $stmt->execute([$reservation_id]);
-    if ($stmt->rowCount() > 0) {
-        // Free up the slot if no other active reservation exists for it
-        $stmt = $pdo->prepare("SELECT parking_slot_id FROM reservations WHERE reservation_id = ?");
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($res) {
+        $user_id = $res['user_id'];
+        $end_time = $res['end_time'];
+        $slot_id = $res['parking_slot_id'];
+
+        $now = new DateTime();
+        $end = new DateTime($end_time);
+
+        // Calculate penalty if overstayed
+        if ($now > $end) {
+            // Get slot type to find rate
+            $stmtRate = $pdo->prepare("SELECT slot_type FROM parking_slots WHERE parking_slot_id = ?");
+            $stmtRate->execute([$slot_id]);
+            $s_type = $stmtRate->fetchColumn();
+
+            $rate = 0;
+            if ($s_type && defined('SLOT_RATES') && isset(SLOT_RATES[$s_type]['hour'])) {
+                $rate = SLOT_RATES[$s_type]['hour'];
+            }
+
+            // Calculate hours (ceil)
+            $diffSeconds = $now->getTimestamp() - $end->getTimestamp();
+            $overhours = ceil($diffSeconds / 3600);
+            $penalty = $overhours * $rate;
+
+            if ($penalty > 0) {
+                // Deduct coins (allow debt)
+                $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$penalty, $user_id]);
+                // Update payment record to reflect total cost
+                $pdo->prepare("UPDATE payments SET amount = amount + ? WHERE reservation_id = ?")->execute([$penalty, $reservation_id]);
+            }
+        }
+
+        // Proceed to complete
+        $stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ?");
         $stmt->execute([$reservation_id]);
-        $slot_id = $stmt->fetchColumn();
+
+        // Free up slot logic
         if ($slot_id) {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ('pending', 'confirmed', 'ongoing') AND reservation_id != ?");
             $stmt->execute([$slot_id, $reservation_id]);
@@ -56,9 +92,9 @@ if ($action === 'cancel') {
                 $stmt->execute([$slot_id]);
             }
         }
-        echo json_encode(['success' => true, 'message' => 'Booking marked as complete.']);
+        echo json_encode(['success' => true, 'message' => 'Booking completed. Overstay fees applied if applicable.']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Unable to complete booking.']);
+        echo json_encode(['success' => false, 'message' => 'Unable to complete booking or invalid status.']);
     }
     exit();
 } else {

@@ -26,6 +26,9 @@ try {
     $log .= "Expired reservations: " . $stmt_expire->rowCount() . "\n";
 
     // Complete finished ongoing reservations
+    // DISABLED: To allow "Live Overstay" charging, we do NOT auto-complete ongoing.
+    // Use manual completion or a separate overly-long expiry check.
+    /*
     $stmt_complete = $pdo->prepare("
         UPDATE reservations
         SET status = 'completed'
@@ -33,6 +36,7 @@ try {
     ");
     $stmt_complete->execute(['now' => $now]);
     $log .= "Completed reservations: " . $stmt_complete->rowCount() . "\n";
+    */
 
     // Update payments: refunded
     $stmt_refund = $pdo->prepare("

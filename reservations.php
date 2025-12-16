@@ -84,7 +84,8 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
   $end_datetime = $_POST['end_datetime'];
   $payment_method = $_POST['payment_method'];
   // Map UI value to DB enum
-  $method = ($payment_method === 'cash') ? 'cash' : 'online';
+  // Map UI value to DB enum
+  $method = 'wallet';
   $price = floatval($_POST['price']);
   $duration_value = intval($_POST['duration_value']);
   // Double-check slot is still available
@@ -155,6 +156,9 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $pdo->beginTransaction();
       // REMOVED: Static update of parking_slots status. Status is now dynamic based on reservations.
       // $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
+      $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
+      $pdo->prepare('UPDATE users SET coins = coins - ? WHERE user_id = ?')->execute([$price, $user_id]);
+
       // Insert reservation (with duration)
       $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
         $user_id,
@@ -165,12 +169,12 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         $duration_value
       ]);
       $reservation_id = $pdo->lastInsertId();
-      // Insert payment record with correct columns
+      // Insert payment record with correct columns (Wallet payment)
       $pdo->prepare('INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
         $reservation_id,
         $price,
-        'pending',
-        $method
+        'successful',
+        'wallet'
       ]);
       $pdo->commit();
       $reservation_success = true;
@@ -576,9 +580,7 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                 <div class="form-group">
                   <label>Payment Method</label>
                   <select name="payment_method" class="form-control" required>
-                    <option value="cash">Cash</option>
-                    <option value="gcash" disabled>GCash (Coming Soon)</option>
-                    <option value="credit_card" disabled>Credit Card (Coming Soon)</option>
+                    <option value="wallet">My Wallet (Coins)</option>
                   </select>
                 </div>
               </div>
