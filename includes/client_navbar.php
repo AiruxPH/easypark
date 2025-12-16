@@ -33,10 +33,7 @@ if (isset($_SESSION['user_id'])) {
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
         <ul id="opp" class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php"
-                    data-toggle="tooltip" title="Return to Homepage" data-placement="bottom">Home</a>
-            </li>
+            <!-- Home link removed (redundant with logo) -->
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>" href="reservations.php"
