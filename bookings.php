@@ -407,7 +407,11 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
     }
 
     bookingsTable.querySelectorAll('.booking-row').forEach(function (row) {
-      row.addEventListener('click', function () {
+      row.addEventListener('click', function (e) {
+        // Prevent opening detail modal if clicking on action buttons
+        if (e.target.closest('.action-cancel') || e.target.closest('.action-complete')) {
+          return;
+        }
         const booking = JSON.parse(row.getAttribute('data-booking'));
         showBookingDetails(booking);
         $(bookingModal).modal('show');
