@@ -364,6 +364,40 @@ if (isset($_POST['delete_pic'])) {
       color: #fff !important;
       /* Force readable text if class exists */
     }
+
+    /* Pagination */
+    .pagination .page-item .page-link {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        margin: 0 5px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        border-radius: 8px; /* Override bootstrap rounding */
+    }
+
+    .pagination .page-item .page-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #000;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(240, 165, 0, 0.3);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background: rgba(0, 0, 0, 0.1);
+        color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
   </style>
 </head>
 
