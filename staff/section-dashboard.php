@@ -18,17 +18,22 @@ $available_slots_count = $stmt->fetchColumn();
 <div class="row">
     <!-- Card 1: Available Slots -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2 bg-dark text-white border-0"
-            style="border-left: 4px solid #28a745 !important;">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Available Slots</div>
-                        <div class="h5 mb-0 font-weight-bold"><?= $available_slots_count ?> / <?= $slots_total ?></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fa fa-th-large fa-2x text-gray-300"></i>
-                    </div>
+        <div
+            class="glass-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden group">
+            <div class="position-absolute"
+                style="top: -10px; right: -10px; font-size: 5rem; opacity: 0.05; color: #fff;">
+                <i class="fas fa-th-large"></i>
+            </div>
+            <div>
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-2 letter-spacing-1">Available Slots
+                </div>
+                <div class="h2 mb-0 font-weight-bold text-white"><?= $available_slots_count ?> <span
+                        class="text-white-50 h5">/ <?= $slots_total ?></span></div>
+            </div>
+            <div class="mt-3">
+                <div class="progress" style="height: 6px; background: rgba(255,255,255,0.1);">
+                    <?php $percent = ($slots_total > 0) ? ($available_slots_count / $slots_total) * 100 : 0; ?>
+                    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $percent ?>%"></div>
                 </div>
             </div>
         </div>
@@ -36,74 +41,76 @@ $available_slots_count = $stmt->fetchColumn();
 
     <!-- Card 2: Active Reservations -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2 bg-dark text-white border-0"
-            style="border-left: 4px solid #007bff !important;">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Active Now</div>
-                        <div class="h5 mb-0 font-weight-bold"><?= $active_total ?></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fa fa-play-circle fa-2x text-gray-300"></i>
-                    </div>
-                </div>
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden">
+            <div class="position-absolute"
+                style="top: -10px; right: -10px; font-size: 5rem; opacity: 0.05; color: #fff;">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div>
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-2 letter-spacing-1">Active Now</div>
+                <div class="h2 mb-0 font-weight-bold text-white"><?= $active_total ?></div>
+            </div>
+            <div class="mt-3 text-white-50 small">
+                Vehicles currently parked
             </div>
         </div>
     </div>
 
     <!-- Card 3: Pending Bookings -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2 bg-dark text-white border-0"
-            style="border-left: 4px solid #ffc107 !important;">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Requests</div>
-                        <div class="h5 mb-0 font-weight-bold"><?= count($bookings) ?></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fa fa-clock-o fa-2x text-gray-300"></i>
-                    </div>
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden">
+            <div class="position-absolute"
+                style="top: -10px; right: -10px; font-size: 5rem; opacity: 0.05; color: #fff;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-2 letter-spacing-1">Pending Requests
                 </div>
+                <div class="h2 mb-0 font-weight-bold text-white"><?= count($bookings) ?></div>
+            </div>
+            <div class="mt-3">
+                <a href="javascript:void(0)" onclick="loadSection('bookings')"
+                    class="text-warning small font-weight-bold text-decoration-none">Review Requests <i
+                        class="fas fa-arrow-right ml-1"></i></a>
             </div>
         </div>
     </div>
 
     <!-- Card 4: Completed Today -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2 bg-dark text-white border-0"
-            style="border-left: 4px solid #17a2b8 !important;">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Completed Today</div>
-                        <div class="h5 mb-0 font-weight-bold"><?= $today_completed ?></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fa fa-check-circle fa-2x text-gray-300"></i>
-                    </div>
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden">
+            <div class="position-absolute"
+                style="top: -10px; right: -10px; font-size: 5rem; opacity: 0.05; color: #fff;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-2 letter-spacing-1">Completed Today
                 </div>
+                <div class="h2 mb-0 font-weight-bold text-white"><?= $today_completed ?></div>
+            </div>
+            <div class="mt-3 text-white-50 small">
+                Successfully checked out
             </div>
         </div>
     </div>
 </div>
 
-<div class="section-card mt-4">
-    <h4 class="mb-3 text-warning"><i class="fa fa-info-circle"></i> Quick Actions</h4>
-    <div class="row">
-        <div class="col-md-6 text-white">
-            <p>Use the navigation menu to:</p>
-            <ul>
-                <li><strong>Bookings:</strong> Review and confirm pending reservations.</li>
-                <li><strong>Active:</strong> View currently parked vehicles and ongoing sessions.</li>
-                <li><strong>History:</strong> Search past records.</li>
-                <li><strong>Slots:</strong> Check real-time slot status and maintenance.</li>
-            </ul>
+<div class="glass-card mt-2">
+    <h4 class="mb-4 text-warning"><i class="fas fa-bolt mr-2"></i> Quick Actions Center</h4>
+    <div class="row align-items-center">
+        <div class="col-md-7 text-white-50">
+            <p class="mb-3">Welcome to the Staff Command Center. Select an action to proceed:</p>
+            <div class="d-flex flex-wrap">
+                <button onclick="loadSection('bookings')" class="btn btn-glass mr-2 mb-2"><i
+                        class="fas fa-calendar-check mr-2"></i> Review Bookings</button>
+                <button onclick="loadSection('active')" class="btn btn-glass mr-2 mb-2"><i class="fas fa-car mr-2"></i>
+                    View Parked Cars</button>
+                <button onclick="loadSection('slots')" class="btn btn-glass mb-2"><i class="fas fa-warehouse mr-2"></i>
+                    Manage Slots</button>
+            </div>
         </div>
-        <div class="col-md-6 text-center">
-            <img src="../images/easypark_logo.png" alt="Logo" style="max-height: 100px; opacity: 0.8;"
-                onerror="this.style.display='none'">
+        <div class="col-md-5 text-center d-none d-md-block">
+            <i class="fas fa-parking fa-5x text-white-50" style="opacity: 0.2"></i>
         </div>
     </div>
 </div>

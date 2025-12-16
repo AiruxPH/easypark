@@ -2,15 +2,23 @@
 require_once __DIR__ . '/section-common.php';
 // Reservation History Section (for include or AJAX)
 ?>
-<div class="section-card">
-  <h4 class="mb-3 text-info"><i class="fa fa-history"></i> Reservation History (Completed/Cancelled)</h4>
-  <div class="row mb-2">
+<div class="glass-card">
+  <h4 class="mb-4 text-info"><i class="fas fa-history mr-2"></i> Reservation History</h4>
+
+  <!-- Filters -->
+  <div class="row mb-4">
     <div class="col-md-4 mb-2">
-      <input type="text" id="historySearch" class="form-control" placeholder="Search reservation history..."
-        value="<?= htmlspecialchars($search) ?>">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-transparent border-secondary text-white-50"><i
+              class="fas fa-search"></i></span>
+        </div>
+        <input type="text" id="historySearch" class="form-control glass-input border-left-0"
+          placeholder="Search reservation history..." value="<?= htmlspecialchars($search) ?>">
+      </div>
     </div>
     <div class="col-md-3 mb-2">
-      <select id="historyStatusFilter" class="form-control">
+      <select id="historyStatusFilter" class="form-control glass-input">
         <option value="">All Statuses</option>
         <option value="completed" <?= $filter_status === 'completed' ? 'selected' : '' ?>>Completed</option>
         <option value="cancelled" <?= $filter_status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
@@ -20,15 +28,22 @@ require_once __DIR__ . '/section-common.php';
     </div>
     <div class="col-md-5 mb-2">
       <div class="input-group">
-        <div class="input-group-prepend"><span class="input-group-text small">Date</span></div>
-        <input type="date" id="historyDateFrom" class="form-control" value="<?= htmlspecialchars($date_from) ?>">
-        <input type="date" id="historyDateTo" class="form-control" value="<?= htmlspecialchars($date_to) ?>">
+        <div class="input-group-prepend"><span
+            class="input-group-text bg-transparent border-secondary text-white-50">Filter Date</span></div>
+        <input type="date" id="historyDateFrom" class="form-control glass-input"
+          value="<?= htmlspecialchars($date_from) ?>">
+        <div class="input-group-prepend input-group-append"><span
+            class="input-group-text bg-transparent border-secondary text-white-50">to</span></div>
+        <input type="date" id="historyDateTo" class="form-control glass-input"
+          value="<?= htmlspecialchars($date_to) ?>">
       </div>
     </div>
   </div>
+
+  <!-- Table -->
   <div class="table-responsive">
-    <table id="historyTable" class="table table-bordered table-hover bg-white text-dark">
-      <thead class="thead-dark">
+    <table id="historyTable" class="table glass-table table-hover">
+      <thead>
         <tr>
           <th class="sortable">Ref #</th>
           <th class="sortable">Client</th>
@@ -43,19 +58,38 @@ require_once __DIR__ . '/section-common.php';
       <tbody>
         <?php if (count($history_reservations) === 0): ?>
           <tr>
-            <td colspan="8" class="text-center">No completed, cancelled, or expired reservations found.</td>
+            <td colspan="8" class="text-center py-5 text-white-50">
+              <i class="fas fa-history fa-3x mb-3 d-block opacity-50"></i>
+              No history found matching your criteria.
+            </td>
           </tr>
         <?php else:
           foreach ($history_reservations as $b): ?>
             <tr>
-              <td><?= htmlspecialchars($b['reservation_id']) ?></td>
+              <td><span class="font-weight-bold text-white"><?= htmlspecialchars($b['reservation_id']) ?></span></td>
               <td><?= htmlspecialchars($b['first_name'] . ' ' . $b['last_name']) ?></td>
-              <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-              <td><?= htmlspecialchars($b['brand'] . ' ' . $b['model'] . ' - ' . $b['plate_number']) ?></td>
-              <td><?= htmlspecialchars($b['start_time']) ?></td>
-              <td><?= htmlspecialchars($b['end_time']) ?></td>
+              <td>
+                <span class="badge badge-secondary"><?= htmlspecialchars($b['slot_number']) ?></span>
+                <small class="text-white-50 d-block"><?= htmlspecialchars($b['slot_type']) ?></small>
+              </td>
+              <td>
+                <?= htmlspecialchars($b['brand'] . ' ' . $b['model']) ?>
+                <small class="text-white-50 d-block"><?= htmlspecialchars($b['plate_number']) ?></small>
+              </td>
+              <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['start_time']))) ?></td>
+              <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['end_time']))) ?></td>
               <td><?= htmlspecialchars($b['duration']) ?></td>
-              <td><span class="<?= getBadgeClass($b['status']) ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
+              <td>
+                <?php
+                $badgeClass = 'badge-secondary';
+                if ($b['status'] == 'completed')
+                  $badgeClass = 'badge-glass-success';
+                if ($b['status'] == 'cancelled')
+                  $badgeClass = 'badge-glass-danger';
+                if ($b['status'] == 'expired')
+                  $badgeClass = 'badge-glass-warning';
+                ?>
+                <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
               </td>
             </tr>
           <?php endforeach; endif; ?>

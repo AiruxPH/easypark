@@ -224,6 +224,124 @@ if (isset($_POST['delete_pic'])) {
       opacity: 0;
       pointer-events: none;
     }
+
+    /* GLASS COMPONENTS (Global) */
+
+    /* Buttons */
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    .btn-glass-primary {
+      background: rgba(240, 165, 0, 0.8);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-glass-primary:hover {
+      background: #f0a500;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(240, 165, 0, 0.4);
+    }
+
+    /* Inputs */
+    .glass-input {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+
+    .glass-input:focus {
+      background: rgba(0, 0, 0, 0.5) !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25) !important;
+    }
+
+    /* Tables */
+    .table-responsive {
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    .glass-table {
+      width: 100%;
+      color: #fff;
+      margin-bottom: 0;
+    }
+
+    .glass-table thead th {
+      background: rgba(240, 165, 0, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      border: none;
+      padding: 1rem;
+    }
+
+    .glass-table tbody tr {
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-table td {
+      padding: 1rem;
+      vertical-align: middle;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Badges */
+    .badge-glass-success {
+      background: rgba(40, 167, 69, 0.2);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .badge-glass-warning {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .badge-glass-danger {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .badge-glass-info {
+      background: rgba(23, 162, 184, 0.2);
+      color: #17a2b8;
+      border: 1px solid rgba(23, 162, 184, 0.3);
+    }
+
+    .badge {
+      padding: 0.5em 0.8em;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 
@@ -231,60 +349,61 @@ if (isset($_POST['delete_pic'])) {
 
   <!-- Preloader -->
   <div id="preloader">
-      <div class="loader-logo">EASYPARK</div>
-      <div class="car-loader">
-          <div class="car-bar"></div>
-      </div>
-      <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
+    <div class="loader-logo">EASYPARK</div>
+    <div class="car-loader">
+      <div class="car-bar"></div>
+    </div>
+    <p class="text-white-50 mt-2 small letter-spacing-1">STARTING ENGINE...</p>
   </div>
 
   <div class="bg-overlay">
     <div class="container">
-        <!-- Header Bar -->
-        <div class="header-bar">
-            <div class="page-title">
-                <h2>Staff <span>Dashboard</span></h2>
-                <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
-            </div>
-            <div class="d-flex align-items-center">
-                <a href="profile.php" class="d-flex align-items-center nav-link p-0 mr-4"
-                style="color: rgba(255,255,255,0.8); text-decoration: none;">
-                <img
-                    src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>"
-                    alt="Profile Picture" class="rounded-circle mr-2 shadow"
-                    style="width:40px;height:40px;object-fit:cover;border:2px solid var(--primary);">
-                <span style="font-size:1rem;">
-                    My Profile
-                </span>
-                </a>
-                <a href="../logout.php" class="btn btn-outline-light btn-sm px-3 rounded-pill"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            </div>
+      <!-- Header Bar -->
+      <div class="header-bar">
+        <div class="page-title">
+          <h2>Staff <span>Dashboard</span></h2>
+          <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
         </div>
+        <div class="d-flex align-items-center">
+          <a href="profile.php" class="d-flex align-items-center nav-link p-0 mr-4"
+            style="color: rgba(255,255,255,0.8); text-decoration: none;">
+            <img
+              src="<?php echo (!empty($staff['image']) && file_exists('../images/' . $staff['image'])) ? '../images/' . $staff['image'] : '../images/default.jpg'; ?>"
+              alt="Profile Picture" class="rounded-circle mr-2 shadow"
+              style="width:40px;height:40px;object-fit:cover;border:2px solid var(--primary);">
+            <span style="font-size:1rem;">
+              My Profile
+            </span>
+          </a>
+          <a href="../logout.php" class="btn btn-outline-light btn-sm px-3 rounded-pill"><i
+              class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
 
-        <!-- Navigation -->
-        <nav class="staff-navbar navbar navbar-expand-md navbar-dark mb-4">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staffNav"
-            aria-controls="staffNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="staffNav">
-            <ul class="navbar-nav w-100 justify-content-center">
-                <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" data-section="dashboard"><i
-                    class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i
-                    class="fas fa-calendar-check"></i> Bookings</a></li>
-                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i
-                    class="fas fa-play-circle"></i> Active</a></li>
-                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i
-                    class="fas fa-history"></i> History</a></li>
-                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i
-                    class="fas fa-car"></i> Slots</a></li>
-            </ul>
-            </div>
-        </nav>
+      <!-- Navigation -->
+      <nav class="staff-navbar navbar navbar-expand-md navbar-dark mb-4">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staffNav"
+          aria-controls="staffNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="staffNav">
+          <ul class="navbar-nav w-100 justify-content-center">
+            <li class="nav-item"><a class="nav-link active" href="javascript:void(0)" data-section="dashboard"><i
+                  class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="bookings"><i
+                  class="fas fa-calendar-check"></i> Bookings</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="active"><i
+                  class="fas fa-play-circle"></i> Active</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="history"><i
+                  class="fas fa-history"></i> History</a></li>
+            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" data-section="slots"><i
+                  class="fas fa-car"></i> Slots</a></li>
+          </ul>
+        </div>
+      </nav>
 
-        <!-- Section Content Loader -->
-        <div id="section-content"></div>
+      <!-- Section Content Loader -->
+      <div id="section-content"></div>
     </div>
   </div>
 
@@ -294,11 +413,11 @@ if (isset($_POST['delete_pic'])) {
 
   <script>
     // Preloader Logic
-    window.addEventListener('load', function() {
-        const loader = document.getElementById('preloader');
-        setTimeout(function() {
-            if(loader) loader.classList.add('hide-loader');
-        }, 1200); 
+    window.addEventListener('load', function () {
+      const loader = document.getElementById('preloader');
+      setTimeout(function () {
+        if (loader) loader.classList.add('hide-loader');
+      }, 1200);
     });
 
     // SPA-like section navigation
@@ -310,7 +429,7 @@ if (isset($_POST['delete_pic'])) {
       history: 'section-history.php',
       slots: 'section-slots.php'
     };
-    
+
     // Check for section in localStorage or default
     let currentSection = localStorage.getItem('staffCurrentSection') || 'dashboard';
 
@@ -360,7 +479,7 @@ if (isset($_POST['delete_pic'])) {
         if (!section) return;
         loadSection(section);
       });
-      
+
       // Intercept pagination link clicks
       $('#section-content').on('click', '.pagination .page-link', function (e) {
         var href = $(this).attr('href');
@@ -374,7 +493,7 @@ if (isset($_POST['delete_pic'])) {
           loadSection(currentSection, params);
         }
       });
-      
+
       // Load last focused section on page load
       loadSection(currentSection);
     });
