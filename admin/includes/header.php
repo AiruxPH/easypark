@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     <link href="css/parking-grid.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-dark-theme">
 
     <script src="../js/ef9baa832e.js" crossorigin="anonymous"></script>
     <!-- Top Navbar -->
