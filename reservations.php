@@ -523,7 +523,7 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
               </div>
               <div class="col-md-6 mb-3">
                 <small class="text-muted d-block uppercase">Total Price</small>
-                <span class="h3 text-warning">₱<?= htmlspecialchars($_POST['price']) ?></span>
+                <span class="h3 text-warning"><i class="fas fa-coins"></i> <?= htmlspecialchars($_POST['price']) ?></span>
               </div>
             </div>
 
@@ -577,12 +577,13 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                   </select>
                 </div>
               </div>
+              </div>
+              <!-- Payment Method Removed: Defaults to Coins -->
               <div class="col-md-6">
-                <div class="form-group">
-                  <label>Payment Method</label>
-                  <select name="payment_method" class="form-control" required>
-                    <option value="wallet">My Wallet (Coins)</option>
-                  </select>
+                 <div class="form-group">
+                  <label>Payment</label>
+                  <input type="text" class="form-control" value="My Wallet (Coins)" readonly>
+                  <input type="hidden" name="payment_method" value="coins">
                 </div>
               </div>
             </div>
@@ -612,10 +613,13 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                   <label>Estimated Price</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text bg-dark border-secondary text-white">₱</span>
+                      <span class="input-group-text bg-dark border-secondary text-white">Coins</span>
                     </div>
                     <input type="text" name="price" id="price" class="form-control text-warning font-weight-bold"
                       style="font-size: 1.5rem;" readonly required>
+                    <div class="input-group-append">
+                        <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-coins"></i></span>
+                    </div>
                   </div>
                 </div>
               </div>

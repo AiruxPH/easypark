@@ -225,7 +225,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                   ?>
                   <span class="badge bg-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
                 </td>
-                <td>₱<?= number_format($b['amount'], 2) ?></td>
+                <td><i class="fas fa-coins text-warning"></i> <?= number_format($b['amount'], 2) ?></td>
                 <td>
                   <?php
                   $pay = $b['payment_status'];
@@ -375,7 +375,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       html += `<div><strong>End:</strong> ${formatDateTime(booking.end_time)}</div>`;
       html += `<div><strong>Duration:</strong> ${booking.duration}</div>`;
       html += `<div><strong>Reservation Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.status}</span></div>`;
-      html += `<div><strong>Amount:</strong> ₱${Number(booking.amount).toFixed(2)}</div>`;
+      html += `<div><strong>Amount:</strong> <i class="fas fa-coins text-warning"></i> ${Number(booking.amount).toFixed(2)}</div>`;
       html += `<div><strong>Payment Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.payment_status || 'N/A'}</span></div>`;
       html += `<div><strong>Payment Method:</strong> ${booking.method ? booking.method.charAt(0).toUpperCase() + booking.method.slice(1) : '-'}</div>`;
       html += `<div><strong>Payment Date:</strong> ${formatDateTime(booking.payment_date)}</div>`;

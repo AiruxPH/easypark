@@ -46,13 +46,13 @@ if ($dateTo) {
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 // Validate and sanitize sort column
-$allowedSort = ['user_id', 'first_name', 'email', 'user_type', 'is_active', 'created_at'];
+$allowedSort = ['user_id', 'first_name', 'email', 'user_type', 'is_active', 'created_at', 'coins'];
 $sort = in_array($sort, $allowedSort) ? $sort : 'user_id';
 
 // --- Export CSV Handler ---
 if (isset($_GET['export']) && $_GET['export'] === 'true') {
     // Fetch ALL matching records (no limit)
-    $stmt = $pdo->prepare("SELECT user_id, first_name, middle_name, last_name, email, phone, user_type, is_active, created_at FROM users $whereClause ORDER BY $sort $order");
+    $stmt = $pdo->prepare("SELECT user_id, first_name, middle_name, last_name, email, phone, coins, user_type, is_active, created_at FROM users $whereClause ORDER BY $sort $order");
     foreach ($params as $key => $value) {
         $stmt->bindValue($key, $value);
     }
@@ -67,7 +67,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'true') {
 
     $output = fopen('php://output', 'w');
     // Header Row
-    fputcsv($output, ['ID', 'First Name', 'Middle Name', 'Last Name', 'Email', 'Phone', 'Role', 'Status', 'Registered Date']);
+    fputcsv($output, ['ID', 'First Name', 'Middle Name', 'Last Name', 'Email', 'Phone', 'Coins', 'Role', 'Status', 'Registered Date']);
 
     foreach ($rows as $row) {
         // Map status to readable string
@@ -301,6 +301,7 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                             <th><?= sortLink('first_name', 'Name', $sort, $order, $search, $userType, $active) ?></th>
                             <th><?= sortLink('email', 'Email', $sort, $order, $search, $userType, $active) ?></th>
                             <th>Phone</th>
+                            <th>Coins</th>
                             <th><?= sortLink('user_type', 'Role', $sort, $order, $search, $userType, $active) ?></th>
                             <th><?= sortLink('is_active', 'Status', $sort, $order, $search, $userType, $active) ?></th>
                             <th class="text-right pr-4">Actions</th>
@@ -325,6 +326,8 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 </td>
                                 <td><?= htmlspecialchars($user['email']) ?></td>
                                 <td><?= htmlspecialchars($user['phone']) ?></td>
+                                <td><i class="fas fa-coins text-warning"></i> <?= number_format($user['coins'] ?? 0, 2) ?>
+                                </td>
                                 <td>
                                     <?php if ($isSuperAdminUser): ?>
                                         <span class="badge badge-dark shadow-sm px-2 py-1">👑 Super Admin</span>

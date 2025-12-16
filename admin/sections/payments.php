@@ -131,7 +131,8 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Revenue (All
                                 Time)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱<?= number_format($totalRevenue, 2) ?>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><i
+                                    class="fas fa-coins text-warning"></i> <?= number_format($totalRevenue, 2) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -149,7 +150,8 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Revenue (Today)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱<?= number_format($todayRevenue, 2) ?>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><i
+                                    class="fas fa-coins text-warning"></i> <?= number_format($todayRevenue, 2) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -255,11 +257,12 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
                                     </td>
                                     <td>
                                         <div class="font-weight-bold">
-                                            <?= htmlspecialchars($p['first_name'] . ' ' . $p['last_name']) ?></div>
+                                            <?= htmlspecialchars($p['first_name'] . ' ' . $p['last_name']) ?>
+                                        </div>
                                         <small class="text-muted"><?= htmlspecialchars($p['email']) ?></small>
                                     </td>
                                     <td class="font-weight-bold text-gray-800">
-                                        ₱<?= number_format($p['amount'], 2) ?>
+                                        <i class="fas fa-coins text-warning"></i> <?= number_format($p['amount'], 2) ?>
                                     </td>
                                     <td>
                                         <span class="badge badge-light border"><?= ucfirst($p['method']) ?></span>
