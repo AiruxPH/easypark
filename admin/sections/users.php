@@ -248,6 +248,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manage_coins'])) {
                 $stmt->execute([$targetUserId, $amount, $logDesc]);
 
                 $pdo->commit();
+
+                // Notification
+                require_once '../../includes/notifications.php';
+                $notifType = ($amount >= 0) ? 'success' : 'warning';
+                sendNotification($pdo, $targetUserId, 'Admin Adjustment', 'An admin has adjusted your coin balance by ' . number_format($amount, 2) . ' coins.', $notifType, 'wallet.php');
+
                 echo '<div class="alert alert-success shadow-sm" id="user-success-msg">Coins updated successfully.</div>';
             } catch (Exception $e) {
                 $pdo->rollBack();

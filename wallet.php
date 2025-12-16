@@ -52,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
             $pdo->commit();
 
+            // Notification
+            require_once 'includes/notifications.php';
+            sendNotification($pdo, $user_id, 'Wallet Top-Up', 'You have successfully added ' . number_format($amountCoins, 2) . ' coins.', 'success', 'wallet.php');
+
             // PRG Pattern: Redirect to prevent re-submission
             $_SESSION['flash_success'] = "Successfully topped up " . number_format($amountCoins, 2) . " Coins!";
             header("Location: wallet.php");

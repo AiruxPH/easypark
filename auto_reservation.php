@@ -9,6 +9,11 @@ try {
     $now = date('Y-m-d H:i:s');
 
     // Cancel no-show reservations
+    // 1. Get IDs first to notify
+    $stmt_ids = $pdo->prepare("SELECT user_id, reservation_id FROM reservations WHERE start_time < :now AND status = 'pending'");
+    $stmt_ids->execute(['now' => $now]);
+    $to_cancel = $stmt_ids->fetchAll(PDO::FETCH_ASSOC);
+
     $stmt_cancel = $pdo->prepare("
         UPDATE reservations
         SET status = 'cancelled'
@@ -17,7 +22,17 @@ try {
     $stmt_cancel->execute(['now' => $now]);
     $log .= "Cancelled reservations: " . $stmt_cancel->rowCount() . "\n";
 
+    // Notify Cancelled
+    require_once 'includes/notifications.php';
+    foreach ($to_cancel as $c) {
+        sendNotification($pdo, $c['user_id'], 'Booking Cancelled', 'Your pending reservation (ID: ' . $c['reservation_id'] . ') was cancelled due to no-show.', 'warning', 'bookings.php');
+    }
+
     // Expire outdated reservations
+    $stmt_ids = $pdo->prepare("SELECT user_id, reservation_id FROM reservations WHERE end_time < :now AND status IN ('pending', 'confirmed')");
+    $stmt_ids->execute(['now' => $now]);
+    $to_expire = $stmt_ids->fetchAll(PDO::FETCH_ASSOC);
+
     $stmt_expire = $pdo->prepare("
         UPDATE reservations
         SET status = 'expired'
@@ -25,6 +40,11 @@ try {
     ");
     $stmt_expire->execute(['now' => $now]);
     $log .= "Expired reservations: " . $stmt_expire->rowCount() . "\n";
+
+    // Notify Expired
+    foreach ($to_expire as $e) {
+        sendNotification($pdo, $e['user_id'], 'Booking Expired', 'Your reservation (ID: ' . $e['reservation_id'] . ') has expired.', 'info', 'bookings.php');
+    }
 
     // Complete finished ongoing reservations
     // DISABLED: To allow "Live Overstay" charging, we do NOT auto-complete ongoing.

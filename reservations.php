@@ -188,7 +188,13 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
           'coins'
         ]);
         $pdo->commit();
+        $pdo->commit();
         $reservation_success = true;
+
+        // Notification
+        require_once 'includes/notifications.php';
+        sendNotification($pdo, $user_id, 'Reservation Confirmed', 'Your booking for slot ' . $slot_number . ' is confirmed.', 'success', 'bookings.php');
+
         $show_reservation_form = false;
       }
     }

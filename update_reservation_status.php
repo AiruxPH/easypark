@@ -34,6 +34,17 @@ if ($action === 'cancel') {
                 $stmt->execute([$slot_id]);
             }
         }
+
+        // Notify User
+        require_once 'includes/notifications.php';
+        // Get user_id of the reservation
+        $stmt = $pdo->prepare("SELECT user_id FROM reservations WHERE reservation_id = ?");
+        $stmt->execute([$reservation_id]);
+        $r_user_id = $stmt->fetchColumn();
+        if ($r_user_id) {
+            sendNotification($pdo, $r_user_id, 'Booking Cancelled', 'Your reservation (ID: ' . $reservation_id . ') has been cancelled.', 'info', 'bookings.php');
+        }
+
         echo json_encode(['success' => true, 'message' => 'Booking cancelled.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Unable to cancel booking.']);
