@@ -24,7 +24,8 @@ if (isset($_SESSION['user_id'])) {
 ?>
 <script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
 <nav id="navbar" class="navbar navbar-expand-lg bg-image-dark navbar-dark sticky-top w-100 px-3">
-    <a id="opp" class="navbar-brand" href="index.php">
+    <a id="opp" class="navbar-brand" href="index.php" data-toggle="tooltip" title="Back to Home"
+        data-placement="bottom">
         <h1 class="custom-size 75rem">EASYPARK</h1>
     </a>
     <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
@@ -33,24 +34,26 @@ if (isset($_SESSION['user_id'])) {
     <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
         <ul id="opp" class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php">Home</a>
+                <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php"
+                    data-toggle="tooltip" title="Return to Homepage" data-placement="bottom">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>"
-                    href="reservations.php">Reserve</a>
+                <a class="nav-link <?= ($current_page == 'reservations.php') ? 'active' : '' ?>" href="reservations.php"
+                    data-toggle="tooltip" title="Book a parking slot" data-placement="bottom">Reserve</a>
             </li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php">My
-                        Bookings</a>
+                    <a class="nav-link <?= ($current_page == 'bookings.php') ? 'active' : '' ?>" href="bookings.php"
+                        data-toggle="tooltip" title="View your reservation history" data-placement="bottom">My Bookings</a>
                 </li>
             <?php endif; ?>
             <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>"
-                    href="how-it-works.php">How It Works</a>
+                <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>" href="how-it-works.php"
+                    data-toggle="tooltip" title="Learn how to use EasyPark" data-placement="bottom">How It Works</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'faq.php') ? 'active' : '' ?>" href="faq.php">FAQ</a>
+                <a class="nav-link <?= ($current_page == 'faq.php') ? 'active' : '' ?>" href="faq.php"
+                    data-toggle="tooltip" title="Frequently Asked Questions" data-placement="bottom">FAQ</a>
             </li>
 
             <?php if (isset($_SESSION['user_id'])): ?>
@@ -68,7 +71,7 @@ if (isset($_SESSION['user_id'])) {
                 ?>
                 <li class="nav-item dropdown mr-3">
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Notifications">
                         <i class="fas fa-bell fa-fw" style="font-size: 1.2rem;"></i>
                         <?php if ($unreadCount > 0): ?>
                             <span class="badge badge-danger badge-counter position-absolute"
@@ -144,7 +147,8 @@ if (isset($_SESSION['user_id'])) {
 
                 <li class="nav-item">
                     <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
-                        style="padding: 0.375rem 1rem;">
+                        style="padding: 0.375rem 1rem;" data-toggle="tooltip" title="Manage your profile"
+                        data-placement="bottom">
                         <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
                             style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
                         My Account (<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>)
@@ -162,18 +166,21 @@ if (isset($_SESSION['user_id'])) {
                 ?>
                 <li class="nav-item d-flex align-items-center ml-2">
                     <a href="wallet.php" class="badge badge-light px-3 py-2 border shadow-sm"
-                        style="font-size: 1rem; color: #333; font-weight: 700; text-decoration: none;">
+                        style="font-size: 1rem; color: #333; font-weight: 700; text-decoration: none;" data-toggle="tooltip"
+                        title="View Wallet Balance" data-placement="bottom">
                         🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
                     </a>
                 </li>
                 <li class="nav-item d-flex align-items-center ml-2">
-                    <a href="logout.php" class="btn btn-danger btn-sm shadow-sm" style="padding: 0.375rem 0.75rem;">
+                    <a href="logout.php" class="btn btn-danger btn-sm shadow-sm" style="padding: 0.375rem 0.75rem;"
+                        data-toggle="tooltip" title="Sign Out securely" data-placement="bottom">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </li>
             <?php else: ?>
                 <li class="nav-item ml-2">
-                    <a class="nav-link btn btn-primary px-4 text-white" href="login.php">Login/Sign Up</a>
+                    <a class="nav-link btn btn-primary px-4 text-white" href="login.php" data-toggle="tooltip"
+                        title="Log in or Register" data-placement="bottom">Login/Sign Up</a>
                 </li>
             <?php endif; ?>
         </ul>
@@ -265,6 +272,9 @@ if (isset($_SESSION['user_id'])) {
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Bootstrap Tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+
         const navbar = document.getElementById('navbar');
 
         function updateNavbarOpacity() {
