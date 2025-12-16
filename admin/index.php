@@ -1,4 +1,5 @@
 <?php
+ob_start(); // Start output buffering
 require_once '../includes/db.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
