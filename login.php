@@ -73,98 +73,149 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EASYPARK - Login</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
+    :root {
+      --primary: #f0a500;
+      --dark: #1a1a1a;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
     }
 
-    .bg-image {
+    body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      background: url('images/bg-car.jpg') no-repeat center center/cover;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Overlay */
+    body::before {
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      opacity: 0.3;
-      z-index: -1;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.85) 100%);
+      z-index: 0;
+    }
+
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(30, 30, 30, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 10px;
+      height: 50px;
+      padding-left: 15px;
     }
 
     .form-control:focus {
-      border-color: #ffc107;
-      box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+      background: rgba(0, 0, 0, 0.5);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25);
+      color: #fff;
     }
 
     .btn-warning {
-      background-color: #ffc107;
-      border-color: #ffc107;
+      background: var(--primary);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      border-radius: 10px;
+      height: 50px;
+      transition: all 0.3s ease;
     }
 
     .btn-warning:hover {
-      background-color: #6610f2;
-      border-color: #6610f2;
+      background: #e09b00;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(240, 165, 0, 0.3);
+    }
+
+    .text-primary {
+      color: var(--primary) !important;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
     }
   </style>
 </head>
 
-<body class="d-flex align-items-center justify-content-center p-4">
-  <img class="bg-image" src="images/bg-car.jpg" alt="parking bg" />
-  <div class="card bg-white shadow-lg p-4" style="max-width: 400px; background: rgba(255, 255, 255, 0.9) !important;">
+<body class="p-4">
+
+  <div class="glass-card">
     <!-- Website Name/Logo -->
-    <div class="text-center mb-4">
-      <h1 class="display-5 font-weight-bold text-warning">EASYPARK</h1>
-      <p class="text-muted small">Your Smart Parking Solution</p>
+    <div class="text-center mb-5">
+      <h1 class="display-5 font-weight-bold text-white mb-0">EASYPARK</h1>
+      <p class="text-muted small letter-spacing-1">SMART PARKING SOLUTION</p>
     </div>
 
     <!-- Login Form -->
     <form action="login.php" method="POST">
-      <div class="form-group">
-        <label for="email" class="small font-weight-bold text-muted">
-          Email Address <span class="text-danger">*</span>
-        </label>
-        <input type="email" name="email" id="email" required placeholder="Email address" class="form-control"
-          autocomplete="off" />
+      <div class="form-group mb-4">
+        <label for="email" class="small font-weight-bold text-muted mb-2">EMAIL ADDRESS</label>
+        <div class="input-group">
+          <input type="email" name="email" id="email" required placeholder="name@example.com" class="form-control"
+            autocomplete="off" />
+        </div>
       </div>
-      <div class="form-group">
-        <label for="password" class="small font-weight-bold text-muted">
-          Password <span class="text-danger">*</span>
-        </label>
+
+      <div class="form-group mb-4">
+        <label for="password" class="small font-weight-bold text-muted mb-2">PASSWORD</label>
         <div class="position-relative">
-          <input type="password" name="password" id="password" required placeholder="••••••••" class="form-control"
-            autocomplete="new-password" />
-          <button type="button" onclick="togglePassword()" class="btn btn-link position-absolute"
-            style="right: 0; top: 0; padding: 6px 12px;">
-            <i class="fas fa-eye text-muted" id="toggleIcon"></i>
+          <input type="password" name="password" id="password" required placeholder="Enter your password"
+            class="form-control" autocomplete="new-password" />
+          <button type="button" onclick="togglePassword()" class="btn btn-link position-absolute text-white-50"
+            style="right: 10px; top: 5px;">
+            <i class="fas fa-eye" id="toggleIcon"></i>
           </button>
         </div>
       </div>
-      <button type="submit" class="btn btn-warning btn-block text-white font-weight-bold">
-        Login
+
+      <button type="submit" class="btn btn-warning btn-block mt-5">
+        LOGIN
       </button>
     </form>
 
     <!-- Forgot Password Link -->
     <div class="text-center mt-4">
-      <a href="forgot_password.php" class="text-primary">Forgot your password?</a>
+      <a href="forgot_password.php" class="small text-white-50 hover-light">Forgot your password?</a>
     </div>
 
     <!-- Register Link -->
-    <div class="text-center mt-3 text-muted">
-      Don't have an account? <a href="register.php" class="text-primary">Sign up here</a>
+    <div class="text-center mt-3">
+      <span class="text-muted small">Don't have an account?</span>
+      <a href="register.php" class="text-primary font-weight-bold small ml-1">Sign up</a>
     </div>
 
-    <div class="text-center mt-3 text-muted">
-      <a href="index.php" class="text-primary">Go back to home</a>
+    <div class="text-center mt-4 border-top border-secondary pt-3">
+      <a href="index.php" class="small text-white-50"><i class="fas fa-arrow-left mr-1"></i> Back to Home</a>
     </div>
   </div>
 
-  <script src="js/jquery.slim.min.js"></script>
+  <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  <script src="js/ef9baa832e.js" crossorigin="anonymous"></script>
   <script>
     function togglePassword() {
       const pwd = document.getElementById('password');
@@ -172,9 +223,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (pwd.type === "password") {
         pwd.type = "text";
         icon.classList.replace('fa-eye', 'fa-eye-slash');
+        icon.classList.add('text-primary');
       } else {
         pwd.type = "password";
         icon.classList.replace('fa-eye-slash', 'fa-eye');
+        icon.classList.remove('text-primary');
       }
     }
   </script>
@@ -184,9 +237,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $(document).ready(function () {
         $('body').append(`
                 <div class="position-fixed p-3" style="z-index: 5; top: 20px; right: 20px;">
-                    <div id="loginToast" class="toast hide text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
-                        <div class="toast-body">
-                            <i class="fas fa-exclamation-circle mr-2"></i> <?= htmlspecialchars($message) ?>
+                    <div id="loginToast" class="toast hide text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+                        <div class="toast-body d-flex align-items-center">
+                            <i class="fas fa-info-circle text-warning mr-3 fa-lg"></i> 
+                            <div><?= htmlspecialchars($message) ?></div>
                         </div>
                     </div>
                 </div>
