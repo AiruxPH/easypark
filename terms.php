@@ -1,134 +1,223 @@
 <?php
 // terms.php
 session_start();
+require_once 'includes/db.php';
 $is_logged_in = isset($_SESSION['user_id']);
+
+// Profile pic logic if needed
+$profilePic = 'images/default.jpg';
 if ($is_logged_in) {
-  require_once 'includes/db.php';
   $user_id = $_SESSION['user_id'];
   $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
   $stmt->execute([$user_id]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
-  $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+  if (!empty($user['image']) && file_exists('images/' . $user['image'])) {
+    $profilePic = 'images/' . $user['image'];
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <title>Terms and Conditions - EasyPark</title>
+  <title>Terms & Conditions - EasyPark</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    .bg-car {
-      background-image: url('images/bg-car.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
+    :root {
+      --primary: #f0a500;
+      --dark: #1a1a1a;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
     }
 
-    .glass-panel {
-      background: rgba(43, 45, 66, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--dark);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Page Header */
+    .page-header {
+      position: relative;
+      height: 40vh;
+      min-height: 300px;
+      background: url('images/bg-car.jpg') no-repeat center center/cover;
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.9) 100%);
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .display-title {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      background: linear-gradient(to bottom right, #ffffff, #f0a500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      height: 100%;
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.8rem;
+    }
+
+    .section-title i {
+      margin-right: 15px;
+      color: #fff;
+    }
+
+    .term-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .term-list li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .term-list li:before {
+      content: "\f0da";
+      /* FontAwesome Chevron Right */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+
+    strong {
+      color: #fff;
+    }
+
+    /* Navbar override */
+    #navbar {
+      background: rgba(0, 0, 0, 0.6) !important;
       backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
-    
-    .term-section {
-        margin-bottom: 2rem;
-    }
-    
-    .term-title {
-        color: #f6c23e;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
     }
   </style>
 </head>
 
-<body class="bg-car">
+<body>
+
   <?php include 'includes/client_navbar.php'; ?>
-  
-  <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h2 class="text-white mb-4 font-weight-bold text-center">Terms and Conditions</h2>
-            
-            <div class="glass-panel text-light p-5 rounded">
-              <p class="lead text-center mb-5">Welcome to EasyPark. By accessing or using our platform, you agree to be bound by these Terms and Conditions.</p>
-              
-              <div class="term-section">
-                <h4 class="term-title">1. EasyPark Coins & Payments</h4>
-                <ul>
-                    <li><strong>Virtual Currency:</strong> "EasyPark Coins" (🪙) are a virtual currency used exclusively within the EasyPark platform for parking reservations and services.</li>
-                    <li><strong>No Cash Value:</strong> Coins have no real-world cash value, cannot be exchanged for cash, and are non-transferable between accounts.</li>
-                    <li><strong>Top-Ups:</strong> All Coin purchases ("Top-Ups") are final and non-refundable. Please verify amounts before confirming payment.</li>
-                    <li><strong>Wallet Balance:</strong> Users are responsible for maintaining a sufficient Coin balance to cover reservation fees and potential penalties.</li>
-                </ul>
-              </div>
 
-              <div class="term-section">
-                <h4 class="term-title">2. Reservations & Cancellations</h4>
-                <ul>
-                    <li><strong>Booking Commitment:</strong> Confirmed reservations act as a binding agreement to occupy the selected slot for the specified duration.</li>
-                    <li><strong>Cancellations:</strong> Users may cancel a reservation <em>before</em> the scheduled start time. Cancellations made after the start time may not be eligible for a full refund.</li>
-                    <li><strong>Voiding:</strong> EasyPark reserves the right to void reservations that are found to be fraudulent or in violation of usage policies.</li>
-                </ul>
-              </div>
-
-              <div class="term-section">
-                <h4 class="term-title">3. Overstay Policy & Penalties</h4>
-                <ul>
-                    <li><strong>Strict Adherence:</strong> Vehicles must vacate the parking slot by the scheduled End Time.</li>
-                    <li><strong>Automatic Penalties:</strong> Staying past the reserved time ("Overstay") will result in automatic penalty charges.</li>
-                    <li><strong>Billing:</strong> Penalties are calculated based on the duration of the overstay and the slot rate. These charges are automatically deducted from your Coin Wallet.</li>
-                    <li><strong>Debt:</strong> If penalty charges exceed your wallet balance, your account will incur a negative balance (debt) which must be settled before making new reservations.</li>
-                </ul>
-              </div>
-
-              <div class="term-section">
-                <h4 class="term-title">4. User Responsibilities</h4>
-                <ul>
-                    <li><strong>Vehicle Information:</strong> Users must provide accurate vehicle details (Plate Number, Model). Inaccurate information may lead to reservation forfeiture or towing at the owner's expense.</li>
-                    <li><strong>Parking Conduct:</strong> Users must park only in their assigned slot. Improper parking blocking other slots is prohibited.</li>
-                    <li><strong>Safety:</strong> EasyPark provides the platform for reservation but allows users to park at their own risk. We are not liable for theft, damage, or loss of property within the parking facility.</li>
-                </ul>
-              </div>
-
-              <div class="term-section">
-                <h4 class="term-title">5. Amendments</h4>
-                <p>EasyPark reserves the right to modify these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.</p>
-              </div>
-              
-              <div class="mt-5 text-center">
-                <p class="small text-muted">Last updated: <?= date('F Y') ?></p>
-              </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <a href="index.php" class="btn btn-secondary shadow-sm">Back to Home</a>
-            </div>
-        </div>
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-overlay"></div>
+    <div class="header-content">
+      <h1 class="display-title">Terms & Conditions</h1>
+      <p class="lead text-white-50">Please read our parking rules carefully.</p>
     </div>
+  </header>
+
+  <div class="container py-5" style="max-width: 900px;">
+
+    <p class="lead mb-5 text-center px-lg-5">
+      By accessing or using the EasyPark platform, you agree to be bound by these policies.
+    </p>
+
+    <div class="glass-card">
+      <h3 class="section-title"><i class="fas fa-coins"></i> 1. EasyPark Coins & Payments</h3>
+      <ul class="term-list">
+        <li><strong>Virtual Currency:</strong> "EasyPark Coins" are used exclusively for services within our platform.
+        </li>
+        <li><strong>No Cash Value:</strong> Coins cannot be exchanged for cash and are non-transferable.</li>
+        <li><strong>Non-Refundable:</strong> All Coin top-ups are final. Please verify amounts before purchasing.</li>
+        <li><strong>Balance Responsibility:</strong> Users must maintain sufficient balance for reservations and
+          potential penalties.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card">
+      <h3 class="section-title"><i class="fas fa-calendar-check"></i> 2. Reservations</h3>
+      <ul class="term-list">
+        <li><strong>Binding Agreement:</strong> A confirmed reservation is a commitment to occupy the slot for the
+          booked time.</li>
+        <li><strong>Cancellations:</strong> Must be made <em>before</em> the scheduled start time for a refund.</li>
+        <li><strong>Fraud:</strong> We reserve the right to void reservations found to be fraudulent.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card">
+      <h3 class="section-title"><i class="fas fa-exclamation-triangle"></i> 3. Overstay & Penalties</h3>
+      <ul class="term-list">
+        <li><strong>Strict End Times:</strong> You must vacate your slot by the scheduled End Time.</li>
+        <li><strong>Automatic Penalties:</strong> Overstaying triggers automatic charges deducted from your wallet.</li>
+        <li><strong>Debt:</strong> If penalties exceed your balance, your account will be frozen until the debt is
+          settled.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card">
+      <h3 class="section-title"><i class="fas fa-user-check"></i> 4. Responsibilities</h3>
+      <ul class="term-list">
+        <li><strong>Accuracy:</strong> You must provide accurate vehicle details (License Plate). Inaccurate info may
+          lead to towing.</li>
+        <li><strong>Proper Parking:</strong> Park only in your assigned slot. Do not obstruct others.</li>
+        <li><strong>Liability:</strong> Park at your own risk. EasyPark is not liable for theft or damage within the
+          facility.</li>
+      </ul>
+    </div>
+
+    <div class="text-center mt-5">
+      <p class="text-white-50">Last Updated: December 2024</p>
+      <a href="index.php" class="btn btn-outline-light px-4">Accept & Return Home</a>
+    </div>
+
   </div>
 
-  <?php include 'includes/footer.php'; ?>
-  
+  <?php include 'footer.php'; ?>
+
   <script src="js/jquery.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  <script>
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', function () {
-      if (window.scrollY > 100) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-  </script>
+
 </body>
+
 </html>
