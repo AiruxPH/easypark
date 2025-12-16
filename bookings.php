@@ -44,6 +44,8 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
     }
 
     #navbar {
@@ -68,8 +70,39 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       margin-right: 15px;
     }
 
-    .table thead th {
-      cursor: pointer;
+    /* Glassmorphism Table */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .table-glass {
+        color: #fff;
+        margin-bottom: 0;
+    }
+    
+    .table-glass thead th {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        border-top: none;
+        color: #f0a500; /* Primary/Warning color */
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .table-glass td, .table-glass th {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        vertical-align: middle;
+    }
+
+    .table-glass tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-action {
+        margin: 2px;
     }
   </style>
 </head>
@@ -77,12 +110,14 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
 <body class="bg-car">
   <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-5">
-    <h2 class="text-warning mb-4">My Bookings</h2>
-    <div class="mb-3 p-3 rounded shadow-sm" style="background:#fff; color:#222; border:1px solid #ddd;">
+    <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">My Bookings</h2>
+    
+    <!-- Filter Panel -->
+    <div class="glass-panel p-3 mb-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between">
         <div class="form-inline mb-2 mb-md-0">
-          <label for="statusFilter" class="mr-2 font-weight-bold" style="color:#222;">Filter by Status:</label>
-          <select id="statusFilter" class="form-control form-control-sm mr-3">
+          <label for="statusFilter" class="mr-2 font-weight-bold text-white">Filter by Status:</label>
+          <select id="statusFilter" class="form-control form-control-sm mr-3 bg-dark text-white border-secondary">
             <option value="">All</option>
             <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
@@ -93,14 +128,17 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
           </select>
         </div>
         <div class="form-inline">
-          <input type="text" id="searchInput" class="form-control form-control-sm mr-2"
+          <input type="text" id="searchInput" class="form-control form-control-sm mr-2 bg-dark text-white border-secondary"
             placeholder="Search bookings...">
-          <button class="btn btn-sm btn-outline-dark" id="clearSearch">Clear</button>
+          <button class="btn btn-sm btn-outline-light" id="clearSearch">Clear</button>
         </div>
       </div>
     </div>
-    <div class="table-responsive bg-dark rounded p-3">
-      <table class="table table-hover table-dark table-bordered align-middle text-center" id="bookingsTable">
+
+    <!-- Table Panel -->
+    <div class="glass-panel p-0 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-glass align-middle text-center" id="bookingsTable">
         <thead>
           <tr>
             <th>Ref #</th>
@@ -109,18 +147,18 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
             <th>Start</th>
             <th>End</th>
             <th>Duration</th>
-            <th>Reservation Status</th>
+            <th>Res. Status</th>
             <th>Amount</th>
-            <th>Payment Status</th>
-            <th>Payment Method</th>
-            <th>Payment Date</th>
-            <th>Action</th> <!-- New column for actions -->
+            <th>Pay Status</th>
+            <th>Method</th>
+            <th>Pay Date</th>
+            <th>Actions</th> 
           </tr>
         </thead>
         <tbody>
           <?php if (count($bookings) === 0): ?>
             <tr>
-              <td colspan="12" class="text-center">No bookings found.</td>
+              <td colspan="12" class="text-center py-5 text-white-50">No bookings found.</td>
             </tr>
           <?php else:
             foreach ($bookings as $b):
@@ -150,11 +188,16 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
               }
               ?>
               <tr class="booking-row" data-booking='<?= $rowData ?>'>
-                <td><?= htmlspecialchars($b['reservation_id']) ?></td>
-                <td><?= htmlspecialchars($b['slot_number']) ?> (<?= htmlspecialchars($b['slot_type']) ?>)</td>
-                <td><?= htmlspecialchars($b['brand'] . ' ' . $b['model'] . ' - ' . $b['plate_number']) ?></td>
-                <td><?= htmlspecialchars($b['start_time']) ?></td>
-                <td><?= htmlspecialchars($b['end_time']) ?></td>
+                <td class="font-weight-bold opacity-75"><?= htmlspecialchars($b['reservation_id']) ?></td>
+                <td><?= htmlspecialchars($b['slot_number']) ?> <small>(<?= htmlspecialchars($b['slot_type']) ?>)</small></td>
+                <td>
+                    <div style="line-height:1.2;">
+                        <small class="d-block text-white-50"><?= htmlspecialchars($b['brand'] . ' ' . $b['model']) ?></small>
+                        <span><?= htmlspecialchars($b['plate_number']) ?></span>
+                    </div>
+                </td>
+                <td class="small"><?= htmlspecialchars($b['start_time']) ?></td>
+                <td class="small"><?= htmlspecialchars($b['end_time']) ?></td>
                 <td>
                   <?php
                   // Display original duration with unit
@@ -194,8 +237,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                       $parts[] = $interval->s . ' second' . ($interval->s > 1 ? 's' : '');
                     $remaining = $parts ? implode(' ', $parts) . ' left' : '';
                     ?>
-                    <?php if (true): // Always show timer if active ?>
-                      <?php
+                    <?php
                       // Calculate rate for overstay penalty
                       $rate = 0;
                       if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
@@ -203,9 +245,10 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                       }
                       $timerEnd = $b['end_time'];
                       ?>
-                      <br><span id="timer-<?= $b['reservation_id'] ?>" class="timer badge badge-info"
+                    <div class="mt-1">
+                        <span id="timer-<?= $b['reservation_id'] ?>" class="timer badge badge-info"
                         data-end="<?= $timerEnd ?>" data-rate="<?= $rate ?>">Checking...</span>
-                    <?php endif; ?>
+                    </div>
                   <?php endif; ?>
                 </td>
                 <td>
@@ -223,9 +266,9 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                   elseif ($status === 'expired')
                     $badge = 'dark';
                   ?>
-                  <span class="badge bg-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
+                  <span class="badge badge-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
                 </td>
-                <td><i class="fas fa-coins text-warning"></i> <?= number_format($b['amount'], 2) ?></td>
+                <td><span class="text-warning font-weight-bold">🪙</span> <?= number_format($b['amount'], 2) ?></td>
                 <td>
                   <?php
                   $pay = $b['payment_status'];
@@ -237,28 +280,35 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                   elseif ($pay === 'failed' || $pay === 'refunded')
                     $payBadge = 'danger';
                   ?>
-                  <span class="badge bg-<?= $payBadge ?> text-uppercase"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
+                  <span class="badge badge-<?= $payBadge ?>"><?= $pay ? htmlspecialchars($pay) : 'N/A' ?></span>
                 </td>
-                <td><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
-                <td><?= htmlspecialchars($b['payment_date']) ?></td>
-                <td>
+                <td class="small"><?= htmlspecialchars(ucfirst($b['method'])) ?></td>
+                <td class="small"><?= htmlspecialchars($b['payment_date']) ?></td>
+                <td class="text-nowrap">
+                   <!-- View Button -->
+                   <button class="btn btn-sm btn-info btn-action action-view" title="View Details">
+                        <i class="fa fa-eye"></i>
+                   </button>
+
                   <?php
                   $status = $b['status'];
                   // Show Cancel for pending or confirmed, Complete for ongoing
                   if ($status === 'pending' || $status === 'confirmed'):
                     ?>
-                    <button class="btn btn-sm btn-danger action-cancel" data-id="<?= $b['reservation_id'] ?>">Cancel</button>
+                    <button class="btn btn-sm btn-danger btn-action action-cancel" data-id="<?= $b['reservation_id'] ?>" title="Cancel Booking">
+                        <i class="fa fa-times"></i>
+                    </button>
                   <?php elseif ($status === 'ongoing'): ?>
-                    <button class="btn btn-sm btn-success action-complete" data-id="<?= $b['reservation_id'] ?>">Mark as
-                      Complete</button>
-                  <?php else: ?>
-                    <span class="text-muted">-</span>
+                    <button class="btn btn-sm btn-success btn-action action-complete" data-id="<?= $b['reservation_id'] ?>" title="Complete Booking">
+                        <i class="fa fa-check"></i>
+                    </button>
                   <?php endif; ?>
                 </td>
               </tr>
             <?php endforeach; endif; ?>
         </tbody>
       </table>
+      </div>
     </div>
     <a href="dashboard.php" class="btn btn-secondary mt-4">Go back to Home</a>
   </div>
