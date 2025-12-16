@@ -188,7 +188,6 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
           'coins'
         ]);
         $pdo->commit();
-        $pdo->commit();
         $reservation_success = true;
 
         // Notification
