@@ -46,10 +46,12 @@ if (isset($_SESSION['user_id'])) {
                         data-toggle="tooltip" title="View your reservation history" data-placement="bottom">My Bookings</a>
                 </li>
             <?php endif; ?>
-            <li class="nav-item">
-                <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>" href="how-it-works.php"
-                    data-toggle="tooltip" title="Learn how to use EasyPark" data-placement="bottom">How It Works</a>
-            </li>
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'how-it-works.php') ? 'active' : '' ?>" href="how-it-works.php"
+                        data-toggle="tooltip" title="Learn how to use EasyPark" data-placement="bottom">How It Works</a>
+                </li>
+            <?php endif; ?>
             <li class="nav-item">
                 <a class="nav-link <?= ($current_page == 'faq.php') ? 'active' : '' ?>" href="faq.php"
                     data-toggle="tooltip" title="Frequently Asked Questions" data-placement="bottom">FAQ</a>
