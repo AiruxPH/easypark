@@ -29,8 +29,12 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
 }
 
+/* Force Dark Background on Body and Wrappers */
 body,
-.bg-dark-theme {
+.bg-dark-theme,
+#wrapper,
+#content-wrapper,
+.container-fluid {
     background-color: var(--secondary-bg) !important;
     color: var(--text-main) !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -42,6 +46,10 @@ body,
 }
 
 /* Navbar Tweaks */
+.navbar {
+    background-color: var(--sidebar-bg) !important;
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     letter-spacing: 0.05em;
@@ -62,59 +70,81 @@ body,
     border-radius: 0.25rem;
 }
 
-.bg-dark {
-    background-color: #1e293b !important;
-    /* Sidebar/Nav color */
-    border-bottom: 1px solid var(--border-color);
+/* Force Dark Mode on Cards */
+.card,
+.card-body,
+.card-header,
+.card-footer {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
 }
 
-/* Modern Card Styles */
 .card {
     border: 1px solid var(--border-color) !important;
-    background-color: var(--card-bg);
     border-radius: 0.75rem !important;
     box-shadow: var(--shadow-md);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
     overflow: hidden;
-    color: var(--text-main);
 }
 
 /* Header Cleanup */
 .card-header {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border-bottom: 1px solid var(--border-color) !important;
-    padding: 1.25rem 1.5rem !important;
-    max-height: 70px;
 }
 
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
 .card-header h6 {
     color: var(--text-main) !important;
     font-weight: 700;
 }
 
-.card-header span {
-    font-weight: 600;
-    color: var(--text-main);
-    font-size: 1.1rem;
+/* Form Elements - Force Dark */
+input,
+select,
+textarea,
+.form-control,
+.custom-select,
+.input-group-text {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    /* Low opacity white = dark grey */
+    color: #fff !important;
+    /* Force white text input */
+    border: 1px solid var(--border-color) !important;
 }
 
-/* Re-style text utils for dark mode */
-.text-gray-800 {
-    color: var(--text-main) !important;
-}
-
-.text-gray-600 {
+input::placeholder,
+.form-control::placeholder {
     color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+/* Re-style text utils for dark mode - aggressive overrides */
+.text-gray-100,
+.text-gray-200,
+.text-gray-300,
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-800,
+.text-gray-900,
+.text-dark,
+.text-muted {
+    color: var(--text-main) !important;
 }
 
 .text-primary {
     color: #818cf8 !important;
-    /* Lighter indigo for dark bg */
 }
 
 /* Dashboard Stats Cards */
 .stats-card {
-    position: relative;
+    background-color: var(--card-bg) !important;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
@@ -152,107 +182,59 @@ body,
     color: var(--text-main) !important;
 }
 
-.text-gray-300 {
-    color: #475569 !important;
-    /* Darker grey for icons */
-    opacity: 0.5;
-}
-
 /* Table Styling */
 .table {
-    color: var(--text-main);
+    color: var(--text-main) !important;
+    background-color: transparent !important;
 }
 
 .table th {
-    background-color: rgba(255, 255, 255, 0.05);
-    /* Slight white overlay */
-    color: var(--text-main);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    border-top: none;
-    border-bottom: 1px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
 }
 
 .table td {
-    vertical-align: middle;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border-color);
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
 }
 
-.table-bordered {
-    border: 1px solid var(--border-color);
+.table-hover tbody tr:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.table-bordered th,
-.table-bordered td {
-    border: 1px solid var(--border-color);
-}
-
-/* Button Refinements */
+/* Buttons */
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-sm);
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-    border-color: var(--primary-dark);
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
 }
 
 .btn-light {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: var(--border-color);
-    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
 }
 
 .btn-light:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
 }
 
-/* Badge Refinements */
-.badge {
-    padding: 0.5em 0.75em;
-    font-weight: 600;
-    border-radius: 0.375rem;
-}
-
-/* Use dimmer backgrounds for badges in dark mode */
-.badge-info {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
-}
-
-.badge-success {
-    background-color: rgba(16, 185, 129, 0.2);
-    color: #6ee7b7;
-}
-
-.badge-warning {
-    background-color: rgba(245, 158, 11, 0.2);
-    color: #fcd34d;
-}
-
-.badge-danger {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
-}
-
-.badge-secondary {
-    background-color: rgba(148, 163, 184, 0.2);
-    color: #cbd5e1;
-}
-
-/* Filter Form */
-form.form-inline.shadow-sm {
+/* Modals */
+.modal-content {
     background-color: var(--card-bg) !important;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
-form label {
-    color: var(--text-main) !important;
+.modal-header,
+.modal-footer {
+    border-color: var(--border-color) !important;
+}
+
+.close {
+    color: #fff !important;
+    text-shadow: none;
+    opacity: 0.8;
 }

@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="css/admin-custom.css" rel="stylesheet">
+    <link href="css/admin-custom.css?v=<?= time() ?>" rel="stylesheet">
     <link href="css/parking-grid.css" rel="stylesheet">
 </head>
 
