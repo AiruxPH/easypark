@@ -268,6 +268,65 @@ if (isset($_SESSION['user_id'])) {
         text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
         color: white;
     }
+
+    /* GLASS NOTIFICATION DROPDOWN */
+    .dropdown-list {
+        background: rgba(30, 30, 30, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .dropdown-header {
+        background: rgba(240, 165, 0, 0.9) !important; /* Primary color */
+        color: #000 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .notification-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: background 0.2s;
+    }
+
+    .notification-item:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        text-decoration: none;
+    }
+
+    .notification-item .text-gray-500 {
+        color: #aaa !important;
+    }
+    
+    .notification-item .font-weight-bold {
+        color: #fff !important;
+    }
+    
+    .notification-item .text-dark {
+        color: #ccc !important;
+    }
+
+    .notification-item.bg-light {
+        background: rgba(255, 255, 255, 0.05) !important; /* Unread */
+    }
+
+    .notification-item.bg-white {
+        background: transparent !important; /* Read */
+    }
+
+    /* Mark all as read button */
+    a.dropdown-item.text-center {
+        color: #f0a500 !important;
+        background: rgba(0,0,0,0.2) !important;
+        transition: all 0.2s;
+    }
+    a.dropdown-item.text-center:hover {
+        background: rgba(0,0,0,0.4) !important;
+        color: #fff !important;
+    }
 </style>
 
 <script>
