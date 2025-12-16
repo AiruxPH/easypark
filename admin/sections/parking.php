@@ -126,25 +126,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
 
 // Handle Add Slot
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_slot'])) {
-    $slotNum = trim($_POST['slot_number']);
-    $slotType = $_POST['slot_type'];
+    try {
+        $slotNum = trim($_POST['slot_number']);
+        $slotType = $_POST['slot_type'];
 
-    // Check duplicate
-    $check = $pdo->prepare("SELECT parking_slot_id FROM parking_slots WHERE slot_number = ?");
-    $check->execute([$slotNum]);
+        // Check duplicate
+        $check = $pdo->prepare("SELECT parking_slot_id FROM parking_slots WHERE slot_number = ?");
+        $check->execute([$slotNum]);
 
-    if ($check->rowCount() > 0) {
-        echo '<div class="alert alert-danger shadow-sm">Slot number ' . htmlspecialchars($slotNum) . ' already exists.</div>';
-    } else {
-        $stmt = $pdo->prepare("INSERT INTO parking_slots (slot_number, slot_type, slot_status, price) VALUES (?, ?, 'available', 0.00)");
-        // Note: Price is defaulted to 0.00 as it seems to be controlled globally or not in the form
-        $stmt->execute([$slotNum, $slotType]);
+        if ($check->rowCount() > 0) {
+            echo '<div class="alert alert-danger shadow-sm">Slot number ' . htmlspecialchars($slotNum) . ' already exists.</div>';
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO parking_slots (slot_number, slot_type, slot_status, price) VALUES (?, ?, 'available', 0.00)");
+            $stmt->execute([$slotNum, $slotType]);
 
-        $newId = $pdo->lastInsertId();
-        logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_add', "Added new parking slot: $slotNum ($slotType)");
+            $newId = $pdo->lastInsertId();
+            logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_add', "Added new parking slot: $slotNum ($slotType)");
 
-        header('Location: ?section=parking&status=' . urlencode($status) . '&type=' . urlencode($type));
-        exit;
+            header('Location: ?section=parking&status=' . urlencode($status) . '&type=' . urlencode($type));
+            exit;
+        }
+    } catch (Exception $e) {
+        if (ob_get_level())
+            ob_end_clean();
+        die('<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>');
     }
 }
 
