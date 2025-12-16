@@ -465,6 +465,12 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
               <!-- You could add more stats here, e.g. Bookings -->
             </div>
 
+            <div class="mt-4">
+              <a href="activity_logs.php" class="btn btn-outline-light btn-sm px-4 rounded-pill">
+                <i class="fa fa-history mr-1"></i> View Activity Logs
+              </a>
+            </div>
+
             <!-- Hidden Form for Image Upload -->
             <form method="POST" enctype="multipart/form-data" id="avatarForm">
               <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" class="d-none">

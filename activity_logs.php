@@ -16,8 +16,9 @@ require_once 'includes/functions.php'; // For logActivity if needed, though we a
 
 $user_id = $_SESSION['user_id'];
 
-// --- Search & Pagination ---
+// --- Search & Pagination & Filter ---
 $search = trim($_GET['search'] ?? '');
+$actionFilter = $_GET['action_filter'] ?? '';
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = 15; // slightly different per page for client
 $offset = ($page - 1) * $perPage;
@@ -29,6 +30,15 @@ $params = [':user_id' => $user_id];
 if ($search) {
     $where[] = "(l.action LIKE :search OR l.details LIKE :search)";
     $params[':search'] = "%$search%";
+}
+
+if ($actionFilter) {
+    if ($actionFilter === 'login_logout') {
+        $where[] = "(l.action = 'login' OR l.action = 'logout')";
+    } else {
+        $where[] = "l.action LIKE :action_filter";
+        $params[':action_filter'] = "%$actionFilter%";
+    }
 }
 
 $whereClause = 'WHERE ' . implode(' AND ', $where);
@@ -65,7 +75,11 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
         .bg-car {
             background-image: url('images/bg-car.jpg');
             background-size: cover;
@@ -97,6 +111,18 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: inline-block;
             text-align: center;
         }
+        
+        .btn-back {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -104,28 +130,47 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include 'includes/client_navbar.php'; ?>
 
     <div class="container py-5">
-        <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
-            <i class="fa fa-history mr-2"></i> My Activity History
-        </h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
+                <i class="fa fa-history mr-2"></i> My Activity History
+            </h2>
+            <a href="profile.php" class="btn btn-back rounded-pill px-4">
+                <i class="fa fa-arrow-left mr-2"></i> Back to Profile
+            </a>
+        </div>
 
         <div class="glass-card p-4">
             <!-- Search & Filter -->
             <form method="GET" class="mb-4">
                 <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-4 mb-2">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-white border-right-0"><i
                                         class="fa fa-search text-muted"></i></span>
                             </div>
                             <input type="text" name="search" class="form-control border-left-0"
-                                placeholder="Search actions or details..." value="<?= htmlspecialchars($search) ?>">
+                                placeholder="Search details..." value="<?= htmlspecialchars($search) ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                         <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-filter text-muted"></i></span>
+                            </div>
+                            <select name="action_filter" class="form-control border-left-0">
+                                <option value="">All Actions</option>
+                                <option value="login_logout" <?= $actionFilter === 'login_logout' ? 'selected' : '' ?>>Login / Logout</option>
+                                <option value="reservation" <?= $actionFilter === 'reservation' ? 'selected' : '' ?>>Reservations</option>
+                                <option value="wallet" <?= $actionFilter === 'wallet' ? 'selected' : '' ?>>Wallet / Top-up</option>
+                                <option value="profile" <?= $actionFilter === 'profile' ? 'selected' : '' ?>>Profile Updates</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary btn-block shadow-sm">Search</button>
+                        <button type="submit" class="btn btn-primary btn-block shadow-sm">Filter</button>
                     </div>
-                    <?php if ($search): ?>
+                    <?php if ($search || $actionFilter): ?>
                         <div class="col-md-2 mb-2">
                             <a href="activity_logs.php" class="btn btn-outline-secondary btn-block">Clear</a>
                         </div>
