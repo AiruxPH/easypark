@@ -212,7 +212,7 @@ try {
                 $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Overstay Penalty')")->execute([$u_id, -$to_charge]);
 
                 // Record the penalty payment
-                $pdo->prepare("INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, 'successful', 'coins', NOW())")->execute([$r_id, $to_charge]);
+                $pdo->prepare("INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, 'successful', 'coins', NOW())")->execute([$r_id, $u_id, $to_charge]);
 
                 $log .= "Charged overstay penalty: $to_charge for Res ID: $r_id\n";
             }

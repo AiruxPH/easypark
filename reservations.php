@@ -171,8 +171,9 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       ]);
       $reservation_id = $pdo->lastInsertId();
       // Insert payment record with correct columns (Wallet payment)
-      $pdo->prepare('INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, NOW())')->execute([
+      $pdo->prepare('INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, ?, NOW())')->execute([
         $reservation_id,
+        $user_id,
         $price,
         'successful',
         'coins'
@@ -577,209 +578,209 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
                   </select>
                 </div>
               </div>
-              </div>
-              <!-- Payment Method Removed: Defaults to Coins -->
-              <div class="col-md-6">
-                 <div class="form-group">
-                  <label>Payment</label>
-                  <input type="text" class="form-control" value="My Wallet (Coins)" readonly>
-                  <input type="hidden" name="payment_method" value="coins">
-                </div>
+            </div>
+            <!-- Payment Method Removed: Defaults to Coins -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Payment</label>
+                <input type="text" class="form-control" value="My Wallet (Coins)" readonly>
+                <input type="hidden" name="payment_method" value="coins">
               </div>
             </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Start Date & Time</label>
-                  <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required
-                    onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>End Date & Time</label>
-                  <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required
-                    onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
-                </div>
-              </div>
-            </div>
-
-            <hr class="border-secondary my-4">
-
-            <div class="row align-items-end">
-              <div class="col-md-6">
-                <div class="form-group mb-0">
-                  <label>Estimated Price</label>
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text bg-dark border-secondary text-white">Coins</span>
-                    </div>
-                    <input type="text" name="price" id="price" class="form-control text-warning font-weight-bold"
-                      style="font-size: 1.5rem;" readonly required>
-                    <div class="input-group-append">
-                        <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-coins"></i></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 text-right">
-                <input type="hidden" name="duration_value" id="duration_value">
-                <a href="reservations.php" class="btn btn-link text-muted mr-3">Cancel</a>
-                <button type="submit" name="review_reservation" class="btn btn-warning px-5 py-3 shadow">Next:
-                  Review</button>
-              </div>
-            </div>
-          </form>
         </div>
 
-        <script>
-          // JS for price calculation
-          const rates = <?= json_encode(constant('SLOT_RATES')) ?>;
-          const slotType = "<?= $selected_slot['slot_type'] ?>";
-
-          function updatePrice() {
-            const durationType = document.getElementById('duration_type').value;
-            const start = document.getElementById('start_datetime').value;
-            const end = document.getElementById('end_datetime').value;
-            let price = 0;
-            let durationVal = 0;
-
-            if (start && end && rates[slotType]) {
-              const startDate = new Date(start);
-              const endDate = new Date(end);
-              let diff = (endDate - startDate) / 1000; // seconds
-
-              if (diff > 0) {
-                if (durationType === 'hour') {
-                  const hours = Math.ceil(diff / 3600);
-                  price = rates[slotType]['hour'] * hours;
-                  durationVal = hours;
-                } else {
-                  const days = Math.ceil(diff / 86400);
-                  price = rates[slotType]['day'] * days;
-                  durationVal = days;
-                }
-              }
-            }
-            document.getElementById('price').value = price > 0 ? price.toFixed(2) : '';
-            document.getElementById('duration_value').value = durationVal > 0 ? durationVal : '';
-          }
-
-          document.getElementById('duration_type').addEventListener('change', updatePrice);
-          document.getElementById('start_datetime').addEventListener('change', updatePrice);
-          document.getElementById('end_datetime').addEventListener('change', updatePrice);
-        </script>
-
-      <?php else: ?>
-        <!-- Step 2: Slot Selection Grid -->
-        <h4 class="text-white mb-3">Available Slots for <span class="text-primary">
-            <?php
-            foreach ($vehicles as $veh) {
-              if ($veh['vehicle_id'] == $selected_vehicle_id) {
-                echo htmlspecialchars($veh['brand'] . ' ' . $veh['model']); // Shortened for cleaner header
-                break;
-              }
-            }
-            ?>
-          </span></h4>
-
-        <?php if (count($available_slots) > 0): ?>
-          <form method="post">
-            <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
-
-            <?php
-            $has_active_reservation_check = false;
-            // Re-check just in case (normally caught by parent 'if', but safe to keep logic consistent)
-            // Logic already handled at top of file $user_has_active_reservation
-            // Using the bool from top of file
-            ?>
-
-            <div class="row">
-              <?php foreach ($available_slots as $slot): ?>
-                <?php
-                $status = $slot['slot_status'];
-                $cardClass = ($status === 'available') ? 'available' : (($status === 'reserved' || $status === 'occupied') ? 'occupied' : 'reserved');
-                // Use 'reserved' style for maintenance/unavailable for simplicity or add specific class
-                if ($status === 'unavailable')
-                  $cardClass = 'reserved';
-                ?>
-                <div class="col-lg-2 col-md-3 col-6 mb-4">
-                  <div class="slot-card <?= $cardClass ?>">
-                    <div class="slot-title text-white"><?= htmlspecialchars($slot['slot_number']) ?></div>
-                    <div class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : 'text-danger' ?>">
-                      <?= ucfirst(($status === 'unavailable') ? 'Maintenance' : $status) ?>
-                    </div>
-
-                    <button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>"
-                      class="btn btn-sm btn-block <?= ($status === 'available') ? 'btn-outline-success' : 'btn-outline-secondary' ?>"
-                      <?= ($status !== 'available' || $user_has_active_reservation) ? 'disabled' : '' ?>>
-                      <?= ($status === 'available') ? 'Select' : 'Unavailable' ?>
-                    </button>
-                  </div>
-                </div>
-              <?php endforeach; ?>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Start Date & Time</label>
+              <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required
+                onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
             </div>
-          </form>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>End Date & Time</label>
+              <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required
+                onchange="updatePrice()" min="<?= date('Y-m-d\TH:i') ?>">
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <div class="row align-items-end">
+          <div class="col-md-6">
+            <div class="form-group mb-0">
+              <label>Estimated Price</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text bg-dark border-secondary text-white">Coins</span>
+                </div>
+                <input type="text" name="price" id="price" class="form-control text-warning font-weight-bold"
+                  style="font-size: 1.5rem;" readonly required>
+                <div class="input-group-append">
+                  <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-coins"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 text-right">
+            <input type="hidden" name="duration_value" id="duration_value">
+            <a href="reservations.php" class="btn btn-link text-muted mr-3">Cancel</a>
+            <button type="submit" name="review_reservation" class="btn btn-warning px-5 py-3 shadow">Next:
+              Review</button>
+          </div>
+        </div>
+        </form>
+      </div>
+
+      <script>
+        // JS for price calculation
+        const rates = <?= json_encode(constant('SLOT_RATES')) ?>;
+        const slotType = "<?= $selected_slot['slot_type'] ?>";
+
+        function updatePrice() {
+          const durationType = document.getElementById('duration_type').value;
+          const start = document.getElementById('start_datetime').value;
+          const end = document.getElementById('end_datetime').value;
+          let price = 0;
+          let durationVal = 0;
+
+          if (start && end && rates[slotType]) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            let diff = (endDate - startDate) / 1000; // seconds
+
+            if (diff > 0) {
+              if (durationType === 'hour') {
+                const hours = Math.ceil(diff / 3600);
+                price = rates[slotType]['hour'] * hours;
+                durationVal = hours;
+              } else {
+                const days = Math.ceil(diff / 86400);
+                price = rates[slotType]['day'] * days;
+                durationVal = days;
+              }
+            }
+          }
+          document.getElementById('price').value = price > 0 ? price.toFixed(2) : '';
+          document.getElementById('duration_value').value = durationVal > 0 ? durationVal : '';
+        }
+
+        document.getElementById('duration_type').addEventListener('change', updatePrice);
+        document.getElementById('start_datetime').addEventListener('change', updatePrice);
+        document.getElementById('end_datetime').addEventListener('change', updatePrice);
+      </script>
+
+    <?php else: ?>
+      <!-- Step 2: Slot Selection Grid -->
+      <h4 class="text-white mb-3">Available Slots for <span class="text-primary">
+          <?php
+          foreach ($vehicles as $veh) {
+            if ($veh['vehicle_id'] == $selected_vehicle_id) {
+              echo htmlspecialchars($veh['brand'] . ' ' . $veh['model']); // Shortened for cleaner header
+              break;
+            }
+          }
+          ?>
+        </span></h4>
+
+      <?php if (count($available_slots) > 0): ?>
+        <form method="post">
+          <input type="hidden" name="vehicle_id" value="<?= $selected_vehicle_id ?>">
 
           <?php
-          // Pagination controls
-          $total_pages = ceil($total_slots / $slots_per_page);
-          if ($total_pages > 1):
-            ?>
-            <div class="mt-4">
-              <nav aria-label="Slot pagination">
-                <ul class="pagination justify-content-center">
-                  <!-- Prev -->
-                  <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
-                    <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page - 1 ?>" tabindex="-1"><i
-                        class="fa fa-chevron-left"></i></a>
+          $has_active_reservation_check = false;
+          // Re-check just in case (normally caught by parent 'if', but safe to keep logic consistent)
+          // Logic already handled at top of file $user_has_active_reservation
+          // Using the bool from top of file
+          ?>
+
+          <div class="row">
+            <?php foreach ($available_slots as $slot): ?>
+              <?php
+              $status = $slot['slot_status'];
+              $cardClass = ($status === 'available') ? 'available' : (($status === 'reserved' || $status === 'occupied') ? 'occupied' : 'reserved');
+              // Use 'reserved' style for maintenance/unavailable for simplicity or add specific class
+              if ($status === 'unavailable')
+                $cardClass = 'reserved';
+              ?>
+              <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="slot-card <?= $cardClass ?>">
+                  <div class="slot-title text-white"><?= htmlspecialchars($slot['slot_number']) ?></div>
+                  <div class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : 'text-danger' ?>">
+                    <?= ucfirst(($status === 'unavailable') ? 'Maintenance' : $status) ?>
+                  </div>
+
+                  <button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>"
+                    class="btn btn-sm btn-block <?= ($status === 'available') ? 'btn-outline-success' : 'btn-outline-secondary' ?>"
+                    <?= ($status !== 'available' || $user_has_active_reservation) ? 'disabled' : '' ?>>
+                    <?= ($status === 'available') ? 'Select' : 'Unavailable' ?>
+                  </button>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </form>
+
+        <?php
+        // Pagination controls
+        $total_pages = ceil($total_slots / $slots_per_page);
+        if ($total_pages > 1):
+          ?>
+          <div class="mt-4">
+            <nav aria-label="Slot pagination">
+              <ul class="pagination justify-content-center">
+                <!-- Prev -->
+                <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
+                  <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page - 1 ?>" tabindex="-1"><i
+                      class="fa fa-chevron-left"></i></a>
+                </li>
+
+                <!-- Pages -->
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                  <li class="page-item<?= $i == $page ? ' active' : '' ?>">
+                    <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $i ?>"><?= $i ?></a>
                   </li>
+                <?php endfor; ?>
 
-                  <!-- Pages -->
-                  <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <li class="page-item<?= $i == $page ? ' active' : '' ?>">
-                      <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $i ?>"><?= $i ?></a>
-                    </li>
-                  <?php endfor; ?>
-
-                  <!-- Next -->
-                  <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
-                    <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page + 1 ?>"><i
-                        class="fa fa-chevron-right"></i></a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          <?php endif; ?>
-
-        <?php else: ?>
-          <div class="text-center py-5">
-            <i class="fa fa-ban fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No slots available for this vehicle type.</h5>
+                <!-- Next -->
+                <li class="page-item<?= $page >= $total_pages ? ' disabled' : '' ?>">
+                  <a class="page-link" href="?vehicle_id=<?= $selected_vehicle_id ?>&page=<?= $page + 1 ?>"><i
+                      class="fa fa-chevron-right"></i></a>
+                </li>
+              </ul>
+            </nav>
           </div>
         <?php endif; ?>
 
-      <?php endif; ?> <!-- End Steps -->
-
-    <?php else: ?>
-      <!-- No Vehicle Selected or Locked out -->
-      <?php if (count($vehicles) === 0): ?>
-        <div class="custom-card text-center">
-          <h3 class="text-warning mb-3">No Vehicles Found</h3>
-          <p class="text-white-50">You need to add a vehicle to your profile before making a reservation.</p>
-          <a href="profile.php" class="btn btn-primary mt-3">Go to Profile</a>
-        </div>
-      <?php elseif (count($active_vehicle_ids) === count($vehicles)): ?>
-        <div class="custom-card text-center">
-          <i class="fa fa-car fa-3x text-warning mb-3"></i>
-          <h4 class="text-white">All Vehicles Busy</h4>
-          <p class="text-white-50">All your registered vehicles currently have pending or active reservations.</p>
-          <a href="bookings.php" class="btn btn-outline-light mt-3">Manage Bookings</a>
+      <?php else: ?>
+        <div class="text-center py-5">
+          <i class="fa fa-ban fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">No slots available for this vehicle type.</h5>
         </div>
       <?php endif; ?>
 
+    <?php endif; ?> <!-- End Steps -->
+
+  <?php else: ?>
+    <!-- No Vehicle Selected or Locked out -->
+    <?php if (count($vehicles) === 0): ?>
+      <div class="custom-card text-center">
+        <h3 class="text-warning mb-3">No Vehicles Found</h3>
+        <p class="text-white-50">You need to add a vehicle to your profile before making a reservation.</p>
+        <a href="profile.php" class="btn btn-primary mt-3">Go to Profile</a>
+      </div>
+    <?php elseif (count($active_vehicle_ids) === count($vehicles)): ?>
+      <div class="custom-card text-center">
+        <i class="fa fa-car fa-3x text-warning mb-3"></i>
+        <h4 class="text-white">All Vehicles Busy</h4>
+        <p class="text-white-50">All your registered vehicles currently have pending or active reservations.</p>
+        <a href="bookings.php" class="btn btn-outline-light mt-3">Manage Bookings</a>
+      </div>
     <?php endif; ?>
+
+  <?php endif; ?>
 
   </div>
 

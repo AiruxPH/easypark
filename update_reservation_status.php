@@ -91,7 +91,7 @@ if ($action === 'cancel') {
                 // Log transaction
                 $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Overstay Penalty (Manual Completion)')")->execute([$user_id, -$to_charge]);
                 // Record the penalty payment as new row
-                $pdo->prepare("INSERT INTO payments (reservation_id, amount, status, method, payment_date) VALUES (?, ?, 'successful', 'coins', NOW())")->execute([$reservation_id, $to_charge]);
+                $pdo->prepare("INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, 'successful', 'coins', NOW())")->execute([$reservation_id, $user_id, $to_charge]);
             }
         }
 
