@@ -15,7 +15,7 @@ if ($is_logged_in) {
 <html lang="en">
 
 <head>
-  <title>Terms of Service - EasyPark</title>
+  <title>Terms and Conditions - EasyPark</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/font-awesome.min.css">
@@ -26,28 +26,97 @@ if ($is_logged_in) {
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .glass-panel {
+      background: rgba(43, 45, 66, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    .term-section {
+        margin-bottom: 2rem;
+    }
+    
+    .term-title {
+        color: #f6c23e;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
   </style>
 </head>
 
 <body class="bg-car">
   <?php include 'includes/client_navbar.php'; ?>
+  
   <div class="container py-5">
-    <h2 class="text-warning mb-4">Terms of Service</h2>
-    <div class="bg-dark text-light p-4 rounded mb-4">
-      <p class="lead">By using EasyPark, you agree to the following terms and conditions:</p>
-      <ul>
-        <li>Reservations are subject to availability and confirmation.</li>
-        <li>Users must provide accurate information and comply with parking rules.</li>
-        <li>EasyPark is not liable for loss or damage to vehicles or belongings.</li>
-        <li>Payments are non-refundable once a reservation is confirmed, except as required by law.</li>
-        <li>Users are responsible for timely arrival and departure.</li>
-        <li>EasyPark reserves the right to update these terms at any time.</li>
-      </ul>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="text-white mb-4 font-weight-bold text-center">Terms and Conditions</h2>
+            
+            <div class="glass-panel text-light p-5 rounded">
+              <p class="lead text-center mb-5">Welcome to EasyPark. By accessing or using our platform, you agree to be bound by these Terms and Conditions.</p>
+              
+              <div class="term-section">
+                <h4 class="term-title">1. EasyPark Coins & Payments</h4>
+                <ul>
+                    <li><strong>Virtual Currency:</strong> "EasyPark Coins" (🪙) are a virtual currency used exclusively within the EasyPark platform for parking reservations and services.</li>
+                    <li><strong>No Cash Value:</strong> Coins have no real-world cash value, cannot be exchanged for cash, and are non-transferable between accounts.</li>
+                    <li><strong>Top-Ups:</strong> All Coin purchases ("Top-Ups") are final and non-refundable. Please verify amounts before confirming payment.</li>
+                    <li><strong>Wallet Balance:</strong> Users are responsible for maintaining a sufficient Coin balance to cover reservation fees and potential penalties.</li>
+                </ul>
+              </div>
+
+              <div class="term-section">
+                <h4 class="term-title">2. Reservations & Cancellations</h4>
+                <ul>
+                    <li><strong>Booking Commitment:</strong> Confirmed reservations act as a binding agreement to occupy the selected slot for the specified duration.</li>
+                    <li><strong>Cancellations:</strong> Users may cancel a reservation <em>before</em> the scheduled start time. Cancellations made after the start time may not be eligible for a full refund.</li>
+                    <li><strong>Voiding:</strong> EasyPark reserves the right to void reservations that are found to be fraudulent or in violation of usage policies.</li>
+                </ul>
+              </div>
+
+              <div class="term-section">
+                <h4 class="term-title">3. Overstay Policy & Penalties</h4>
+                <ul>
+                    <li><strong>Strict Adherence:</strong> Vehicles must vacate the parking slot by the scheduled End Time.</li>
+                    <li><strong>Automatic Penalties:</strong> Staying past the reserved time ("Overstay") will result in automatic penalty charges.</li>
+                    <li><strong>Billing:</strong> Penalties are calculated based on the duration of the overstay and the slot rate. These charges are automatically deducted from your Coin Wallet.</li>
+                    <li><strong>Debt:</strong> If penalty charges exceed your wallet balance, your account will incur a negative balance (debt) which must be settled before making new reservations.</li>
+                </ul>
+              </div>
+
+              <div class="term-section">
+                <h4 class="term-title">4. User Responsibilities</h4>
+                <ul>
+                    <li><strong>Vehicle Information:</strong> Users must provide accurate vehicle details (Plate Number, Model). Inaccurate information may lead to reservation forfeiture or towing at the owner's expense.</li>
+                    <li><strong>Parking Conduct:</strong> Users must park only in their assigned slot. Improper parking blocking other slots is prohibited.</li>
+                    <li><strong>Safety:</strong> EasyPark provides the platform for reservation but allows users to park at their own risk. We are not liable for theft, damage, or loss of property within the parking facility.</li>
+                </ul>
+              </div>
+
+              <div class="term-section">
+                <h4 class="term-title">5. Amendments</h4>
+                <p>EasyPark reserves the right to modify these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.</p>
+              </div>
+              
+              <div class="mt-5 text-center">
+                <p class="small text-muted">Last updated: <?= date('F Y') ?></p>
+              </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="index.php" class="btn btn-secondary shadow-sm">Back to Home</a>
+            </div>
+        </div>
     </div>
-    <a href="index.php" class="btn btn-secondary mt-4">Back to Home</a>
   </div>
-  <?php include 'footer.php'; ?>
+
+  <?php include 'includes/footer.php'; ?>
+  
   <script src="js/jquery.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
@@ -62,5 +131,4 @@ if ($is_logged_in) {
     });
   </script>
 </body>
-
 </html>
