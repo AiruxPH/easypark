@@ -52,6 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
                     $stmt->execute([$r_id]);
 
                     if ($stmt->rowCount() > 0) {
+                        // LOCK THE SLOT
+                        $pdo->prepare("UPDATE parking_slots SET slot_status = 'reserved' WHERE parking_slot_id = ?")->execute([$slot_id]);
                         sendNotification($pdo, $u_id, 'Reservation Confirmed', "Your booking for slot $slot_num (ID: $r_id) has been confirmed by staff.", 'success', 'bookings.php');
                         logActivity($pdo, $staff_id, 'staff', 'confirm_booking', "Confirmed booking #$r_id for slot $slot_num");
 
@@ -143,6 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
                 $stmt->execute([$r_id]);
 
                 if ($stmt->rowCount() > 0) {
+                    // MARK AS OCCUPIED
+                    $pdo->prepare("UPDATE parking_slots SET slot_status = 'occupied' WHERE parking_slot_id = ?")->execute([$slot_id]);
                     sendNotification($pdo, $u_id, 'Parking Started', "You have checked in for slot $slot_num. Your timer has started.", 'info', 'bookings.php');
                     logActivity($pdo, $staff_id, 'staff', 'mark_arrived', "Marked booking #$r_id as arrived (ongoing)");
                 }
