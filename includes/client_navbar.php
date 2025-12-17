@@ -362,49 +362,52 @@ if (isset($_SESSION['user_id'])) {
         updateNavbarOpacity();
     });
 
-    // Enhanced Notification Handler
-    function handleNotificationClick(event) {
-        event.preventDefault();
-        const linkItem = event.currentTarget;
-        const id = linkItem.getAttribute('data-id');
-        const link = linkItem.getAttribute('data-link');
-        const title = linkItem.getAttribute('data-title');
-        const message = linkItem.getAttribute('data-message');
-
-        // 1. Mark as Read (AJAX)
-        fetch('mark_read.php', {
-            method: 'POST',
-            body: JSON.stringify({ notification_id: id }),
-            headers: { 'Content-Type': 'application/json' }
-        }).then(() => {
-            // Update UI: Remove highlighting
-            linkItem.classList.remove('bg-light');
-            linkItem.classList.add('bg-white');
-
-            // 2. Logic: If valid link -> Redirect. Else -> Open Modal.
-            if (link && link !== "#" && link !== "") {
-                window.location.href = link;
-            } else {
-                // Open Modal
-                $('#notif-modal-title').text(title);
-                $('#notif-modal-message').text(message);
-
-                // Hide or update button in modal just in case
-                $('#notif-modal-link').hide();
-
-                $('#notificationModal').modal('show');
-            }
-        }).catch(err => console.error(err));
-    }
-
-    function markAllRead(event) {
-        event.preventDefault();
-        fetch('mark_read.php', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: { 'Content-Type': 'application/json' }
-        }).then(() => {
-            location.reload(); // Simple reload to clear badges
-        });
-    }
+    // Enhanced Notification Handler - MOVED TO js/notifications.js
+    // We keep the <script src="js/notifications.js"></script> inclusion below.
 </script>
+<script src="js/notifications.js"></script>
+
+<!-- Toast Container (Fixed) -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"
+    style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; pointer-events: none;">
+    <!-- Toasts will be appended here -->
+</div>
+<style>
+    /* Toast Container pointer events hack: allow clicking toasts but let clicks pass through container */
+    #toast-container>.toast {
+        pointer-events: auto;
+    }
+
+    /* Glass Toast */
+    .glass-toast {
+        background: rgba(40, 40, 40, 0.85) !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        border-radius: 12px;
+        color: #fff;
+        overflow: hidden;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+</style>
