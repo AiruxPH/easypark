@@ -436,14 +436,9 @@ if (isset($_SESSION['user_id'])) {
     }
 </style>
 <script>
-    // Server time sync (Client Navbar)
-    const serverTime = new Date("<?= date('r') ?>");
-    const startTime = new Date().getTime();
-    const initialServerTime = serverTime.getTime();
-
+    // Local Time Clock (Device Time)
     function tick() {
-        const elapsed = new Date().getTime() - startTime;
-        const currentServerTime = new Date(initialServerTime + elapsed);
+        const now = new Date();
 
         const options = {
             weekday: 'short',
@@ -454,7 +449,7 @@ if (isset($_SESSION['user_id'])) {
             minute: '2-digit',
             second: '2-digit'
         };
-        const timeString = currentServerTime.toLocaleString('en-US', options);
+        const timeString = now.toLocaleString('en-US', options);
 
         const el = document.getElementById('server-clock');
         if (el) el.innerHTML = '<i class="fas fa-clock"></i> ' + timeString;

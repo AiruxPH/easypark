@@ -423,9 +423,9 @@ if (isset($_POST['delete_pic'])) {
           <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
         </div>
         <div class="d-flex align-items-center">
-          <!-- Server Clock -->
+          <!-- Local Clock -->
           <div class="mr-4 text-right d-none d-md-block" style="line-height: 1.2;">
-            <span class="text-white-50 small text-uppercase font-weight-bold" style="letter-spacing: 1px;">Server
+            <span class="text-white-50 small text-uppercase font-weight-bold" style="letter-spacing: 1px;">Local
               Time</span>
             <div id="server-clock" class="h5 mb-0 font-weight-bold text-white"
               style="font-family: 'Outfit', monospace;">
@@ -571,14 +571,9 @@ if (isset($_POST['delete_pic'])) {
     });
   </script>
   <script>
-    // Server time sync (Staff Dashboard)
-    const serverTime = new Date("<?= date('r') ?>");
-    const startTime = new Date().getTime();
-    const initialServerTime = serverTime.getTime();
-
+    // Local Time Clock (Device Time)
     function tick() {
-      const elapsed = new Date().getTime() - startTime;
-      const currentServerTime = new Date(initialServerTime + elapsed);
+      const now = new Date(); // Uses device current time
 
       const options = {
         weekday: 'short',
@@ -589,7 +584,7 @@ if (isset($_POST['delete_pic'])) {
         minute: '2-digit',
         second: '2-digit'
       };
-      const timeString = currentServerTime.toLocaleString('en-US', options);
+      const timeString = now.toLocaleString('en-US', options);
 
       const el = document.getElementById('server-clock');
       // Update the innerHTML, keeping the icon

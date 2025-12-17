@@ -92,40 +92,9 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     </nav>
 
     <script>
-        // Server time sync
-        const serverTime = new Date("<?= date('r') ?>");
-        // 'r' format matches JS Date parsing (RFC 2822), e.g. "Thu, 21 Dec 2000 16:01:07 +0200"
-        let clientOffset = new Date().getTime() - serverTime.getTime();
-
-        function updateClock() {
-            const now = new Date(new Date().getTime() - clientOffset);
-            const options = {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZoneName: 'short'
-            };
-            document.getElementById('server-clock').innerHTML = '<i class="fa fa-clock-o"></i> ' + now.toLocaleString('en-US', options);
-        }
-
-        // Initial call and interval
-        // Wait for load to ensure element exists if script runs early (though it's at end of body usually, here it is in body)
-        // Since script is placed after nav, element exists.
-        // Actually, logic correction:
-        // We want to simulate SERVER time ticking.
-        // We captured `serverTime`. 
-        // To make it tick, we can just add elapsed time since load.
-
-        const startTime = new Date().getTime();
-        const initialServerTime = serverTime.getTime();
-
+        // Local Time Clock (Device Time)
         function tick() {
-            const elapsed = new Date().getTime() - startTime;
-            const currentServerTime = new Date(initialServerTime + elapsed);
+            const now = new Date(); // Uses device current time
 
             const options = {
                 weekday: 'short',
@@ -136,7 +105,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                 minute: '2-digit',
                 second: '2-digit'
             };
-            const timeString = currentServerTime.toLocaleString('en-US', options);
+            const timeString = now.toLocaleString('en-US', options);
 
             const el = document.getElementById('server-clock');
             if (el) el.innerHTML = '<i class="fa fa-clock-o"></i> ' + timeString;
