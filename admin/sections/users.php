@@ -838,9 +838,15 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
         $('#view_user_date').text(new Date(user.created_at).toLocaleDateString());
 
         // Handle Image
-        let imagePath = '../../assets/img/undraw_profile.svg'; // Default
-        if (user.image && user.image !== 'default.jpg') {
-            imagePath = '../../uploads/profiles/' + user.image;
+        let imagePath = '../images/default.jpg'; // Default backup
+        if (user.image) {
+            // Check if image string contains a path or just filename
+            if (user.image.indexOf('/') === -1) {
+                // Just filename, prepend path
+                imagePath = '../images/' + user.image;
+            } else {
+                imagePath = user.image;
+            }
         }
         $('#view_user_image').attr('src', imagePath);
 
