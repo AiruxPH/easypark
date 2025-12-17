@@ -161,43 +161,49 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
         $reservation_error = "Insufficient Balance. You have " . number_format($user_balance, 2) . " coins, but this booking costs " . number_format($price, 2) . " coins. <a href='wallet.php' class='text-warning font-weight-bold'>Top Up Now</a>";
         $show_reservation_form = true;
       } else {
-        $pdo->beginTransaction();
-        // REMOVED: Static update of parking_slots status. Status is now dynamic based on reservations.
-        // The slot remains 'available' so others can request it (Race Condition Feature).
-        // The slot will only turn 'reserved' when Staff confirms the booking.
-        // $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        $pdo->prepare('UPDATE users SET coins = coins - ? WHERE user_id = ?')->execute([$price, $user_id]);
-        $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Reservation Payment')")->execute([$user_id, -$price]);
+        try {
+          $pdo->beginTransaction();
+          // REMOVED: Static update of parking_slots status. Status is now dynamic based on reservations.
+          // The slot remains 'available' so others can request it (Race Condition Feature).
+          // The slot will only turn 'reserved' when Staff confirms the booking.
+          // $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
+          $pdo->prepare('UPDATE users SET coins = coins - ? WHERE user_id = ?')->execute([$price, $user_id]);
+          $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Reservation Payment')")->execute([$user_id, -$price]);
 
-        // Insert reservation (with duration)
-        $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())')->execute([
-          $user_id,
-          $selected_vehicle_id,
-          $slot_id,
-          $start_datetime,
-          $end_datetime,
-          $duration_value
-        ]);
-        $reservation_id = $pdo->lastInsertId();
-        // Insert payment record with correct columns (Wallet payment)
-        $pdo->prepare('INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, ?, NOW())')->execute([
-          $reservation_id,
-          $user_id,
-          $price,
-          'successful',
-          'coins'
-        ]);
-        $pdo->commit();
-        $reservation_success = true;
+          // Insert reservation (with duration)
+          $pdo->prepare('INSERT INTO reservations (user_id, vehicle_id, parking_slot_id, start_time, end_time, duration, status, created_at) VALUES (?, ?, ?, ?, ?, ?, "pending", NOW())')->execute([
+            $user_id,
+            $selected_vehicle_id,
+            $slot_id,
+            $start_datetime,
+            $end_datetime,
+            $duration_value
+          ]);
+          $reservation_id = $pdo->lastInsertId();
+          // Insert payment record with correct columns (Wallet payment)
+          $pdo->prepare('INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, ?, ?, NOW())')->execute([
+            $reservation_id,
+            $user_id,
+            $price,
+            'successful',
+            'coins'
+          ]);
+          $pdo->commit();
+          $reservation_success = true;
 
-        // Notification
-        require_once 'includes/notifications.php';
-        $slot_num = $selected_slot['slot_number'];
-        sendNotification($pdo, $user_id, 'Reservation Confirmed', "Your booking for slot $slot_num is confirmed.", 'success', 'bookings.php');
+          // Notification
+          require_once 'includes/notifications.php';
+          $slot_num = $selected_slot['slot_number'];
+          sendNotification($pdo, $user_id, 'Reservation Confirmed', "Your booking for slot $slot_num is confirmed.", 'success', 'bookings.php');
 
-        logActivity($pdo, $user_id, 'client', 'reservation_created', "User booked slot $slot_num (ID: $reservation_id)");
+          logActivity($pdo, $user_id, 'client', 'reservation_created', "User booked slot $slot_num (ID: $reservation_id)");
 
-        $show_reservation_form = false;
+          $show_reservation_form = false;
+        } catch (Exception $e) {
+          $pdo->rollBack();
+          $reservation_error = "Database Error: " . $e->getMessage();
+          $show_reservation_form = true;
+        }
       }
     }
   } else {
