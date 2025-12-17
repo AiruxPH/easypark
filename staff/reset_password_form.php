@@ -34,34 +34,50 @@ if ($token) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<title>Reset Password | EasyPark</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="../css/bootstrap.min.css">
-<link rel="stylesheet" href="../css/font-awesome.min.css">
-<style>
-body { background: #232526; min-height: 100vh; color: #fff; }
-.reset-container { background: #2c2f33; border-radius: 1rem; padding: 2rem; max-width: 400px; margin: 5vh auto; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
-</style>
+    <title>Reset Password | EasyPark</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="icon" href="../images/favicon.png" type="image/png">
+    <style>
+        body {
+            background: #232526;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .reset-container {
+            background: #2c2f33;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            margin: 5vh auto;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+        }
+    </style>
 </head>
+
 <body>
-<div class="reset-container">
-  <h3 class="text-warning mb-3"><i class="fa fa-unlock-alt"></i> Reset Password</h3>
-  <?php echo $message; ?>
-  <?php if ($show_form): ?>
-  <form method="POST">
-    <div class="form-group mb-3">
-      <label>New Password</label>
-      <input type="password" name="new_password" class="form-control" required>
+    <div class="reset-container">
+        <h3 class="text-warning mb-3"><i class="fa fa-unlock-alt"></i> Reset Password</h3>
+        <?php echo $message; ?>
+        <?php if ($show_form): ?>
+            <form method="POST">
+                <div class="form-group mb-3">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" class="form-control" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="confirm_new_password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-warning w-100">Reset Password</button>
+            </form>
+        <?php endif; ?>
     </div>
-    <div class="form-group mb-3">
-      <label>Confirm New Password</label>
-      <input type="password" name="confirm_new_password" class="form-control" required>
-    </div>
-    <button type="submit" class="btn btn-warning w-100">Reset Password</button>
-  </form>
-  <?php endif; ?>
-</div>
 </body>
+
 </html>

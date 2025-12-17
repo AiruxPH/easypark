@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>EasyPark Admin Dashboard</title>
+    <link rel="icon" href="../images/favicon.png" type="image/png">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
