@@ -480,11 +480,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     </div>
 
                     <!-- Booker Selection Field (Hidden by default) -->
-                    <div class="form-group bg-light p-3 rounded border text-dark" id="booker_selection_group"
-                        style="display:none;">
-                        <label class="font-weight-bold text-dark" style="color: #333 !important;">🚗 Identify the
-                            Arriving Vehicle</label>
-                        <select class="form-control" id="winning_reservation_id" name="winning_reservation_id">
+                    <div class="form-group p-3 rounded border border-secondary" id="booker_selection_group"
+                        style="display:none; background-color: #2c2f33;">
+                        <label class="font-weight-bold text-light">🚗 Identify the Arriving Vehicle</label>
+                        <select class="form-control bg-dark text-light border-secondary" id="winning_reservation_id"
+                            name="winning_reservation_id">
                             <option value="">-- Autoselect (First Come) --</option>
                         </select>
                         <small class="form-text text-muted mt-2">
