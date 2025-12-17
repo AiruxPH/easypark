@@ -423,15 +423,20 @@ if (isset($_POST['delete_pic'])) {
           <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
         </div>
         <div class="d-flex align-items-center">
-          <!-- Local Clock -->
-          <div class="mr-4 text-right d-none d-md-block" style="line-height: 1.2;">
-            <span class="text-white-50 small text-uppercase font-weight-bold" style="letter-spacing: 1px;">Local
-              Time</span>
-            <div id="server-clock" class="h5 mb-0 font-weight-bold text-white"
-              style="font-family: 'Outfit', monospace;">
-              <i class="fas fa-clock mr-1 text-warning"></i> Loading...
+          <!-- Local Clock (Hover to view) -->
+          <div class="mr-4 text-right d-none d-md-block position-relative group-clock" style="cursor: pointer;"
+            title="Hover to see local time">
+            <i class="fas fa-clock fa-lg text-white-50"></i>
+            <div id="server-clock" class="text-white bg-dark rounded px-3 py-2 shadow"
+              style="display: none; position: absolute; top: 100%; right: 0; white-space: nowrap; margin-top: 10px; z-index: 1050; font-family: 'Outfit', monospace;">
+              Loading...
             </div>
           </div>
+          <style>
+            .group-clock:hover #server-clock {
+              display: block !important;
+            }
+          </style>
 
           <a href="javascript:void(0)" onclick="loadSection('profile')"
             class="d-flex align-items-center nav-link p-0 mr-4"

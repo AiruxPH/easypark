@@ -70,12 +70,21 @@ if (isset($_SESSION['user_id'])) {
                     $notifications = getUnreadNotifications($pdo, $_SESSION['user_id'], 5);
                 }
                 ?>
-                <!-- Server Clock -->
-                <li class="nav-item d-flex align-items-center mr-3 text-white small">
-                    <span id="server-clock" style="font-family: monospace; font-size: 0.9rem; opacity: 0.8;">
-                        <i class="fas fa-clock"></i> Loading...
-                    </span>
+                <!-- Server Clock (Hover to view) -->
+                <li class="nav-item d-flex align-items-center mr-3 text-white small position-relative group-clock">
+                    <div class="d-flex align-items-center" style="cursor: pointer;" title="Hover to see local time">
+                        <i class="fas fa-clock text-white-50"></i>
+                        <span id="server-clock" class="ml-2 text-white bg-dark rounded px-2 py-1 shadow-sm"
+                            style="display: none; position: absolute; top: 100%; right: 0; white-space: nowrap; margin-top: 10px; z-index: 1050;">
+                            Loading...
+                        </span>
+                    </div>
                 </li>
+                <style>
+                    .group-clock:hover #server-clock {
+                        display: block !important;
+                    }
+                </style>
 
                 <li class="nav-item dropdown mr-3">
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"

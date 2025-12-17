@@ -71,11 +71,21 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item d-flex align-items-center mr-3">
-                        <span class="text-gray-400 small" id="server-clock">
-                            <i class="fa fa-clock-o"></i> Loading time...
-                        </span>
+                    <!-- Local Clock (Hover to view) -->
+                    <li class="nav-item d-flex align-items-center mr-3 position-relative group-clock">
+                        <div class="d-flex align-items-center" style="cursor: pointer;" title="Hover to see local time">
+                            <i class="fa fa-clock-o text-gray-400"></i>
+                            <span id="server-clock" class="ml-2 text-white bg-dark rounded px-2 py-1 shadow"
+                                style="display: none; position: absolute; top: 100%; right: 0; white-space: nowrap; margin-top: 10px; z-index: 1050; font-size: 0.85rem;">
+                                Loading...
+                            </span>
+                        </div>
                     </li>
+                    <style>
+                        .group-clock:hover #server-clock {
+                            display: block !important;
+                        }
+                    </style>
                     <li class="nav-item">
                         <span class="navbar-text mr-3">
                             <i class="fa fa-user-circle"></i> Admin
