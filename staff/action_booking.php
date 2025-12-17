@@ -3,10 +3,7 @@
 session_start();
 require_once '../includes/db.php';
 require_once '../includes/notifications.php'; // Include the notification helper
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once '../includes/functions.php'; // Include general functions (logActivity)
 
 // 1. Permission Check
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_type'] !== 'staff' && $_SESSION['user_type'] !== 'admin')) {
