@@ -163,8 +163,9 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       } else {
         $pdo->beginTransaction();
         // REMOVED: Static update of parking_slots status. Status is now dynamic based on reservations.
+        // The slot remains 'available' so others can request it (Race Condition Feature).
+        // The slot will only turn 'reserved' when Staff confirms the booking.
         // $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
-        $pdo->prepare('UPDATE parking_slots SET slot_status = "reserved" WHERE parking_slot_id = ?')->execute([$slot_id]);
         $pdo->prepare('UPDATE users SET coins = coins - ? WHERE user_id = ?')->execute([$price, $user_id]);
         $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Reservation Payment')")->execute([$user_id, -$price]);
 
