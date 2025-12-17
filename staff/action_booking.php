@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
             $pdo->commit();
         } catch (Exception $e) {
             $pdo->rollBack();
-            // error_log($e->getMessage()); 
+            $_SESSION['error_msg'] = "System Error: " . $e->getMessage();
         }
     }
 }
