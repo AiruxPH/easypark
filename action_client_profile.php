@@ -112,7 +112,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 4. Delete Vehicle
+    // 4. Edit Vehicle
+    elseif ($action === 'edit_vehicle') {
+        $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+        $plate = trim($_POST['plate_number'] ?? '');
+        $color = trim($_POST['color'] ?? '');
+        $model_id = intval($_POST['model_id'] ?? 0);
+
+        if ($vehicle_id && $plate && $color && $model_id) {
+            // Check if vehicle exists and belongs to user
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM vehicles WHERE vehicle_id = ? AND user_id = ?');
+            $stmt->execute([$vehicle_id, $user_id]);
+            if ($stmt->fetchColumn() == 0) {
+                $response['message'] = 'Vehicle not found.';
+            } else {
+                try {
+                    $stmt = $pdo->prepare('UPDATE vehicles SET model_id = ?, plate_number = ?, color = ? WHERE vehicle_id = ? AND user_id = ?');
+                    $stmt->execute([$model_id, $plate, $color, $vehicle_id, $user_id]);
+                    logActivity($pdo, $user_id, 'client', 'edit_vehicle', "Updated vehicle ID $vehicle_id");
+                    $response = ['success' => true, 'message' => 'Vehicle updated successfully.'];
+                } catch (PDOException $e) {
+                    $response['message'] = "Error updating vehicle: " . $e->getMessage();
+                }
+            }
+        } else {
+            $response['message'] = 'Please fill all vehicle fields.';
+        }
+    }
+
+    // 5. Delete Vehicle
     elseif ($action === 'delete_vehicle') {
         $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
         if ($vehicle_id) {

@@ -38,9 +38,14 @@ foreach ($vehicles as $vehicle) {
   }
 }
 
-// Fetch available parking slots (if needed for reference, though usually for reservations page)
-// $slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
-// $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch available parking slots
+$slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
+$available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch recent activity logs (Limit 5)
+$log_stmt = $pdo->prepare('SELECT * FROM activity_logs WHERE user_id = ? ORDER BY created_at DESC LIMIT 5');
+$log_stmt->execute([$user_id]);
+$recent_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -330,6 +335,34 @@ foreach ($vehicles as $vehicle) {
           </div>
         </div>
 
+        <!-- Recent Activity Widget -->
+        <div class="custom-card">
+          <div class="card-header">
+            <h5 class="card-title"><i class="fa fa-history mr-2"></i> Recent Activity</h5>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush bg-transparent">
+              <?php if (count($recent_logs) > 0): ?>
+                <?php foreach ($recent_logs as $log): ?>
+                  <li class="list-group-item bg-transparent border-secondary text-white-50 small">
+                    <div class="d-flex w-100 justify-content-between">
+                      <strong
+                        class="text-white"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $log['action']))) ?></strong>
+                      <small class="text-muted"><?= date('M j, H:i', strtotime($log['created_at'])) ?></small>
+                    </div>
+                    <p class="mb-0 text-truncate"><?= htmlspecialchars($log['details']) ?></p>
+                  </li>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <li class="list-group-item bg-transparent text-center text-muted py-3">No recent activity.</li>
+              <?php endif; ?>
+            </ul>
+            <div class="text-center p-3">
+              <a href="activity_logs.php" class="small text-warning">View All Logs</a>
+            </div>
+          </div>
+        </div>
+
         <!-- Security Card -->
         <div class="custom-card">
           <div class="card-header">
@@ -440,6 +473,15 @@ foreach ($vehicles as $vehicle) {
                           </span>
                         </td>
                         <td class="text-right">
+                          <button class="btn btn-sm btn-outline-info mr-1 btn-edit-vehicle"
+                            data-id="<?= $v['vehicle_id'] ?>" data-plate="<?= htmlspecialchars($v['plate_number']) ?>"
+                            data-color="<?= htmlspecialchars($v['color']) ?>"
+                            data-type="<?= htmlspecialchars($v['type']) ?>"
+                            data-brand="<?= htmlspecialchars($v['brand']) ?>"
+                            data-model-id="<?= htmlspecialchars($v['model_id']) ?>" data-toggle="modal"
+                            data-target="#editVehicleModal">
+                            <i class="fa fa-edit"></i>
+                          </button>
                           <a href="profile.php?delete_vehicle=<?= $v['vehicle_id'] ?>" class="btn btn-sm btn-danger-custom"
                             onclick="return confirm('Are you sure you want to delete this vehicle?')">
                             <i class="fa fa-trash"></i>
@@ -559,16 +601,16 @@ foreach ($vehicles as $vehicle) {
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
     // --- AJAX Logic ---
-    $(document).ready(function() {
-        // Global Toast Function
-        function showToast(message, isError = false) {
-            // Remove existing toast if any
-            $('#dynamicToast').remove();
-            
-            const bgClass = isError ? 'bg-danger text-white' : 'bg-success text-white';
-            const icon = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
-            
-            const toastHtml = `
+    $(document).ready(function () {
+      // Global Toast Function
+      function showToast(message, isError = false) {
+        // Remove existing toast if any
+        $('#dynamicToast').remove();
+
+        const bgClass = isError ? 'bg-danger text-white' : 'bg-success text-white';
+        const icon = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
+
+        const toastHtml = `
                 <div id="dynamicToast" class="toast hide ${bgClass}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="4000" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
                     <div class="toast-header ${bgClass} border-0">
                         <strong class="mr-auto"><i class="fa ${icon} mr-2"></i> Notification</strong>
@@ -579,123 +621,188 @@ foreach ($vehicles as $vehicle) {
                     </div>
                 </div>
             `;
-            $('body').append(toastHtml);
-            $('#dynamicToast').toast('show');
-        }
+        $('body').append(toastHtml);
+        $('#dynamicToast').toast('show');
+      }
 
-        // 1. Update Profile
-        $('button[name="update_profile"]').parent().parent().on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const btn = form.find('button[type="submit"]');
-            
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
-            
-            // Collect data
-            const formData = new FormData(this);
-            formData.append('action', 'update_profile');
-            
-            fetch('action_client_profile.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    btn.prop('disabled', false).text('Save Changes');
-                    showToast(data.message, !data.success);
-                })
-                .catch(err => {
-                    btn.prop('disabled', false).text('Save Changes');
-                    showToast('Server error occurred.', true);
-                });
-        });
+      // 1. Update Profile
+      $('button[name="update_profile"]').parent().parent().on('submit', function (e) {
+        e.preventDefault();
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
 
-        // 2. Change Password
-        $('form button[name="change_password"]').parent().closest('form').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const btn = form.find('button[type="submit"]');
-            
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
-            
-            const formData = new FormData(this);
-            formData.append('action', 'change_password');
-            
-            fetch('action_client_profile.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    btn.prop('disabled', false).text('Update Password');
-                    showToast(data.message, !data.success);
-                    if(data.success) form[0].reset();
-                })
-                .catch(err => {
-                    btn.prop('disabled', false).text('Update Password');
-                    showToast('Server error occurred.', true);
-                });
-        });
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-        // 3. Add Vehicle
-        $('#addVehicleModal form').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const btn = form.find('button[type="submit"]');
-            
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
-            
-            const formData = new FormData(this);
-            formData.append('action', 'add_vehicle');
-            
-            fetch('action_client_profile.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    btn.prop('disabled', false).text('Add Vehicle');
-                    if (data.success) {
-                        showToast(data.message, false);
-                        $('#addVehicleModal').modal('hide');
-                        form[0].reset();
-                        // Ideally Append to table dynamically, but reload is easiest for now to render row fully 
-                        // or we build row. Let's reload for simplicity or build row.
-                        // For SPA feel, we should build row.
-                        setTimeout(() => location.reload(), 1000); 
-                    } else {
-                        showToast(data.message, true);
-                    }
-                })
-                .catch(err => {
-                    btn.prop('disabled', false).text('Add Vehicle');
-                    showToast('Server error occurred.', true);
-                });
-        });
+        // Collect data
+        const formData = new FormData(this);
+        formData.append('action', 'update_profile');
 
-        // 4. Delete Vehicle (Intercept Links)
-        $('.btn-danger-custom').on('click', function(e) {
-            e.preventDefault();
-            const link = $(this);
-            const url = new URL(link.attr('href'), window.location.origin);
-            const id = url.searchParams.get('delete_vehicle');
-            
-            if(!confirm('Are you sure you want to delete this vehicle?')) return;
-            
-            const formData = new FormData();
-            formData.append('action', 'delete_vehicle');
-            formData.append('vehicle_id', id);
-            
-            fetch('action_client_profile.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast(data.message, false);
-                        link.closest('tr').fadeOut(300, function() { $(this).remove(); });
-                    } else {
-                        showToast(data.message, true);
-                    }
-                })
-                .catch(err => showToast('Server error.', true));
-        });
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            btn.prop('disabled', false).text('Save Changes');
+            showToast(data.message, !data.success);
+          })
+          .catch(err => {
+            btn.prop('disabled', false).text('Save Changes');
+            showToast('Server error occurred.', true);
+          });
+      });
 
-        // 5. Upload Profile Pic
-        // Avatar Form Submit
-        // We need to change the inline onchange logic to use our listener
-        // The HTML has id="avatarForm" and input has id="profilePicInput"
+      // 2. Change Password
+      $('form button[name="change_password"]').parent().closest('form').on('submit', function (e) {
+        e.preventDefault();
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+
+        const formData = new FormData(this);
+        formData.append('action', 'change_password');
+
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            btn.prop('disabled', false).text('Update Password');
+            showToast(data.message, !data.success);
+            if (data.success) form[0].reset();
+          })
+          .catch(err => {
+            btn.prop('disabled', false).text('Update Password');
+            showToast('Server error occurred.', true);
+          });
+      });
+
+      // 3. Add Vehicle
+      $('#addVehicleModal form').on('submit', function (e) {
+        e.preventDefault();
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
+
+        const formData = new FormData(this);
+        formData.append('action', 'add_vehicle');
+
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            btn.prop('disabled', false).text('Add Vehicle');
+            if (data.success) {
+              showToast(data.message, false);
+              $('#addVehicleModal').modal('hide');
+              form[0].reset();
+              // Ideally Append to table dynamically, but reload is easiest for now to render row fully 
+              // or we build row. Let's reload for simplicity or build row.
+              // For SPA feel, we should build row.
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showToast(data.message, true);
+            }
+          })
+          .catch(err => {
+            btn.prop('disabled', false).text('Add Vehicle');
+            showToast('Server error occurred.', true);
+          });
+      });
+
+      // 4. Edit Vehicle UI Population
+      $('.btn-edit-vehicle').on('click', function () {
+        const btn = $(this);
+        const id = btn.data('id');
+        const plate = btn.data('plate');
+        const color = btn.data('color');
+        const type = btn.data('type');
+        const brand = btn.data('brand');
+        const modelId = btn.data('model-id');
+
+        $('#editVehicleId').val(id);
+        $('#editPlate').val(plate);
+        $('#editColor').val(color);
+        $('#editVehicleType').val(type).trigger('change');
+
+        // We need to wait for brand dropdown to populate, then set brand
+        // And then wait for model dropdown to populate, then set model
+        // Simple timeout hack or event listener approach?
+        // Since our dropdown logic is synchronous (using cached JS object allBrands), it should be fast.
+        // However, the 'change' event might be async if we used AJAX there, but we are using local logic.
+        // Let's manually trigger the updates to be safe.
+
+        // Trigger Type Change logic manually or rely on trigger?
+        // The existing logic binds to '#vehicleTypeInput' (Add Modal) and now we need it for '#editVehicleType' (Edit Modal).
+        // We need to update the binding logic to cover both or duplicate it.
+        // See below for binding update.
+
+        // Timeout to allow dropdown population
+        setTimeout(() => {
+          $('#editBrand').val(brand).trigger('change');
+          setTimeout(() => {
+            $('#editModel').val(modelId);
+          }, 50);
+        }, 50);
+      });
+
+      // 5. Submit Edit Vehicle
+      $('#editVehicleModal form').on('submit', function (e) {
+        e.preventDefault();
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
+        const formData = new FormData(this);
+        formData.append('action', 'edit_vehicle');
+
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            btn.prop('disabled', false).text('Save Changes');
+            if (data.success) {
+              showToast(data.message, false);
+              $('#editVehicleModal').modal('hide');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showToast(data.message, true);
+            }
+          })
+          .catch(err => {
+            btn.prop('disabled', false).text('Save Changes');
+            showToast('Server error occurred.', true);
+          });
+      });
+
+      // 6. Delete Vehicle (Intercept Links)
+      $('.btn-danger-custom').on('click', function (e) {
+        e.preventDefault();
+        const link = $(this);
+        const url = new URL(link.attr('href'), window.location.origin);
+        const id = url.searchParams.get('delete_vehicle');
+
+        if (!confirm('Are you sure you want to delete this vehicle?')) return;
+
+        const formData = new FormData();
+        formData.append('action', 'delete_vehicle');
+        formData.append('vehicle_id', id);
+
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              showToast(data.message, false);
+              link.closest('tr').fadeOut(300, function () { $(this).remove(); });
+            } else {
+              showToast(data.message, true);
+            }
+          })
+          .catch(err => showToast('Server error.', true));
+      });
+
+      // 5. Upload Profile Pic
+      // Avatar Form Submit
+      // We need to change the inline onchange logic to use our listener
+      // The HTML has id="avatarForm" and input has id="profilePicInput"
     });
-    
+
     // Preview Image and Upload immediately (AJAX)
     document.getElementById('profilePicInput').addEventListener('change', function (e) {
       if (e.target.files && e.target.files[0]) {
@@ -707,23 +814,23 @@ foreach ($vehicles as $vehicle) {
         // Show loading or opacity
         const img = document.getElementById('avatarPreview');
         img.style.opacity = '0.5';
-        
+
         fetch('action_client_profile.php', { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                img.style.opacity = '1';
-                if(data.success && data.image_url) {
-                    img.src = data.image_url + '?t=' + new Date().getTime(); // burst cache
-                    // Update navbar avatar if exists
-                    $('.navbar img[alt="Profile"]').attr('src', data.image_url + '?t=' + new Date().getTime());
-                } else {
-                    alert(data.message || 'Upload failed');
-                }
-            })
-            .catch(err => {
-                img.style.opacity = '1';
-                alert('Server error');
-            });
+          .then(res => res.json())
+          .then(data => {
+            img.style.opacity = '1';
+            if (data.success && data.image_url) {
+              img.src = data.image_url + '?t=' + new Date().getTime(); // burst cache
+              // Update navbar avatar if exists
+              $('.navbar img[alt="Profile"]').attr('src', data.image_url + '?t=' + new Date().getTime());
+            } else {
+              alert(data.message || 'Upload failed');
+            }
+          })
+          .catch(err => {
+            img.style.opacity = '1';
+            alert('Server error');
+          });
       }
     });
 
@@ -732,28 +839,28 @@ foreach ($vehicles as $vehicle) {
     // The form doesn't have a specific ID, but it contains a button with onclick='confirm...'
     // Lets modify the HTML structure slightly via JS or target it carefully.
     // Or we handle it with a global listener on the button class?
-    $(document).on('submit', 'form', function(e) {
-        // Check if this form has delete_pic input
-        if ($(this).find('input[name="delete_pic"]').length > 0) {
-            e.preventDefault();
-            if(!confirm('Delete profile picture?')) return;
-            
-            const btn = $(this).find('button');
-            const formData = new FormData();
-            formData.append('action', 'delete_pic');
-            
-            fetch('action_client_profile.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        $('#avatarPreview').attr('src', data.image_url);
-                        $('.navbar img[alt="Profile"]').attr('src', data.image_url);
-                        btn.remove(); // Remove delete button
-                    } else {
-                        alert(data.message);
-                    }
-                });
-        }
+    $(document).on('submit', 'form', function (e) {
+      // Check if this form has delete_pic input
+      if ($(this).find('input[name="delete_pic"]').length > 0) {
+        e.preventDefault();
+        if (!confirm('Delete profile picture?')) return;
+
+        const btn = $(this).find('button');
+        const formData = new FormData();
+        formData.append('action', 'delete_pic');
+
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              $('#avatarPreview').attr('src', data.image_url);
+              $('.navbar img[alt="Profile"]').attr('src', data.image_url);
+              btn.remove(); // Remove delete button
+            } else {
+              alert(data.message);
+            }
+          });
+      }
     });
 
     // Nested dropdown for type > brand > model
@@ -771,37 +878,47 @@ foreach ($vehicles as $vehicle) {
       echo 'allBrands = ' . json_encode($brandTypeMap) . ";\n";
       echo 'allModels = ' . json_encode($modelTypeBrandMap) . ";\n";
       ?>
-      $('#vehicleTypeInput').on('change', function () {
-        var type = $(this).val();
-        var brandSel = $('#brandInput');
-        var modelSel = $('#modelInput');
-        brandSel.empty().append('<option value="">Select Brand</option>');
-        modelSel.empty().append('<option value="">Select Model</option>').prop('disabled', true);
-        if (type && allBrands[type]) {
-          var uniqueBrands = [...new Set(allBrands[type])];
-          uniqueBrands.forEach(function (brand) {
-            brandSel.append('<option value="' + brand + '">' + brand + '</option>');
-          });
-          brandSel.prop('disabled', false);
-        } else {
-          brandSel.prop('disabled', true);
-        }
-      });
-      $('#brandInput').on('change', function () {
-        var type = $('#vehicleTypeInput').val();
-        var brand = $(this).val();
-        var modelSel = $('#modelInput');
-        modelSel.empty().append('<option value="">Select Model</option>');
-        if (type && brand && allModels[type] && allModels[type][brand]) {
-          allModels[type][brand].forEach(function (obj) {
-            modelSel.append('<option value="' + obj.model_id + '">' + obj.model + '</option>');
-          });
-          modelSel.prop('disabled', false);
-        } else {
-          modelSel.prop('disabled', true);
-        }
-      });
-      // On modal open, reset dropdowns
+      // Generic function for dropdowns
+      function setupDropdowns(typeSelector, brandSelector, modelSelector) {
+        $(typeSelector).on('change', function () {
+          var type = $(this).val();
+          var brandSel = $(brandSelector);
+          var modelSel = $(modelSelector);
+          brandSel.empty().append('<option value="">Select Brand</option>');
+          modelSel.empty().append('<option value="">Select Model</option>').prop('disabled', true);
+          if (type && allBrands[type]) {
+            var uniqueBrands = [...new Set(allBrands[type])];
+            uniqueBrands.forEach(function (brand) {
+              brandSel.append('<option value="' + brand + '">' + brand + '</option>');
+            });
+            brandSel.prop('disabled', false);
+          } else {
+            brandSel.prop('disabled', true);
+          }
+        });
+
+        $(brandSelector).on('change', function () {
+          var type = $(typeSelector).val();
+          var brand = $(this).val();
+          var modelSel = $(modelSelector);
+          modelSel.empty().append('<option value="">Select Model</option>');
+          if (type && brand && allModels[type] && allModels[type][brand]) {
+            allModels[type][brand].forEach(function (obj) {
+              modelSel.append('<option value="' + obj.model_id + '">' + obj.model + '</option>');
+            });
+            modelSel.prop('disabled', false);
+          } else {
+            modelSel.prop('disabled', true);
+          }
+        });
+      }
+
+      // Initialize for Add Modal
+      setupDropdowns('#vehicleTypeInput', '#brandInput', '#modelInput');
+      // Initialize for Edit Modal
+      setupDropdowns('#editVehicleType', '#editBrand', '#editModel');
+
+      // On modal open, reset dropdowns (Add Modal only)
       $('#addVehicleModal').on('show.bs.modal', function () {
         $('#vehicleTypeInput').val('');
         $('#brandInput').empty().append('<option value="">Select Brand</option>').prop('disabled', true);
@@ -811,7 +928,7 @@ foreach ($vehicles as $vehicle) {
 
     // Forgot Password Logic
     document.getElementById('forgotPasswordForm').addEventListener('submit', function (e) {
-      e.preventDefault(); 
+      e.preventDefault();
       const step1 = document.getElementById('forgot-step-1');
       const step2 = document.getElementById('forgot-step-2');
       const nextBtn = document.getElementById('forgotNextBtn');
@@ -821,7 +938,7 @@ foreach ($vehicles as $vehicle) {
       if (step1.style.display !== 'none') {
         const formData = new FormData(this);
         formData.append('forgot_password_action', '1'); // Trigger the backend logic
-        
+
         fetch('action_client_profile.php', { method: 'POST', body: formData })
           .then(res => res.json())
           .then(data => {
@@ -839,13 +956,13 @@ foreach ($vehicles as $vehicle) {
       else if (step2.style.display !== 'none') {
         const formData = new FormData(this);
         formData.append('forgot_password_action', '1'); // Keep this key so backend knows what to do
-        
+
         fetch('action_client_profile.php', { method: 'POST', body: formData })
           .then(res => res.json())
           .then(data => {
             if (data.success) {
               alert(data.message);
-              location.reload(); 
+              location.reload();
             } else {
               alert(data.message);
             }
