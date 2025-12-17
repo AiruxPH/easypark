@@ -32,13 +32,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
             $pdo->beginTransaction();
 
             if ($action === 'confirm') {
-                // Pending -> Confirmed
-                $stmt = $pdo->prepare("UPDATE reservations SET status = 'confirmed' WHERE reservation_id = ? AND status = 'pending'");
-                $stmt->execute([$r_id]);
+                // 1. Race Condition Check: Ensure no other Confirmed/Ongoing overlap exists
+                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE                         parking_slot_id = ? 
+                        AND status IN ('confirmed', 'ongoing') 
+                        AND reservation_id != ?
+                        AND (
+                            (start_time < (SELECT end_time FROM reservations WHERE reservation_id = ?) AND end_time > (SELECT start_time FROM reservations WHERE reservation_id = ?))
+                        )");
+                $checkStmt->execute([$slot_id, $r_id, $r_id, $r_id]);
 
-                if ($stmt->rowCount() > 0) {
-                    sendNotification($pdo, $u_id, 'Reservation Confirmed', "Your booking for slot $slot_num (ID: $r_id) has been confirmed by staff.", 'success', 'bookings.php');
-                    logActivity($pdo, $staff_id, 'staff', 'confirm_booking', "Confirmed booking #$r_id for slot $slot_num");
+                if ($checkStmt->fetchColumn() > 0) {
+                    // Conflict detected!
+                    // We could redirect with error, but for now let's just do nothing or log.
+                    // Ideally, return a specific error flag.
+                    $_SESSION['error_msg'] = "Failed to confirm: Slot is already booked for this time range.";
+                } else {
+                    // 2. Pending -> Confirmed
+                    $stmt = $pdo->prepare("UPDATE reservations SET status = 'confirmed' WHERE reservation_id = ? AND status = 'pending'");
+                    $stmt->execute([$r_id]);
+
+                    if ($stmt->rowCount() > 0) {
+                        sendNotification($pdo, $u_id, 'Reservation Confirmed', "Your booking for slot $slot_num (ID: $r_id) has been confirmed by staff.", 'success', 'bookings.php');
+                        logActivity($pdo, $staff_id, 'staff', 'confirm_booking', "Confirmed booking #$r_id for slot $slot_num");
+
+                        // 3. Auto-Cancel Conflicting Pending Reservations
+                        // Fetch details of current reservation for overlap check
+                        $timeStmt = $pdo->prepare("SELECT start_time, end_time FROM reservations WHERE reservation_id = ?");
+                        $timeStmt->execute([$r_id]);
+                        $currentRes = $timeStmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($currentRes) {
+                            $start = $currentRes['start_time'];
+                            $end = $currentRes['end_time'];
+
+                            // Find conflicting pending
+                            $conflictStmt = $pdo->prepare("SELECT reservation_id, user_id FROM reservations WHERE                                     parking_slot_id = ? 
+                                    AND status = 'pending' 
+                                    AND reservation_id != ?
+                                    AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))");
+                            $conflictStmt->execute([$slot_id, $r_id, $end, $start, $end, $start, $start, $end]);
+                            $conflicts = $conflictStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($conflicts as $conflict) {
+                                $c_id = $conflict['reservation_id'];
+                                $c_uid = $conflict['user_id'];
+
+                                // Cancel it
+                                $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE reservation_id = ?")->execute([$c_id]);
+
+                                // Refund logic if needed (Assuming pending didn't pay yet, or hold usage)
+                                // Add refund logic here identical to 'cancel' block if they paid in advance. 
+                                // For now assuming pending hasn't charged wallet fully or needs refund? 
+                                // Standard logic usually charges on creation, so YES refund needed.
+
+                                $stmt_pay = $pdo->prepare("UPDATE payments SET status = 'refunded' WHERE reservation_id = ?");
+                                $stmt_pay->execute([$c_id]);
+
+                                // Check coins paid
+                                $stmt_amount = $pdo->prepare("SELECT amount FROM payments WHERE reservation_id = ? AND status = 'refunded' AND method = 'coins'");
+                                $stmt_amount->execute([$c_id]);
+                                $paid = $stmt_amount->fetchColumn();
+
+                                $refundMsg = "";
+                                if ($paid > 0) {
+                                    $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?")->execute([$paid, $c_uid]);
+                                    $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'refund', 'Refund for Auto-Cancelled Res #$c_id')")->execute([$c_uid, $paid]);
+                                    $refundMsg = " (Refunded $paid coins)";
+                                }
+
+                                sendNotification($pdo, $c_uid, 'Reservation Cancelled', "Your pending booking (ID: $c_id) was cancelled because another user was confirmed for this slot.", 'error', 'bookings.php');
+                                logActivity($pdo, $staff_id, 'system', 'auto_cancel', "Auto-cancelled booking #$c_id due to conflict with #$r_id$refundMsg");
+                            }
+                        }
+                    }
                 }
 
             } elseif ($action === 'cancel') {

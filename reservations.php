@@ -95,8 +95,7 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
   $stmt->execute([$slot_id, $selected_vehicle_type]);
   $slot = $stmt->fetch(PDO::FETCH_ASSOC);
   if ($slot) {
-    /* RACE CONDITION FEATURE: Disable overlap checks to allow double booking
-    // Prevent double booking: check for overlapping reservations for this slot
+    // Prevent double booking: check for overlapping reservations for this slot (Confirmed/Ongoing ONLY)
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
     $stmt->execute([
       $slot_id,
@@ -108,7 +107,8 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $end_datetime  // fully within
     ]);
     $overlap_count = $stmt->fetchColumn();
-    // Prevent double booking: check for overlapping reservations for this vehicle
+
+    // Prevent double booking: check for overlapping reservations for this vehicle (Confirmed/Ongoing ONLY)
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
     $stmt->execute([
       $selected_vehicle_id,
@@ -120,7 +120,9 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $end_datetime
     ]);
     $vehicle_overlap = $stmt->fetchColumn();
-    // Prevent double booking: check for any overlapping reservations for this user (any vehicle)
+
+    // Prevent double booking: check for any overlapping reservations for this user (any vehicle) - Optional, but good practice
+    // We strictly enforce this for confirmed/ongoing. Pending overlap for same user is arguably okay if they are shopping around, but let's allow it for now.
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ("confirmed", "ongoing") AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))');
     $stmt->execute([
       $user_id,
@@ -132,10 +134,6 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
       $end_datetime
     ]);
     $user_overlap = $stmt->fetchColumn();
-    */
-    $overlap_count = 0;
-    $vehicle_overlap = 0;
-    $user_overlap = 0;
 
     // Check if slot is physically occupied right now
     if ($slot['slot_status'] === 'occupied') {
