@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'client') {
@@ -193,9 +193,10 @@ if (isset($_POST['confirm_reservation']) && $selected_vehicle_id) {
 
         // Notification
         require_once 'includes/notifications.php';
-        sendNotification($pdo, $user_id, 'Reservation Confirmed', 'Your booking for slot ' . $slot_number . ' is confirmed.', 'success', 'bookings.php');
+        $slot_num = $selected_slot['slot_number'];
+        sendNotification($pdo, $user_id, 'Reservation Confirmed', "Your booking for slot $slot_num is confirmed.", 'success', 'bookings.php');
 
-        logActivity($pdo, $user_id, 'client', 'reservation_created', "User booked slot $slot_number (ID: $reservation_id)");
+        logActivity($pdo, $user_id, 'client', 'reservation_created', "User booked slot $slot_num (ID: $reservation_id)");
 
         $show_reservation_form = false;
       }

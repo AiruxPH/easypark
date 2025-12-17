@@ -381,8 +381,6 @@ if (isset($_SESSION['user_id'])) {
         updateNavbarOpacity();
     });
 
-    // Enhanced Notification Handler - MOVED TO js/notifications.js
-    // We keep the <script src="js/notifications.js"></script> inclusion below.
 </script>
 <script src="js/notifications.js"></script>
 
