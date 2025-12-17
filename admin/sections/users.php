@@ -455,6 +455,11 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                                 </td>
                                 <td class="text-right pr-4">
                                     <?php if ($canEditDelete): ?>
+                                        <button class="btn btn-sm btn-outline-info shadow-sm"
+                                            onclick="viewUser(<?= htmlspecialchars(json_encode($user)) ?>)"
+                                            title="View Details">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
                                         <?php if ($user['user_type'] === 'client'): ?>
                                             <button class="btn btn-sm btn-outline-warning shadow-sm"
                                                 onclick="manageCoins(<?= htmlspecialchars(json_encode($user)) ?>)"
@@ -608,6 +613,51 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
                         <button type="submit" class="btn btn-warning">Confirm Adjustment</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View User Details Modal -->
+    <div class="modal fade" id="viewUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-secondary" style="background-color: #1a1c23; color: #e2e8f0;">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Profile</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="view_user_image" class="img-profile rounded-circle mb-3 shadow"
+                        style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #f6c23e;">
+
+                    <h4 class="font-weight-bold mb-1" id="view_user_name">User Name</h4>
+                    <p class="text-muted mb-3" id="view_user_email">user@example.com</p>
+
+                    <div class="row text-left mt-4">
+                        <div class="col-6 mb-3">
+                            <span class="text-secondary small text-uppercase font-weight-bold">Role</span>
+                            <div class="h5 mt-1" id="view_user_role">Client</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <span class="text-secondary small text-uppercase font-weight-bold">Status</span>
+                            <div class="h5 mt-1" id="view_user_status">Active</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <span class="text-secondary small text-uppercase font-weight-bold">Phone</span>
+                            <div class="h5 mt-1" id="view_user_phone">09123456789</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <span class="text-secondary small text-uppercase font-weight-bold">Coins</span>
+                            <div class="h5 mt-1 text-warning" id="view_user_coins">0.00</div>
+                        </div>
+                        <div class="col-12">
+                            <span class="text-secondary small text-uppercase font-weight-bold">Registered Date</span>
+                            <div class="h6 mt-1" id="view_user_date">Oct 25, 2023</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -775,6 +825,26 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
         }
 
         $('#editUserModal').modal('show');
+    }
+
+    function viewUser(user) {
+        // Populate modal fields
+        $('#view_user_name').text(user.first_name + ' ' + (user.middle_name ? user.middle_name + ' ' : '') + user.last_name);
+        $('#view_user_email').text(user.email);
+        $('#view_user_phone').text(user.phone);
+        $('#view_user_role').text(user.user_type.charAt(0).toUpperCase() + user.user_type.slice(1));
+        $('#view_user_status').text(user.is_active == 1 ? 'Active' : 'Inactive');
+        $('#view_user_coins').text((parseFloat(user.coins) || 0).toFixed(2));
+        $('#view_user_date').text(new Date(user.created_at).toLocaleDateString());
+
+        // Handle Image
+        let imagePath = '../../assets/img/undraw_profile.svg'; // Default
+        if (user.image && user.image !== 'default.jpg') {
+            imagePath = '../../uploads/profiles/' + user.image;
+        }
+        $('#view_user_image').attr('src', imagePath);
+
+        $('#viewUserModal').modal('show');
     }
 
     function deleteUser(userId, userType, userEmail) {
