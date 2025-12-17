@@ -170,6 +170,30 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
 <body class="bg-car">
   <?php include 'includes/client_navbar.php'; ?>
   <div class="container py-5">
+    <?php
+    $hasOverdue = false;
+    $overdueCount = 0;
+    $current_time = new DateTime();
+    foreach ($bookings as $b) {
+      if ($b['status'] === 'ongoing' && new DateTime($b['end_time']) < $current_time) {
+        $hasOverdue = true;
+        $overdueCount++;
+      }
+    }
+    ?>
+
+    <?php if ($hasOverdue): ?>
+      <div class="alert alert-danger border-danger shadow-lg mb-4 d-flex align-items-center" role="alert"
+        style="background: rgba(220, 53, 69, 0.2); backdrop-filter: blur(10px);">
+        <i class="fas fa-exclamation-triangle fa-2x mr-3 text-danger"></i>
+        <div>
+          <h5 class="alert-heading font-weight-bold mb-1">Overdue Booking Detected!</h5>
+          <p class="mb-0">You have <strong><?= $overdueCount ?></strong> active booking(s) that have exceeded the time
+            limit. Overstay penalties are being applied.</p>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">My Bookings</h2>
 
     <!-- Filter Panel -->
