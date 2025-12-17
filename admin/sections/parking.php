@@ -59,7 +59,8 @@ $sql = "
     FROM parking_slots ps
     LEFT JOIN reservations r ON ps.parking_slot_id = r.parking_slot_id 
         AND r.status IN ('confirmed', 'ongoing')
-        AND r.start_time <= NOW() AND r.end_time >= NOW()
+        AND r.start_time <= NOW() 
+        AND (r.status = 'ongoing' OR r.end_time >= NOW())
         LEFT JOIN vehicles v ON r.vehicle_id = v.vehicle_id
     LEFT JOIN users u ON r.user_id = u.user_id
     $whereClause 
@@ -395,6 +396,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                 </button>
             </div>
             <div class="modal-body">
+                <!-- NEW: Current Occupant Info Display -->
+                <div id="current_occupant_info" style="display:none;" class="mb-3"></div>
+
                 <form id="editSlotForm" method="POST">
                     <input type="hidden" name="update_slot" value="1">
                     <input type="hidden" name="slot_id" id="edit_slot_id">
@@ -432,9 +436,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     </div>
 
                     <!-- Booker Selection Field (Hidden by default) -->
-                    <div class="form-group bg-light p-3 rounded border" id="booker_selection_group"
+                    <div class="form-group bg-light p-3 rounded border text-dark" id="booker_selection_group"
                         style="display:none;">
-                        <label class="text-gray-800 font-weight-bold">🚗 Identify the Arriving Vehicle</label>
+                        <label class="font-weight-bold text-dark" style="color: #333 !important;">🚗 Identify the
+                            Arriving Vehicle</label>
                         <select class="form-control" id="winning_reservation_id" name="winning_reservation_id">
                             <option value="">-- Autoselect (First Come) --</option>
                         </select>
@@ -465,6 +470,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
         $('#modalResultSlotNumber').text(slot.slot_number);
         $('#edit_slot_type').val(slot.slot_type);
         $('#edit_slot_status').val(slot.slot_status);
+
+        // Display Current Occupant Info if Occupied
+        if (slot.slot_status === 'occupied' || (slot.slot_status === 'reserved' && slot.owner_name)) {
+            let statusBadge = slot.slot_status === 'occupied'
+                ? '<span class="badge badge-danger">Occupied</span>'
+                : '<span class="badge badge-warning">Reserved</span>';
+
+            let html = `
+                <div class="card border-left-info shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Current Occupant</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${slot.owner_name || 'Unknown User'}</div>
+                                <div class="text-gray-800 mt-1"><i class="fa fa-car"></i> ${slot.plate_number || 'No Plate'}</div>
+                                <div class="small text-muted mt-1"><i class="fa fa-clock-o"></i> ${slot.start_time} - ${slot.end_time}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa fa-user-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#current_occupant_info').html(html).show();
+        } else {
+            $('#current_occupant_info').hide();
+        }
 
         toggleBookerSelection(); // Reset visibility
         $('#editSlotModal').modal('show');
