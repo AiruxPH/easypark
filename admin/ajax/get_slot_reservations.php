@@ -5,15 +5,12 @@ require_once '../../includes/db.php';
 
 header('Content-Type: application/json');
 
-// validation
-if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-    http_response_code(403);
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_type'] !== 'admin' && $_SESSION['user_type'] !== 'staff')) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
 if (!isset($_GET['slot_id'])) {
-    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing slot_id']);
     exit;
 }
@@ -21,37 +18,31 @@ if (!isset($_GET['slot_id'])) {
 $slot_id = intval($_GET['slot_id']);
 
 try {
-    // Fetch active/pending/confirmed reservations for this slot
-    // overlapping with NOW or slightly in the future/past (just get all current/pending candidates)
-    // We strictly look for those that are RELEVANT NOW (start_time <= NOW <= end_time) OR pending check-in.
-
-    // Logic: Find confirmed/ongoing reservations that allow the user to be there RIGHT NOW.
+    // Fetch Pending and Confirmed reservations for this slot
+    // We want to show them so admin can select one to "Confirm" (if pending) or "Occupied" (if confirmed)
     $stmt = $pdo->prepare("
         SELECT 
             r.reservation_id, 
+            r.user_id, 
             r.start_time, 
             r.end_time, 
+            r.status,
             u.first_name, 
             u.last_name, 
-            v.plate_number, 
-            vm.brand, 
-            vm.model 
-        FROM reservations r
-        JOIN users u ON r.user_id = u.user_id
-        JOIN vehicles v ON r.vehicle_id = v.vehicle_id
-        JOIN Vehicle_Models vm ON v.model_id = vm.model_id
+            v.plate_number 
+        FROM reservations r 
+        JOIN users u ON r.user_id = u.user_id 
+        JOIN vehicles v ON r.vehicle_id = v.vehicle_id 
         WHERE r.parking_slot_id = ? 
-        AND r.status IN ('confirmed', 'ongoing') 
-        AND r.start_time <= NOW() 
-        AND r.end_time > NOW()
+        AND r.status IN ('pending', 'confirmed') 
         ORDER BY r.created_at ASC
     ");
-
     $stmt->execute([$slot_id]);
     $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode(['success' => true, 'data' => $reservations]);
+
 } catch (Exception $e) {
-    http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
+?>

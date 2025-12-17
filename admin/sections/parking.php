@@ -117,6 +117,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
                     }
                 }
             }
+        } elseif ($new_status === 'reserved') {
+            // NEW: Admin Confirms a Pending Reservation
+            if ($winning_res_id) {
+                // 1. Mark selected as confirmed
+                $pdo->prepare("UPDATE reservations SET status = 'confirmed' WHERE reservation_id = ?")->execute([$winning_res_id]);
+
+                // 2. Auto-Cancel conflicting pending reservations
+                // Fetch times of winner
+                $stmt = $pdo->prepare("SELECT start_time, end_time FROM reservations WHERE reservation_id = ?");
+                $stmt->execute([$winning_res_id]);
+                $win = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($win) {
+                    $start = $win['start_time'];
+                    $end = $win['end_time'];
+
+                    // Find conflicts
+                    $conflictStmt = $pdo->prepare("SELECT reservation_id, user_id FROM reservations WHERE parking_slot_id = ? AND status = 'pending' AND reservation_id != ? AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))");
+                    $conflictStmt->execute([$slot_id, $winning_res_id, $end, $start, $end, $start, $start, $end]);
+                    $conflicts = $conflictStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($conflicts as $c) {
+                        $c_id = $c['reservation_id'];
+                        $c_uid = $c['user_id'];
+                        // Cancel
+                        $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE reservation_id = ?")->execute([$c_id]);
+
+                        // Refund Logic (Copy from staff/action_booking.php)
+                        $pdo->prepare("UPDATE payments SET status = 'refunded' WHERE reservation_id = ?")->execute([$c_id]);
+                        $stmt_amount = $pdo->prepare("SELECT amount FROM payments WHERE reservation_id = ? AND status = 'refunded' AND method = 'coins'");
+                        $stmt_amount->execute([$c_id]);
+                        $paid = $stmt_amount->fetchColumn();
+
+                        if ($paid > 0) {
+                            $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?")->execute([$paid, $c_uid]);
+                            $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'refund', 'Refund for Auto-Cancelled Res #$c_id')")->execute([$c_uid, $paid]);
+                        }
+                    }
+                }
+            }
+
         } elseif ($new_status === 'unavailable') {
             // Maintenance Mode: Cancel ALL active/upcoming reservations for this slot
             $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE parking_slot_id = ? AND status IN ('confirmed', 'ongoing') AND end_time > NOW()");
@@ -511,8 +552,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
         const group = document.getElementById('booker_selection_group');
         const slotId = document.getElementById('edit_slot_id').value;
 
-        if (status === 'occupied') {
+        if (status === 'occupied' || status === 'reserved') {
             group.style.display = 'block';
+
+            // Update Label based on status
+            const label = group.querySelector('label');
+            if (status === 'reserved') {
+                label.textContent = '📝 Confirm a Pending Reservation';
+                label.style.color = '#f6c23e'; // Warning color
+            } else {
+                label.textContent = '🚗 Identify the Arriving Vehicle';
+                label.style.color = '#333';
+            }
+
             // fetch bookers via AJAX
             fetch(`ajax/get_slot_reservations.php?slot_id=${slotId}`)
                 .then(response => response.json())
@@ -521,7 +573,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     select.innerHTML = '<option value="">-- Autoselect (First Come) --</option>';
                     if (data.success && data.data.length > 0) {
                         data.data.forEach(res => {
-                            const label = `${res.first_name} ${res.last_name} (${res.plate_number}) - ${res.start_time}`;
+                            // Filter logic: 
+                            // If status is 'reserved', we prefer 'pending' ones.
+                            // If status is 'occupied', we prefer 'confirmed' ones.
+                            // But listing all is fine.
+                            const statusIcon = res.status === 'pending' ? '⏳' : '✅';
+                            const label = `${statusIcon} [${res.status.toUpperCase()}] ${res.first_name} ${res.last_name} (${res.plate_number})`;
                             const option = document.createElement('option');
                             option.value = res.reservation_id;
                             option.textContent = label;
@@ -529,7 +586,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                         });
                     } else {
                         const option = document.createElement('option');
-                        option.textContent = "No active reservations found instantly";
+                        option.textContent = "No pending/confirmed reservations found";
                         option.disabled = true;
                         select.appendChild(option);
                     }
