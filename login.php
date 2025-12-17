@@ -276,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="email" class="small font-weight-bold text-muted mb-2">EMAIL ADDRESS</label>
         <div class="input-group">
           <input type="email" name="email" id="email" required placeholder="name@example.com" class="form-control"
-            autocomplete="off" />
+            autocomplete="username" />
         </div>
       </div>
 
