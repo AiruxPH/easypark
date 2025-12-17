@@ -17,6 +17,7 @@
 
 session_start();
 require_once '../includes/db.php';
+require_once '../includes/constants.php';
 
 // Fetch staff profile info (if needed)
 $staff_id = $_SESSION['user_id'] ?? null;

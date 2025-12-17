@@ -151,6 +151,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
                     sendNotification($pdo, $u_id, 'Parking Started', "You have checked in for slot $slot_num. Your timer has started.", 'info', 'bookings.php');
                     logActivity($pdo, $staff_id, 'staff', 'mark_arrived', "Marked booking #$r_id as arrived (ongoing)");
                 }
+
+            } elseif ($action === 'complete') {
+                // Ongoing -> Completed (Customer Leaving)
+                // 1. Check for Overstay
+                $stmt = $pdo->prepare("SELECT end_time, slot_type FROM reservations r JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id WHERE reservation_id = ? AND status = 'ongoing'");
+                $stmt->execute([$r_id]);
+                $resData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($resData) {
+                    $end = new DateTime($resData['end_time']);
+                    $now = new DateTime();
+
+                    if ($now > $end) {
+                        // Calculate Penalty
+                        $diffSeconds = $now->getTimestamp() - $end->getTimestamp();
+                        $overhours = ceil($diffSeconds / 3600);
+
+                        $s_type = $resData['slot_type'];
+                        $rate = 0;
+                        if (defined('SLOT_RATES') && isset(SLOT_RATES[$s_type]['hour'])) {
+                            $rate = SLOT_RATES[$s_type]['hour'];
+                        }
+
+                        // Determine Base Price (First payment)
+                        $stmt_base = $pdo->prepare("SELECT amount FROM payments WHERE reservation_id = ? ORDER BY payment_date ASC LIMIT 1");
+                        $stmt_base->execute([$r_id]);
+                        $base_price = floatval($stmt_base->fetchColumn());
+
+                        // Total Paid
+                        $stmt_total = $pdo->prepare("SELECT SUM(amount) FROM payments WHERE reservation_id = ?");
+                        $stmt_total->execute([$r_id]);
+                        $total_paid = floatval($stmt_total->fetchColumn());
+
+                        // Required Total
+                        $required_total = $base_price + ($overhours * $rate);
+                        $to_charge = $required_total - $total_paid;
+
+                        if ($to_charge > 0) {
+                            // Deduct coins
+                            $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$to_charge, $u_id]);
+                            // Log transaction
+                            $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Overstay Penalty (Staff Completion)')")->execute([$u_id, -$to_charge]);
+                            // Record Payment
+                            $pdo->prepare("INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, 'successful', 'coins', NOW())")->execute([$r_id, $u_id, $to_charge]);
+
+                            // Notify User
+                            sendNotification($pdo, $u_id, 'Overstay Penalty', "An overstay penalty of " . number_format($to_charge, 2) . " coins has been deducted for Reservation #$r_id.", 'warning', 'bookings.php');
+                        }
+                    }
+
+                    // 2. Mark as Completed
+                    $stmt = $pdo->prepare("UPDATE reservations SET status = 'completed' WHERE reservation_id = ?");
+                    $stmt->execute([$r_id]);
+
+                    if ($stmt->rowCount() > 0) {
+                        // 3. Free up slot (if no future overlap immediately active? Logic simplifies to 'available' if count=0)
+                        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ('pending', 'confirmed', 'ongoing') AND reservation_id != ?");
+                        $stmtCount->execute([$slot_id, $r_id]);
+                        if ($stmtCount->fetchColumn() == 0) {
+                            $pdo->prepare("UPDATE parking_slots SET slot_status = 'available' WHERE parking_slot_id = ?")->execute([$slot_id]);
+                        }
+
+                        sendNotification($pdo, $u_id, 'Parking Completed', "Your booking for slot $slot_num is now complete. Thank you!", 'success', 'bookings.php');
+                        logActivity($pdo, $staff_id, 'staff', 'mark_completed', "Marked booking #$r_id as completed");
+                    }
+                }
             }
 
             $pdo->commit();

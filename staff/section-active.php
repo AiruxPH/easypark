@@ -82,6 +82,13 @@ require_once __DIR__ . '/section-common.php';
                 $badgeClass = 'badge-glass-info'; // ongoing
                 if ($b['status'] == 'confirmed')
                   $badgeClass = 'badge-glass-success';
+
+                // Check if Overdue
+                $isOverdue = ($b['status'] === 'ongoing' && strtotime($b['end_time']) < time());
+                if ($isOverdue) {
+                  $badgeClass = 'badge-glass-danger';
+                  $b['status'] = 'OVERDUE';
+                }
                 ?>
                 <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
               </td>
@@ -92,6 +99,18 @@ require_once __DIR__ . '/section-common.php';
                     <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm shadow-sm"
                       title="Mark as Ongoing (Vehicle Arrived)">Arrived</button>
                   </form>
+                <?php elseif ($b['status'] === 'ongoing' || $b['status'] === 'OVERDUE'): ?>
+                  <?php
+                  // Inject Rate
+                  $rate = 0;
+                  if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
+                    $rate = SLOT_RATES[$b['slot_type']]['hour'];
+                  }
+                  $b['rate'] = $rate;
+                  $bJson = htmlspecialchars(json_encode($b));
+                  ?>
+                  <button type="button" class="btn btn-success btn-sm shadow-sm action-complete" data-booking='<?= $bJson ?>'
+                    title="Mark as Completed (Vehicle Exited)">Complete</button>
                 <?php else: ?>
                   <span class="text-white-50 small">--</span>
                 <?php endif; ?>
@@ -132,5 +151,46 @@ require_once __DIR__ . '/section-common.php';
       timeout = setTimeout(filterAndSortActive, 500);
     });
     $('#activeStatusFilter, #activeDateFrom, #activeDateTo').on('change', filterAndSortActive);
+
+    // ACTION COMPLETE LOGIC
+    $(document).off('click', '.action-complete').on('click', '.action-complete', function (e) {
+      e.preventDefault();
+      var btn = $(this);
+      var booking = btn.data('booking');
+
+      // Populate Modal
+      $('#actionResId').val(booking.reservation_id);
+      $('#actionInput').val('complete');
+      var modalBody = $('#actionModalBody');
+      var confirmBtn = $('#actionConfirmBtn');
+
+      // Check for Overstay
+      var end = new Date(booking.end_time.replace(' ', 'T'));
+      var now = new Date();
+
+      var html = 'Mark Reservation <strong>#' + booking.reservation_id + '</strong> as <span class="text-success font-weight-bold">Completed</span>?';
+
+      if (now > end) {
+        var diffSeconds = Math.floor((now - end) / 1000);
+        var overHours = Math.ceil(diffSeconds / 3600);
+        var rate = parseFloat(booking.rate) || 0;
+        var penalty = (overHours * rate).toFixed(2);
+
+        html = `
+                <div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.2); border-color: #dc3545; color: #fff;">
+                    <h6 class="font-weight-bold"><i class="fas fa-exclamation-triangle"></i> Overdue Warning</h6>
+                    <p class="mb-1">This booking is <strong>overdue</strong> by approximately <strong>${overHours} hour(s)</strong>.</p>
+                    <p class="mb-0">A deduction of <strong>🪙${penalty} coins</strong> will be applied to the user's wallet.</p>
+                </div>
+                Mark as complete and apply penalty?
+             `;
+        confirmBtn.removeClass('btn-primary').addClass('btn-danger').text('Pay Penalty & Complete');
+      } else {
+        confirmBtn.removeClass('btn-danger').addClass('btn-primary').text('Confirm Completion');
+      }
+
+      modalBody.html(html);
+      $('#actionModal').modal('show');
+    });
   });
 </script>

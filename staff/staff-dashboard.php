@@ -483,6 +483,35 @@ if (isset($_POST['delete_pic'])) {
     </div>
   </div>
 
+  <!-- Shared Action Modal -->
+  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-labelledby="actionModalLabel"
+    aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content"
+        style="background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); color: #fff;">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1.5rem;">
+          <h5 class="modal-title font-weight-bold" id="actionModalLabel" style="color: var(--primary);">Confirm Action
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            style="color: #fff; opacity: 0.7;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body p-4" id="actionModalBody">
+          <!-- Content injected via JS -->
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem 1.5rem;">
+          <button type="button" class="btn btn-secondary rounded-pill" data-dismiss="modal">Cancel</button>
+          <form id="actionForm" method="post" action="action_booking.php" style="display:inline;">
+            <input type="hidden" name="reservation_id" id="actionResId">
+            <input type="hidden" name="action" id="actionInput">
+            <button type="submit" class="btn btn-primary rounded-pill px-4" id="actionConfirmBtn">Confirm</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/jquery.min.js"></script>
   <script src="../js/popper.min.js"></script>
   <script src="../js/bootstrap.bundle.min.js"></script>
