@@ -423,6 +423,16 @@ if (isset($_POST['delete_pic'])) {
           <p class="text-white-50 mb-0 small">Manage bookings and parking slots efficiently.</p>
         </div>
         <div class="d-flex align-items-center">
+          <!-- Server Clock -->
+          <div class="mr-4 text-right d-none d-md-block" style="line-height: 1.2;">
+            <span class="text-white-50 small text-uppercase font-weight-bold" style="letter-spacing: 1px;">Server
+              Time</span>
+            <div id="server-clock" class="h5 mb-0 font-weight-bold text-white"
+              style="font-family: 'Outfit', monospace;">
+              <i class="fas fa-clock mr-1 text-warning"></i> Loading...
+            </div>
+          </div>
+
           <a href="javascript:void(0)" onclick="loadSection('profile')"
             class="d-flex align-items-center nav-link p-0 mr-4"
             style="color: rgba(255,255,255,0.8); text-decoration: none;">
@@ -559,6 +569,35 @@ if (isset($_POST['delete_pic'])) {
       // Load last focused section on page load
       loadSection(currentSection);
     });
+  </script>
+  <script>
+    // Server time sync (Staff Dashboard)
+    const serverTime = new Date("<?= date('r') ?>");
+    const startTime = new Date().getTime();
+    const initialServerTime = serverTime.getTime();
+
+    function tick() {
+      const elapsed = new Date().getTime() - startTime;
+      const currentServerTime = new Date(initialServerTime + elapsed);
+
+      const options = {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      };
+      const timeString = currentServerTime.toLocaleString('en-US', options);
+
+      const el = document.getElementById('server-clock');
+      // Update the innerHTML, keeping the icon
+      if (el) el.innerHTML = '<i class="fas fa-clock mr-1 text-warning"></i> ' + timeString;
+    }
+
+    setInterval(tick, 1000);
+    tick();
   </script>
 </body>
 

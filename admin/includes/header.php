@@ -71,6 +71,11 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
+                    <li class="nav-item d-flex align-items-center mr-3">
+                        <span class="text-gray-400 small" id="server-clock">
+                            <i class="fa fa-clock-o"></i> Loading time...
+                        </span>
+                    </li>
                     <li class="nav-item">
                         <span class="navbar-text mr-3">
                             <i class="fa fa-user-circle"></i> Admin
@@ -85,6 +90,61 @@ if (!isset($_SESSION['user_email']) || $_SESSION['user_type'] !== 'admin') {
             </div>
         </div>
     </nav>
+
+    <script>
+        // Server time sync
+        const serverTime = new Date("<?= date('r') ?>");
+        // 'r' format matches JS Date parsing (RFC 2822), e.g. "Thu, 21 Dec 2000 16:01:07 +0200"
+        let clientOffset = new Date().getTime() - serverTime.getTime();
+
+        function updateClock() {
+            const now = new Date(new Date().getTime() - clientOffset);
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            document.getElementById('server-clock').innerHTML = '<i class="fa fa-clock-o"></i> ' + now.toLocaleString('en-US', options);
+        }
+
+        // Initial call and interval
+        // Wait for load to ensure element exists if script runs early (though it's at end of body usually, here it is in body)
+        // Since script is placed after nav, element exists.
+        // Actually, logic correction:
+        // We want to simulate SERVER time ticking.
+        // We captured `serverTime`. 
+        // To make it tick, we can just add elapsed time since load.
+
+        const startTime = new Date().getTime();
+        const initialServerTime = serverTime.getTime();
+
+        function tick() {
+            const elapsed = new Date().getTime() - startTime;
+            const currentServerTime = new Date(initialServerTime + elapsed);
+
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const timeString = currentServerTime.toLocaleString('en-US', options);
+
+            const el = document.getElementById('server-clock');
+            if (el) el.innerHTML = '<i class="fa fa-clock-o"></i> ' + timeString;
+        }
+
+        setInterval(tick, 1000);
+        tick();
+    </script>
 
     <!-- Main Content Wrapper -->
     <div class="main-content container-fluid" id="main-content">

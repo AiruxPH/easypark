@@ -70,6 +70,13 @@ if (isset($_SESSION['user_id'])) {
                     $notifications = getUnreadNotifications($pdo, $_SESSION['user_id'], 5);
                 }
                 ?>
+                <!-- Server Clock -->
+                <li class="nav-item d-flex align-items-center mr-3 text-white small">
+                    <span id="server-clock" style="font-family: monospace; font-size: 0.9rem; opacity: 0.8;">
+                        <i class="fas fa-clock"></i> Loading...
+                    </span>
+                </li>
+
                 <li class="nav-item dropdown mr-3">
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Notifications">
@@ -428,3 +435,31 @@ if (isset($_SESSION['user_id'])) {
         }
     }
 </style>
+<script>
+    // Server time sync (Client Navbar)
+    const serverTime = new Date("<?= date('r') ?>");
+    const startTime = new Date().getTime();
+    const initialServerTime = serverTime.getTime();
+
+    function tick() {
+        const elapsed = new Date().getTime() - startTime;
+        const currentServerTime = new Date(initialServerTime + elapsed);
+
+        const options = {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
+        const timeString = currentServerTime.toLocaleString('en-US', options);
+
+        const el = document.getElementById('server-clock');
+        if (el) el.innerHTML = '<i class="fas fa-clock"></i> ' + timeString;
+    }
+
+    setInterval(tick, 1000);
+    tick();
+</script>
