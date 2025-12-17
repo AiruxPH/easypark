@@ -341,16 +341,24 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                     <?php
                     $status = $b['status'];
                     $badge = 'secondary';
-                    if ($status === 'pending')
-                      $badge = 'warning';
-                    elseif ($status === 'confirmed' || $status === 'ongoing')
-                      $badge = 'success';
-                    elseif ($status === 'cancelled' || $status === 'void')
+
+                    // Check for Overdue
+                    $isOverdue = ($status === 'ongoing' && $b['end_time'] < date('Y-m-d H:i:s'));
+
+                    if ($isOverdue) {
+                      $status = 'OVERDUE';
                       $badge = 'danger';
-                    elseif ($status === 'completed')
+                    } elseif ($status === 'pending') {
+                      $badge = 'warning';
+                    } elseif ($status === 'confirmed' || $status === 'ongoing') {
+                      $badge = 'success';
+                    } elseif ($status === 'cancelled' || $status === 'void') {
+                      $badge = 'danger';
+                    } elseif ($status === 'completed') {
                       $badge = 'primary';
-                    elseif ($status === 'expired')
+                    } elseif ($status === 'expired') {
                       $badge = 'dark';
+                    }
                     ?>
                     <span class="badge badge-<?= $badge ?> text-uppercase"><?= htmlspecialchars($status) ?></span>
                   </td>
