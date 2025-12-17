@@ -20,7 +20,7 @@ $where = [];
 $params = [];
 
 if ($search) {
-    $where[] = "(first_name LIKE :search OR middle_name LIKE :search OR last_name LIKE :search OR email LIKE :search)";
+    $where[] = "(first_name LIKE :search OR middle_name LIKE :search OR last_name LIKE :search OR email LIKE :search OR CONCAT(first_name, ' ', last_name) LIKE :search)";
     $params[':search'] = "%$search%";
 }
 
