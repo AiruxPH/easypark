@@ -508,7 +508,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
 </div>
 
 <script>
+    let originalSlotStatus = '';
+
     function editSlot(slot) {
+        // Store original status
+        originalSlotStatus = slot.slot_status;
+
         $('#edit_slot_id').val(slot.parking_slot_id);
         $('#edit_slot_number').val(slot.slot_number);
         $('#modalResultSlotNumber').text(slot.slot_number);
@@ -552,7 +557,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
         const group = document.getElementById('booker_selection_group');
         const slotId = document.getElementById('edit_slot_id').value;
 
-        if (status === 'occupied' || status === 'reserved') {
+        // Logic: Only show the selection if we are TRANSITIONING to a new state.
+        let show = false;
+        if (status === 'reserved' && originalSlotStatus !== 'reserved') {
+            show = true;
+        } else if (status === 'occupied' && originalSlotStatus !== 'occupied') {
+            show = true;
+        }
+
+        if (show) {
             group.style.display = 'block';
 
             // Update Label based on status
