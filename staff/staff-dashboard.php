@@ -576,13 +576,10 @@ if (isset($_POST['delete_pic'])) {
       const now = new Date(); // Uses device current time
 
       const options = {
-        weekday: 'short',
-        year: 'numeric',
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
       };
       const timeString = now.toLocaleString('en-US', options);
 

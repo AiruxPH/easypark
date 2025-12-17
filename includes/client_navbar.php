@@ -441,13 +441,10 @@ if (isset($_SESSION['user_id'])) {
         const now = new Date();
 
         const options = {
-            weekday: 'short',
-            year: 'numeric',
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
+            minute: '2-digit'
         };
         const timeString = now.toLocaleString('en-US', options);
 
