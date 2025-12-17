@@ -36,6 +36,33 @@ if ($action === 'cancel') {
             }
         }
 
+        // --- REFUND LOGIC START ---
+        $r_user_id_refund = null;
+        // Get user_id first (needed for refund)
+        $stmt_uid = $pdo->prepare("SELECT user_id FROM reservations WHERE reservation_id = ?");
+        $stmt_uid->execute([$reservation_id]);
+        $r_user_id_refund = $stmt_uid->fetchColumn();
+
+        if ($r_user_id_refund) {
+            // Updated payment status
+            $stmt_pay = $pdo->prepare("UPDATE payments SET status = 'refunded' WHERE reservation_id = ?");
+            $stmt_pay->execute([$reservation_id]);
+
+            // Calculate total refundable amount (only coins method for now)
+            $stmt_amount = $pdo->prepare("SELECT SUM(amount) FROM payments WHERE reservation_id = ? AND status = 'refunded' AND method = 'coins'");
+            $stmt_amount->execute([$reservation_id]);
+            $paid = $stmt_amount->fetchColumn();
+
+            if ($paid > 0) {
+                // Credit Wallet
+                $pdo->prepare("UPDATE users SET coins = coins + ? WHERE user_id = ?")->execute([$paid, $r_user_id_refund]);
+
+                // Log Transaction
+                $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'refund', 'Refund for Cancelled Booking #$reservation_id')")->execute([$r_user_id_refund, $paid]);
+            }
+        }
+        // --- REFUND LOGIC END ---
+
         // Notify User
         require_once 'includes/notifications.php';
         // Get user_id of the reservation
