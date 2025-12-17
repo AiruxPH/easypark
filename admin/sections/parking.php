@@ -393,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
 <!-- Add Slot Modal -->
 <div class="modal fade" id="addSlotModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-secondary" style="background-color: #1a1c23; color: #e2e8f0;">
             <div class="modal-header">
                 <h5 class="modal-title">Add New Parking Slot</h5>
                 <button type="button" class="close" data-dismiss="modal">
@@ -405,11 +405,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     <input type="hidden" name="add_slot" value="1">
                     <div class="form-group">
                         <label>Slot Number</label>
-                        <input type="text" class="form-control" name="slot_number" required placeholder="e.g., A-001">
+                        <input type="text" class="form-control bg-dark text-light border-secondary" name="slot_number"
+                            required placeholder="e.g., A-001">
                     </div>
                     <div class="form-group">
                         <label>Type</label>
-                        <select class="form-control" name="slot_type" required>
+                        <select class="form-control bg-dark text-light border-secondary" name="slot_type" required>
                             <?php foreach ($availableTypes as $t): ?>
                                 <option value="<?= htmlspecialchars($t) ?>">
                                     <?= ucfirst(str_replace('_', ' ', htmlspecialchars($t))) ?>
@@ -431,7 +432,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
 <!-- Edit Slot Modal (Improved UI) -->
 <div class="modal fade" id="editSlotModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-secondary" style="background-color: #1a1c23; color: #e2e8f0;">
             <div class="modal-header">
                 <h5 class="modal-title">Manage Slot: <span id="modalResultSlotNumber"
                         class="font-weight-bold text-primary"></span></h5>
@@ -450,11 +451,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Slot Number</label>
-                            <input type="text" class="form-control" id="edit_slot_number" name="slot_number" required>
+                            <input type="text" class="form-control bg-dark text-light border-secondary"
+                                id="edit_slot_number" name="slot_number" required>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Vehicle Type</label>
-                            <select class="form-control" id="edit_slot_type" name="slot_type" required>
+                            <select class="form-control bg-dark text-light border-secondary" id="edit_slot_type"
+                                name="slot_type" required>
                                 <?php foreach ($availableTypes as $t): ?>
                                     <option value="<?= htmlspecialchars($t) ?>">
                                         <?= ucfirst(str_replace('_', ' ', htmlspecialchars($t))) ?>
@@ -470,8 +473,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
 
                     <div class="form-group">
                         <label>Current Status</label>
-                        <select class="form-control font-weight-bold" id="edit_slot_status" name="slot_status" required
-                            onchange="toggleBookerSelection()">
+                        <select class="form-control font-weight-bold bg-dark text-light border-secondary"
+                            id="edit_slot_status" name="slot_status" required onchange="toggleBookerSelection()">
                             <option value="available" class="text-success">🟢 Available</option>
                             <option value="reserved" class="text-warning">🟡 Reserved</option>
                             <option value="occupied" class="text-danger">🔴 Occupied</option>
