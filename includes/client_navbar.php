@@ -275,8 +275,27 @@ if (isset($_SESSION['user_id'])) {
         background: rgba(30, 30, 30, 0.95) !important;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
+        border-radius: 25px;
+        /* Fully curved */
         overflow: hidden;
+    }
+
+    /* Custom Scrollbar for Dropdown */
+    .dropdown-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .dropdown-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+
+    .dropdown-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
     }
 
     .dropdown-header {
