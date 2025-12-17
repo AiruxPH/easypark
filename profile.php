@@ -16,166 +16,7 @@ if ($_SESSION['user_type'] != 'client') {
 }
 $user_id = $_SESSION['user_id'];
 
-// Initial Setup
-$user_id = $_SESSION['user_id'];
-$message = '';
-// Fetch logic moved to bottom after POST handling
-
-$message = '';
-// Handle profile update, vehicle add/edit/delete, reservation here (to be implemented)
-
-// Handle profile picture upload
-if (isset($_POST['upload_pic']) && isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
-  $fileTmp = $_FILES['profile_pic']['tmp_name'];
-  $fileName = basename($_FILES['profile_pic']['name']);
-  $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-  $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-  if (in_array($fileExt, $allowed)) {
-    $newName = 'profile_' . $user_id . '_' . time() . '.' . $fileExt;
-    $targetPath = 'images/' . $newName;
-    if (move_uploaded_file($fileTmp, $targetPath)) {
-      // Fetch current image to delete old one
-      $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
-      $stmt->execute([$user_id]);
-      $curr = $stmt->fetch(PDO::FETCH_ASSOC);
-
-      if ($curr && !empty($curr['image']) && $curr['image'] !== 'default.jpg' && file_exists('images/' . $curr['image'])) {
-        unlink('images/' . $curr['image']);
-      }
-      $stmt = $pdo->prepare('UPDATE users SET image = ? WHERE user_id = ?');
-      $stmt->execute([$newName, $user_id]);
-      header('Location: profile.php');
-      exit();
-    } else {
-      $message = '❌ Failed to upload image.';
-    }
-  } else {
-    $message = '❌ Invalid file type.';
-  }
-}
-// Handle profile picture delete
-if (isset($_POST['delete_pic'])) {
-  // Fetch current image
-  $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
-  $stmt->execute([$user_id]);
-  $curr = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  if ($curr && !empty($curr['image']) && $curr['image'] !== 'default.jpg' && file_exists('images/' . $curr['image'])) {
-    unlink('images/' . $curr['image']);
-  }
-  $stmt = $pdo->prepare('UPDATE users SET image = NULL WHERE user_id = ?');
-  $stmt->execute([$user_id]);
-  header('Location: profile.php');
-  exit();
-}
-
-// Handle vehicle deletion
-if (isset($_GET['delete_vehicle'])) {
-  $vehicle_id = intval($_GET['delete_vehicle']);
-  // Check for active reservation for this vehicle
-  $stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE vehicle_id = ? AND status NOT IN ("cancelled", "completed") AND end_time > NOW()');
-  $stmt->execute([$vehicle_id]);
-  $active = $stmt->fetchColumn();
-  if ($active > 0) {
-    $message = '❌ Cannot delete vehicle with an active reservation.';
-  } else {
-    $stmt = $pdo->prepare('DELETE FROM vehicles WHERE vehicle_id = ? AND user_id = ?');
-    $stmt->execute([$vehicle_id, $user_id]);
-    header('Location: profile.php');
-    exit();
-  }
-}
-// Handle add vehicle
-if (isset($_POST['add_vehicle'])) {
-  $plate = trim($_POST['plate_number']);
-  $color = trim($_POST['color']);
-  $model_id = intval($_POST['model_id']);
-  if ($plate && $color && $model_id) {
-    $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$user_id, $model_id, $plate, $color]);
-    header('Location: profile.php');
-    exit();
-  } else {
-    $message = '❌ Please fill all vehicle fields.';
-  }
-}
-// Handle profile update
-if (isset($_POST['update_profile'])) {
-  $first_name = trim($_POST['first_name']);
-  $middle_name = trim($_POST['middle_name']);
-  $last_name = trim($_POST['last_name']);
-  $phone = trim($_POST['phone']);
-
-  // Validate and update profile information
-  if ($first_name && $last_name) {
-    $stmt = $pdo->prepare('UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, phone = ? WHERE user_id = ?');
-    $stmt->execute([$first_name, $middle_name, $last_name, $phone, $user_id]);
-    $message = '✅ Profile updated successfully.';
-  } else {
-    $message = '❌ Please fill in all required fields.';
-  }
-}
-
-// Handle password change (plain, for demo only)
-if (isset($_POST['change_password'])) {
-  $current = $_POST['current_password'] ?? '';
-  $new = $_POST['new_password'] ?? '';
-  $confirm = $_POST['confirm_new_password'] ?? '';
-  if (!$current || !$new || !$confirm) {
-    $message = '❌ Please fill all password fields.';
-  } elseif ($new !== $confirm) {
-    $message = '❌ New passwords do not match.';
-  } else {
-    // Fetch current password (plain, for demo only)
-    $stmt = $pdo->prepare('SELECT password FROM users WHERE user_id = ?');
-    $stmt->execute([$user_id]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($row && $current === $row['password']) {
-      $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
-      $stmt->execute([$new, $user_id]);
-      $message = '✅ Password changed successfully!';
-    } else {
-      $message = '❌ Current password is incorrect.';
-    }
-  }
-}
-
-// Handle forgot password - AJAX step logic
-if (isset($_POST['forgot_password_action'])) {
-  header('Content-Type: application/json');
-  if (!isset($_POST['fp_security_word'])) {
-    echo json_encode(['success' => false, 'message' => 'Security word required.']);
-    exit;
-  }
-  $fp_security_word = trim($_POST['fp_security_word']);
-  // Check security word
-  $stmt = $pdo->prepare('SELECT security_word FROM users WHERE user_id = ?');
-  $stmt->execute([$user_id]);
-  $row = $stmt->fetch(PDO::FETCH_ASSOC);
-  if (!$row || strtolower($fp_security_word) !== strtolower($row['security_word'])) {
-    echo json_encode(['success' => false, 'message' => 'Incorrect security word.']);
-    exit;
-  }
-  // If new password fields are present, update password
-  if (!empty($_POST['fp_new_password']) && !empty($_POST['fp_confirm_new_password'])) {
-    $new = $_POST['fp_new_password'];
-    $confirm = $_POST['fp_confirm_new_password'];
-    if ($new !== $confirm) {
-      echo json_encode(['success' => false, 'message' => 'Passwords do not match.']);
-      exit;
-    }
-    $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE user_id = ?');
-    $stmt->execute([$new, $user_id]);
-    echo json_encode(['success' => true, 'message' => 'Password reset successful!']);
-    exit;
-  }
-  // Security word correct, prompt for new password
-  echo json_encode(['success' => true]);
-  exit;
-}
-?>
-<?php
-// --- DATA FETCHING (After Updates) ---
+// --- DATA FETCHING ---
 // Fetch user info
 $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
@@ -197,9 +38,9 @@ foreach ($vehicles as $vehicle) {
   }
 }
 
-// Fetch available parking slots
-$slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
-$available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch available parking slots (if needed for reference, though usually for reservations page)
+// $slot_stmt = $pdo->query("SELECT * FROM parking_slots WHERE slot_status = 'available'");
+// $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -717,6 +558,204 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
   <script src="js/jquery.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script>
+    // --- AJAX Logic ---
+    $(document).ready(function() {
+        // Global Toast Function
+        function showToast(message, isError = false) {
+            // Remove existing toast if any
+            $('#dynamicToast').remove();
+            
+            const bgClass = isError ? 'bg-danger text-white' : 'bg-success text-white';
+            const icon = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
+            
+            const toastHtml = `
+                <div id="dynamicToast" class="toast hide ${bgClass}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="4000" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    <div class="toast-header ${bgClass} border-0">
+                        <strong class="mr-auto"><i class="fa ${icon} mr-2"></i> Notification</strong>
+                        <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button>
+                    </div>
+                    <div class="toast-body font-weight-bold">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            $('body').append(toastHtml);
+            $('#dynamicToast').toast('show');
+        }
+
+        // 1. Update Profile
+        $('button[name="update_profile"]').parent().parent().on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const btn = form.find('button[type="submit"]');
+            
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+            
+            // Collect data
+            const formData = new FormData(this);
+            formData.append('action', 'update_profile');
+            
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    btn.prop('disabled', false).text('Save Changes');
+                    showToast(data.message, !data.success);
+                })
+                .catch(err => {
+                    btn.prop('disabled', false).text('Save Changes');
+                    showToast('Server error occurred.', true);
+                });
+        });
+
+        // 2. Change Password
+        $('form button[name="change_password"]').parent().closest('form').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const btn = form.find('button[type="submit"]');
+            
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+            
+            const formData = new FormData(this);
+            formData.append('action', 'change_password');
+            
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    btn.prop('disabled', false).text('Update Password');
+                    showToast(data.message, !data.success);
+                    if(data.success) form[0].reset();
+                })
+                .catch(err => {
+                    btn.prop('disabled', false).text('Update Password');
+                    showToast('Server error occurred.', true);
+                });
+        });
+
+        // 3. Add Vehicle
+        $('#addVehicleModal form').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const btn = form.find('button[type="submit"]');
+            
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
+            
+            const formData = new FormData(this);
+            formData.append('action', 'add_vehicle');
+            
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    btn.prop('disabled', false).text('Add Vehicle');
+                    if (data.success) {
+                        showToast(data.message, false);
+                        $('#addVehicleModal').modal('hide');
+                        form[0].reset();
+                        // Ideally Append to table dynamically, but reload is easiest for now to render row fully 
+                        // or we build row. Let's reload for simplicity or build row.
+                        // For SPA feel, we should build row.
+                        setTimeout(() => location.reload(), 1000); 
+                    } else {
+                        showToast(data.message, true);
+                    }
+                })
+                .catch(err => {
+                    btn.prop('disabled', false).text('Add Vehicle');
+                    showToast('Server error occurred.', true);
+                });
+        });
+
+        // 4. Delete Vehicle (Intercept Links)
+        $('.btn-danger-custom').on('click', function(e) {
+            e.preventDefault();
+            const link = $(this);
+            const url = new URL(link.attr('href'), window.location.origin);
+            const id = url.searchParams.get('delete_vehicle');
+            
+            if(!confirm('Are you sure you want to delete this vehicle?')) return;
+            
+            const formData = new FormData();
+            formData.append('action', 'delete_vehicle');
+            formData.append('vehicle_id', id);
+            
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, false);
+                        link.closest('tr').fadeOut(300, function() { $(this).remove(); });
+                    } else {
+                        showToast(data.message, true);
+                    }
+                })
+                .catch(err => showToast('Server error.', true));
+        });
+
+        // 5. Upload Profile Pic
+        // Avatar Form Submit
+        // We need to change the inline onchange logic to use our listener
+        // The HTML has id="avatarForm" and input has id="profilePicInput"
+    });
+    
+    // Preview Image and Upload immediately (AJAX)
+    document.getElementById('profilePicInput').addEventListener('change', function (e) {
+      if (e.target.files && e.target.files[0]) {
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append('action', 'upload_pic');
+        formData.append('profile_pic', e.target.files[0]);
+
+        // Show loading or opacity
+        const img = document.getElementById('avatarPreview');
+        img.style.opacity = '0.5';
+        
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                img.style.opacity = '1';
+                if(data.success && data.image_url) {
+                    img.src = data.image_url + '?t=' + new Date().getTime(); // burst cache
+                    // Update navbar avatar if exists
+                    $('.navbar img[alt="Profile"]').attr('src', data.image_url + '?t=' + new Date().getTime());
+                } else {
+                    alert(data.message || 'Upload failed');
+                }
+            })
+            .catch(err => {
+                img.style.opacity = '1';
+                alert('Server error');
+            });
+      }
+    });
+
+    // 6. Delete Profile Pic
+    // The existing button is wrapped in a form. We should intercept it.
+    // The form doesn't have a specific ID, but it contains a button with onclick='confirm...'
+    // Lets modify the HTML structure slightly via JS or target it carefully.
+    // Or we handle it with a global listener on the button class?
+    $(document).on('submit', 'form', function(e) {
+        // Check if this form has delete_pic input
+        if ($(this).find('input[name="delete_pic"]').length > 0) {
+            e.preventDefault();
+            if(!confirm('Delete profile picture?')) return;
+            
+            const btn = $(this).find('button');
+            const formData = new FormData();
+            formData.append('action', 'delete_pic');
+            
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        $('#avatarPreview').attr('src', data.image_url);
+                        $('.navbar img[alt="Profile"]').attr('src', data.image_url);
+                        btn.remove(); // Remove delete button
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+    });
+
     // Nested dropdown for type > brand > model
     $(function () {
       var allBrands = {};
@@ -770,28 +809,20 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
       });
     });
 
-    // Preview Image immediately
-    document.getElementById('profilePicInput').addEventListener('change', function (e) {
-      if (e.target.files && e.target.files[0]) {
-        // Auto submit form for better UX or just preview?
-        // The logic requires POST to update DB, so we should probably submit.
-        // But let's preview first, user might want to cancel? 
-        // The original logic had a submit button. Let's auto-submit for smoother experience.
-        document.getElementById('avatarForm').submit();
-      }
-    });
-
-    // Forgot Password Logic (Preserved)
+    // Forgot Password Logic
     document.getElementById('forgotPasswordForm').addEventListener('submit', function (e) {
+      e.preventDefault(); 
       const step1 = document.getElementById('forgot-step-1');
       const step2 = document.getElementById('forgot-step-2');
       const nextBtn = document.getElementById('forgotNextBtn');
       const resetBtn = document.getElementById('forgotResetBtn');
 
+      // Determine which step we are on based on visibility
       if (step1.style.display !== 'none') {
-        e.preventDefault();
         const formData = new FormData(this);
-        fetch('profile.php', { method: 'POST', body: formData })
+        formData.append('forgot_password_action', '1'); // Trigger the backend logic
+        
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
           .then(res => res.json())
           .then(data => {
             if (data.success) {
@@ -805,24 +836,24 @@ $available_slots = $slot_stmt->fetchAll(PDO::FETCH_ASSOC);
           })
           .catch(err => alert('Error checking security word.'));
       }
-      // If step 2 is visible, let the form submit normally (AJAX logic in PHP at top handles this? No, lines 156-187 return JSON)
-      // Wait, if it returns JSON, we shouldn't submit normally or we get JSON on screen.
-      // We need to handle the Step 2 submit via AJAX too.
-      if (step2.style.display !== 'none') {
-        e.preventDefault();
+      else if (step2.style.display !== 'none') {
         const formData = new FormData(this);
-        fetch('profile.php', { method: 'POST', body: formData })
+        formData.append('forgot_password_action', '1'); // Keep this key so backend knows what to do
+        
+        fetch('action_client_profile.php', { method: 'POST', body: formData })
           .then(res => res.json())
           .then(data => {
             if (data.success) {
               alert(data.message);
-              location.reload(); // Reload to login with new pass or just refresh
+              location.reload(); 
             } else {
               alert(data.message);
             }
-          });
+          })
+          .catch(err => alert('Error resetting password.'));
       }
     });
+
   </script>
 </body>
 
