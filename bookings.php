@@ -250,6 +250,14 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                 $isConfirmed = ($b['status'] === 'confirmed' || $b['status'] === 'ongoing');
                 $now = date('Y-m-d H:i:s');
                 $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
+
+                // Inject Rate into booking data for JS usage
+                $rate = 0;
+                if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
+                  $rate = SLOT_RATES[$b['slot_type']]['hour'];
+                }
+                $b['rate'] = $rate;
+
                 $rowData = htmlspecialchars(json_encode($b));
                 // Calculate remaining time for duration column
                 $remaining = '';
@@ -640,7 +648,34 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       e.stopPropagation();
       actionType = 'complete';
       actionReservationId = $(this).data('id');
-      actionModalBody.innerHTML = 'Mark this booking as <span class="text-success font-weight-bold">complete</span>?';
+
+      // Get booking data from row
+      const row = $(this).closest('tr');
+      const booking = JSON.parse(row.attr('data-booking'));
+
+      const now = new Date();
+      const end = new Date(booking.end_time.replace(' ', 'T'));
+
+      let bodyHtml = 'Mark this booking as <span class="text-success font-weight-bold">complete</span>?';
+
+      // Check for overstay
+      if (now > end) {
+        const diffInSeconds = Math.floor((now.getTime() - end.getTime()) / 1000);
+        const overHours = Math.ceil(diffInSeconds / 3600);
+        const rate = parseFloat(booking.rate) || 0;
+        const penalty = (overHours * rate).toFixed(2);
+
+        bodyHtml = `
+            <div class="alert alert-danger">
+                <h6 class="font-weight-bold"><i class="fas fa-exclamation-triangle"></i> Overdue Warning</h6>
+                <p class="mb-1">This booking is <strong>overdue</strong> by approximately <strong>${overHours} hour(s)</strong>.</p>
+                <p class="mb-0">A deduction of <strong>🪙${penalty} coins</strong> will be applied to your wallet.</p>
+            </div>
+            Mark as complete and pay penalty?
+          `;
+      }
+
+      actionModalBody.innerHTML = bodyHtml;
       actionModalConfirmBtn.className = 'btn btn-success';
       actionModalConfirmBtn.textContent = 'Yes, Complete';
       actionModal.modal('show');
