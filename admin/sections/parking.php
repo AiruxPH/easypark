@@ -59,8 +59,11 @@ $sql = "
     FROM parking_slots ps
     LEFT JOIN reservations r ON ps.parking_slot_id = r.parking_slot_id 
         AND r.status IN ('confirmed', 'ongoing')
-        AND r.start_time <= NOW() 
-        AND (r.status = 'ongoing' OR r.end_time >= NOW())
+        AND (
+            r.status = 'ongoing' 
+            OR 
+            (r.start_time <= NOW() AND r.end_time >= NOW())
+        )
         LEFT JOIN vehicles v ON r.vehicle_id = v.vehicle_id
     LEFT JOIN users u ON r.user_id = u.user_id
     $whereClause 
