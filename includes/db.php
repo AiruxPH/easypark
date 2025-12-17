@@ -1,7 +1,7 @@
 <?php
 // Use environment variables for sensitive credentials
 $host = getenv('DB_HOST') ?: '194.59.164.68';
-$db   = getenv('DB_NAME') ?: 'u130348899_easypark_db2';
+$db = getenv('DB_NAME') ?: 'u130348899_easypark_db2';
 $user = getenv('DB_USER') ?: 'u130348899_randythegreat2';
 $pass = getenv('DB_PASS') ?: 'RandyBOY999999@';
 $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
@@ -14,6 +14,10 @@ try {
 
     // Enable exceptions for errors
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Set Timezone to Asia/Manila (GMT+8)
+    date_default_timezone_set('Asia/Manila');
+    $pdo->exec("SET time_zone = '+08:00'");
 } catch (\PDOException $e) {
     // Disable error display in production
     ini_set('display_errors', 0);
