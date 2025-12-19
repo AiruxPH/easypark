@@ -229,6 +229,12 @@ if ($selected_vehicle_type) {
   $stmt->bindValue(3, $offset, PDO::PARAM_INT);
   $stmt->execute();
   $available_slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // Fetch user's pending slots to visually mark them
+  $user_pending_slots = [];
+  $stmt = $pdo->prepare('SELECT parking_slot_id FROM reservations WHERE user_id = ? AND status = "pending"');
+  $stmt->execute([$user_id]);
+  $user_pending_slots = $stmt->fetchAll(PDO::FETCH_COLUMN); // Array of IDs
 }
 // Get user profile pic for navbar
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
@@ -726,22 +732,29 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
             <?php foreach ($available_slots as $slot): ?>
               <?php
               $status = $slot['slot_status'];
-              $cardClass = ($status === 'available') ? 'available' : (($status === 'reserved' || $status === 'occupied') ? 'occupied' : 'reserved');
-              // Use 'reserved' style for maintenance/unavailable for simplicity or add specific class
-              if ($status === 'unavailable')
-                $cardClass = 'reserved';
+              $is_pending_for_user = in_array($slot['parking_slot_id'], $user_pending_slots);
+
+              if ($is_pending_for_user) {
+                // User has requested this, show as Pending (Yellow/Orange)
+                $status = 'pending';
+                $cardClass = 'reserved'; // Use reserved style (opacity) or custom
+              } else {
+                $cardClass = ($status === 'available') ? 'available' : (($status === 'reserved' || $status === 'occupied') ? 'occupied' : 'reserved');
+                if ($status === 'unavailable')
+                  $cardClass = 'reserved';
+              }
               ?>
               <div class="col-lg-2 col-md-3 col-6 mb-4">
                 <div class="slot-card <?= $cardClass ?>">
                   <div class="slot-title text-white"><?= htmlspecialchars($slot['slot_number']) ?></div>
-                  <div class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : 'text-danger' ?>">
+                  <div class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : (($status === 'pending') ? 'text-warning' : 'text-danger') ?>">
                     <?= ucfirst(($status === 'unavailable') ? 'Maintenance' : $status) ?>
                   </div>
 
                   <button type="submit" name="reserve_slot_id" value="<?= $slot['parking_slot_id'] ?>"
-                    class="btn btn-sm btn-block <?= ($status === 'available') ? 'btn-outline-success' : 'btn-outline-secondary' ?>"
+                    class="btn btn-sm btn-block <?= ($status === 'available') ? 'btn-outline-success' : (($status === 'pending') ? 'btn-warning text-dark disabled' : 'btn-outline-secondary') ?>"
                     <?= ($status !== 'available' || $user_has_active_reservation) ? 'disabled' : '' ?>>
-                    <?= ($status === 'available') ? 'Select' : 'Unavailable' ?>
+                    <?= ($status === 'available') ? 'Select' : (($status === 'pending') ? 'Pending' : 'Unavailable') ?>
                   </button>
                 </div>
               </div>
