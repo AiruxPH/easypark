@@ -71,8 +71,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateNotificationList(notifications) {
         // Target the inner scroll area
         const scrollArea = document.getElementById('notification-scroll-area');
-        if (!scrollArea) return;
+        if (!scrollArea) {
+            console.error('CRITICAL: #notification-scroll-area NOT FOUND');
+            return;
+        }
 
+        console.log('Rendering notifications:', notifications.length);
         scrollArea.innerHTML = ''; // Clear current list
 
         if (notifications.length === 0) {
@@ -81,42 +85,47 @@ document.addEventListener('DOMContentLoaded', function () {
             noMsg.innerHTML = '<i class="far fa-bell-slash fa-2x mb-2 opacity-50"></i><small>No new notifications</small>';
             scrollArea.appendChild(noMsg);
         } else {
-            // 1. Sort notifications safely
-            notifications.sort((a, b) => {
-                const da = new Date(a.created_at.replace(' ', 'T'));
-                const db = new Date(b.created_at.replace(' ', 'T'));
-                return db - da; // Descending
-            });
-
-            // 2. Group by Date Label
-            const groups = [];
-            let currentGroup = null;
-
-            notifications.forEach(notif => {
-                const label = getRelativeDateLabel(notif.created_at);
-                if (!currentGroup || currentGroup.label !== label) {
-                    currentGroup = { label: label, items: [] };
-                    groups.push(currentGroup);
-                }
-                currentGroup.items.push(notif);
-            });
-
-            // 3. Render Groups
-            groups.forEach(group => {
-                // Render Header
-                const header = document.createElement('div');
-                header.className = 'px-4 text-white-50 font-weight-bold small mt-3 mb-2 text-uppercase';
-                header.style.fontSize = '0.75rem';
-                header.style.opacity = '0.9';
-                header.innerText = group.label;
-                scrollArea.appendChild(header);
-
-                // Render Items
-                group.items.forEach(notif => {
-                    const el = createNotificationElement(notif);
-                    scrollArea.appendChild(el);
+            try {
+                // 1. Sort notifications safely
+                notifications.sort((a, b) => {
+                    const da = new Date(a.created_at.replace(' ', 'T'));
+                    const db = new Date(b.created_at.replace(' ', 'T'));
+                    return db - da; // Descending
                 });
-            });
+
+                // 2. Group by Date Label
+                const groups = [];
+                let currentGroup = null;
+
+                notifications.forEach(notif => {
+                    const label = getRelativeDateLabel(notif.created_at);
+                    if (!currentGroup || currentGroup.label !== label) {
+                        currentGroup = { label: label, items: [] };
+                        groups.push(currentGroup);
+                    }
+                    currentGroup.items.push(notif);
+                });
+
+                console.log('Grouped notifications:', groups);
+
+                // 3. Render Groups
+                groups.forEach(group => {
+                    // Render Header
+                    const header = document.createElement('div');
+                    header.className = 'px-4 text-white-50 font-weight-bold small mt-3 mb-2 text-uppercase';
+                    header.innerHTML = group.label;
+                    scrollArea.appendChild(header);
+
+                    // Render Items
+                    group.items.forEach(notif => {
+                        const el = createNotificationElement(notif);
+                        scrollArea.appendChild(el);
+                        console.log('Appended item:', notif.notification_id);
+                    });
+                });
+            } catch (e) {
+                console.error('Error rendering notification list:', e);
+            }
         }
     }
 
