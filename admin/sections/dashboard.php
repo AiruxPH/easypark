@@ -361,3 +361,56 @@ $overstayCount = count($overstays);
             });
     });
 </script>
+<script>
+    // Live Dashboard Updates
+    document.addEventListener("DOMContentLoaded", function () {
+        // ... (Existing Chart Logic) ...
+
+        // Define elements to update
+        const elRevenue = document.querySelector('.stats-card.success .h5');
+        const elArrivals = document.querySelector('.stats-card.primary .h5');
+        const elActive = document.querySelector('.stats-card.warning .h5');
+        const elOverstay = document.querySelector('.stats-card.danger .h5');
+
+        function updateDashboardStats() {
+            fetch('ajax/get_dashboard_stats.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update text content with animation effect (simple fade)
+                        if (elRevenue) elRevenue.innerHTML = '<i class="fas fa-coins text-warning"></i> ' + data.revenue;
+                        if (elArrivals) elArrivals.textContent = data.arrivals;
+                        if (elActive) elActive.textContent = data.active;
+                        if (elOverstay) elOverstay.textContent = data.overstay_count;
+
+                        // Check Overstay Table (Reload if count changed significantly or just reload table body)
+                        // For simplicity, we can reload the page if overstay count changes from 0 to something, 
+                        // or just rely on the user to click if they see the alert.
+                        // A better approach is to inject the table rows if the array is present.
+
+                        const overstayTableBody = document.querySelector('.border-left-danger tbody');
+                        if (overstayTableBody && data.overstays.length > 0) {
+                            let html = '';
+                            data.overstays.forEach(os => {
+                                html += `
+                                    <tr>
+                                        <td class="font-weight-bold">${os.slot_number}</td>
+                                        <td>${os.plate_number}</td>
+                                        <td>${os.user_name}</td>
+                                        <td>${os.end_time}</td>
+                                        <td class="text-danger font-weight-bold">${os.minutes_over} mins</td>
+                                        <td><span class="text-muted small">Action Disabled</span></td>
+                                    </tr>
+                                `;
+                            });
+                            overstayTableBody.innerHTML = html;
+                        }
+                    }
+                })
+                .catch(err => console.error('Live Update Error:', err));
+        }
+
+        // Poll every 5 seconds
+        setInterval(updateDashboardStats, 5000);
+    });
+</script>
