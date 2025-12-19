@@ -53,14 +53,14 @@ function notifyGroup($pdo, $target_role, $title, $message, $type = 'info', $link
 }
 
 /**
- * Get unread notifications for the current user.
+ * Get recent notifications (read or unread) for dropdown.
  * 
  * @param PDO $pdo
  * @param int $user_id
  * @param int $limit
  * @return array
  */
-function getUnreadNotifications($pdo, $user_id, $limit = 5)
+function getRecentNotifications($pdo, $user_id, $limit = 5)
 {
     $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ?");
     // Bind limit explicitly as INT for LIMIT clause to work in some PDO drivers
@@ -82,5 +82,19 @@ function countUnreadNotifications($pdo, $user_id)
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
     $stmt->execute([$user_id]);
     return (int) $stmt->fetchColumn();
+}
+
+/**
+ * Get ALL notifications for a user (for the history page).
+ * 
+ * @param PDO $pdo
+ * @param int $user_id
+ * @return array
+ */
+function getAllNotifications($pdo, $user_id)
+{
+    $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>

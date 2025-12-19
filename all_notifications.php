@@ -8,14 +8,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 require_once 'includes/db.php';
+require_once 'includes/notifications.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch all notifications
-// Fetch all notifications - Renamed to avoid pollution from client_navbar.php include
-$stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->execute([$user_id]);
-$allNotifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch all notifications using helper
+$allNotifications = getAllNotifications($pdo, $user_id);
 
 // Get user profile pic (standard boilerplate for consistency)
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');

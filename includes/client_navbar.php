@@ -67,7 +67,7 @@ if (isset($_SESSION['user_id'])) {
                 $notifications = [];
                 if (isset($pdo)) {
                     $unreadCount = countUnreadNotifications($pdo, $_SESSION['user_id']);
-                    $notifications = getUnreadNotifications($pdo, $_SESSION['user_id'], 5);
+                    $notifications = getRecentNotifications($pdo, $_SESSION['user_id'], 5);
                 }
                 ?>
                 <!-- Server Clock (Hover to view) -->
