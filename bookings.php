@@ -201,6 +201,30 @@ $user_balance = floatval($user['coins'] ?? 0);
 
     <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">My Bookings</h2>
 
+    <?php
+    // Determine default filter based on priority: Ongoing > Confirmed > Pending
+    $defaultFilter = '';
+    $hasOngoing = false;
+    $hasConfirmed = false;
+    $hasPending = false;
+
+    foreach ($bookings as $b) {
+      if ($b['status'] === 'ongoing')
+        $hasOngoing = true;
+      if ($b['status'] === 'confirmed')
+        $hasConfirmed = true;
+      if ($b['status'] === 'pending')
+        $hasPending = true;
+    }
+
+    if ($hasOngoing)
+      $defaultFilter = 'ongoing';
+    elseif ($hasConfirmed)
+      $defaultFilter = 'confirmed';
+    elseif ($hasPending)
+      $defaultFilter = 'pending';
+    ?>
+
     <!-- Filter Panel -->
     <div class="glass-panel p-3 mb-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between">
@@ -208,6 +232,7 @@ $user_balance = floatval($user['coins'] ?? 0);
           <label for="statusFilter" class="mr-2 font-weight-bold text-white">Filter by Status:</label>
           <select id="statusFilter" class="form-control form-control-sm mr-3 bg-dark text-white border-secondary">
             <option value="">All</option>
+            <option value="ongoing">Ongoing</option>
             <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
             <option value="completed">Completed</option>
@@ -743,6 +768,15 @@ $user_balance = floatval($user['coins'] ?? 0);
         row.style.display = show ? '' : 'none';
       });
     }
+
+    // Set default filter from PHP logic if applicable
+    const defaultFilterVal = "<?= $defaultFilter ?>";
+    if (defaultFilterVal) {
+      statusFilter.value = defaultFilterVal;
+    }
+
+    // Initial filter run
+    filterAndSearchRows();
 
     statusFilter.addEventListener('change', filterAndSearchRows);
     searchInput.addEventListener('input', filterAndSearchRows);
