@@ -486,6 +486,27 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
       </div>
     <?php endif; ?>
 
+    <!-- Display Active Reservation Info if exists -->
+    <?php if ($user_has_active_reservation && $active_reservation): ?>
+      <div class="custom-card border-warning" style="background: rgba(240, 165, 0, 0.1);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <h5 class="text-warning mb-1"><i class="fas fa-exclamation-circle mr-2"></i> Active Reservation Found</h5>
+            <p class="text-white mb-0">
+              You have an active booking for
+              <strong><?= htmlspecialchars($active_reservation['brand'] . ' ' . $active_reservation['model']) ?></strong>
+              at Slot <strong><?= htmlspecialchars($active_reservation['slot_number']) ?></strong>.
+            </p>
+            <small class="text-white-50">Status: <span
+                class="text-uppercase text-white"><?= htmlspecialchars($active_reservation['status']) ?></span></small>
+          </div>
+          <div class="mt-3 mt-md-0">
+            <a href="bookings.php" class="btn btn-warning shadow-sm font-weight-bold">View My Bookings</a>
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <!-- Step 1: Vehicle Selection -->
     <div class="custom-card">
       <form method="post">
@@ -493,22 +514,20 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
           <label for="vehicle_id" class="text-primary text-uppercase small" style="letter-spacing: 1px;">Vehicle To
             Park</label>
           <select name="vehicle_id" id="vehicle_id" class="form-control form-control-lg" onchange="this.form.submit()"
-            required <?= $user_has_active_reservation ? 'disabled' : '' ?>>
+            required>
             <?php foreach ($vehicles as $veh): ?>
               <?php
-              $is_active = isset($active_vehicle_ids[$veh['vehicle_id']]);
+              $is_active_veh = isset($active_vehicle_ids[$veh['vehicle_id']]);
               ?>
-              <option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?>
-                <?= $is_active ? 'disabled' : '' ?>>
+              <option value="<?= $veh['vehicle_id'] ?>" <?= $veh['vehicle_id'] == $selected_vehicle_id ? 'selected' : '' ?>>
                 <?= htmlspecialchars($veh['brand'] . ' ' . $veh['model'] . ' (' . $veh['type'] . ') - ' . $veh['plate_number']) ?>
-                <?= $is_active ? ' (Busy)' : '' ?>
+                <?= $is_active_veh ? ' (Active)' : '' ?>
               </option>
             <?php endforeach; ?>
           </select>
           <?php if ($user_has_active_reservation): ?>
-            <small class="text-warning mt-2 d-block">
-              <i class="fa fa-info-circle mr-1"></i> You currently have an active reservation. Please complete it before
-              booking another.
+            <small class="text-white-50 mt-2 d-block">
+              <i class="fa fa-eye mr-1"></i> Viewing mode only. You cannot create a new booking while one is active.
             </small>
           <?php endif; ?>
         </div>
@@ -516,7 +535,7 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
     </div>
 
     <!-- Main Content Area based on Selection -->
-    <?php if ($selected_vehicle_id && empty($active_vehicle_ids[$selected_vehicle_id]) && !$user_has_active_reservation): ?>
+    <?php if ($selected_vehicle_id): ?>
 
       <?php if ($current_step === 3): ?>
         <!-- Step 3: Confirmation -->
@@ -747,7 +766,8 @@ if (isset($_POST['review_reservation']) && $selected_vehicle_id && $selected_slo
               <div class="col-lg-2 col-md-3 col-6 mb-4">
                 <div class="slot-card <?= $cardClass ?>">
                   <div class="slot-title text-white"><?= htmlspecialchars($slot['slot_number']) ?></div>
-                  <div class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : (($status === 'pending') ? 'text-warning' : 'text-danger') ?>">
+                  <div
+                    class="slot-status mb-3 <?= ($status === 'available') ? 'text-success' : (($status === 'pending') ? 'text-warning' : 'text-danger') ?>">
                     <?= ucfirst(($status === 'unavailable') ? 'Maintenance' : $status) ?>
                   </div>
 
