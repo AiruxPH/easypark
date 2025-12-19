@@ -83,7 +83,11 @@ document.addEventListener('DOMContentLoaded', function () {
             scrollArea.appendChild(noMsg);
         } else {
             // Sort Descending by Date
-            notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            notifications.sort((a, b) => {
+                const da = new Date(a.created_at.replace(' ', 'T'));
+                const db = new Date(b.created_at.replace(' ', 'T'));
+                return db - da;
+            });
 
             let lastDateLabel = '';
 
@@ -108,7 +112,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getRelativeDateLabel(dateString) {
-        const date = new Date(dateString);
+        // Fix for Safari/Firefox: Replace space with T for ISO-8601 compliance if needed
+        // Assuming format is 'YYYY-MM-DD HH:MM:SS' logic
+        const safeDateString = dateString.replace(' ', 'T');
+        const date = new Date(safeDateString);
+
+        if (isNaN(date.getTime())) {
+            // Fallback if replace didn't work or already valid
+            return 'RECENT';
+        }
+
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const startOfYesterday = new Date(startOfToday);

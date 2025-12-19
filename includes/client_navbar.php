@@ -108,6 +108,11 @@ if (isset($_SESSION['user_id'])) {
                                 </a>
                             <?php else: ?>
                                 <?php
+                                // Explicitly sort by date DESC to ensure valid grouping
+                                usort($notifications, function ($a, $b) {
+                                    return strtotime($b['created_at']) - strtotime($a['created_at']);
+                                });
+
                                 $lastDateLabel = '';
                                 foreach ($notifications as $notif):
                                     // Calculate Date Label (PHP version of JS logic)
