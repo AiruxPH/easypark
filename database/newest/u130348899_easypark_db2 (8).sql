@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 17, 2025 at 09:32 AM
+-- Generation Time: Dec 19, 2025 at 10:22 AM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -83,7 +83,38 @@ INSERT INTO `activity_logs` (`log_id`, `user_id`, `user_type`, `action`, `detail
 (39, 2207, 'client', 'reservation_created', 'User booked slot  (ID: 9)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:04:52'),
 (40, 1, 'client', 'reservation_created', 'User booked slot  (ID: 12)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:13:03'),
 (41, 2207, 'client', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:15:58'),
-(42, 4, 'staff', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:16:13');
+(42, 4, 'staff', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:16:13'),
+(43, 4, 'staff', 'confirm_booking', 'Confirmed booking #9 for slot CP-001', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:41:59'),
+(44, 4, '', 'auto_cancel', 'Auto-cancelled booking #12 due to conflict with #9 (Refunded 40.00 coins)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:41:59'),
+(45, 1, 'client', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:45:57'),
+(46, 2, 'admin', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:51:05'),
+(47, 4, 'staff', 'mark_arrived', 'Marked booking #9 as arrived (ongoing)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 09:51:29'),
+(48, 4, 'staff', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:28:58'),
+(49, NULL, '', 'login_failed', 'Failed login attempt (password mismatch) for: randythegreat000@gmail.com', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:29:25'),
+(50, 1, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:29:34'),
+(51, 1, 'client', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:29:52'),
+(52, 2207, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:30:03'),
+(53, 2207, 'client', 'reservation_completed', 'Reservation ID 9 completed (Overstay: Yes)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-17 10:34:06'),
+(54, NULL, '', 'login_failed', 'Failed login attempt (password mismatch) for: randythegreat000@gmail.com', '2001:fd8:bd37:2300:80d6:1d3a:f868:a187', '2025-12-17 10:43:42'),
+(55, 1, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:80d6:1d3a:f868:a187', '2025-12-17 10:43:51'),
+(56, 1, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 03:57:27'),
+(57, 1, 'client', 'reservation_created', 'User booked slot  (ID: 13)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 04:00:12'),
+(58, 4, 'staff', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 04:04:20'),
+(59, 4, 'staff', 'confirm_booking', 'Confirmed booking #13 for slot CP-002', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 04:34:15'),
+(60, 4, 'staff', 'mark_arrived', 'Marked booking #13 as arrived (ongoing)', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 04:34:31'),
+(61, 4, 'staff', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 06:50:27'),
+(62, 2207, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 06:50:38'),
+(63, 1, 'client', 'wallet_topup', 'User topped up 10.00 coins via Gcash', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 07:47:23'),
+(64, 1, 'client', 'wallet_topup', 'User topped up 10.00 coins via Gcash', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 07:47:54'),
+(65, 1, 'client', 'reservation_extended', 'Reservation #13 extended by 1 hours. Cost: 20', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 08:14:02'),
+(66, 1, 'client', 'reservation_extended', 'Reservation #13 extended by 2 hours. Cost: 40', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 09:03:53'),
+(67, 1, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:80d6:1d3a:f868:a187', '2025-12-19 09:52:00'),
+(68, 1, 'client', 'wallet_topup', 'User topped up 10.00 coins via Gcash', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 10:01:06'),
+(69, 2207, 'client', 'logout', 'User logged out.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 10:04:14'),
+(70, 2, 'admin', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:18f4:1aaf:ca40:4470', '2025-12-19 10:04:29'),
+(71, 2220, 'client', 'register', 'New user registered: kylereese69@gmail.com', '61.245.121.228', '2025-12-19 10:09:06'),
+(72, 2220, 'client', 'login', 'User logged in successfully.', '61.245.121.228', '2025-12-19 10:09:31'),
+(73, 1, 'client', 'login', 'User logged in successfully.', '2001:fd8:bd37:2300:80d6:1d3a:f868:a187', '2025-12-19 10:13:52');
 
 -- --------------------------------------------------------
 
@@ -123,7 +154,15 @@ INSERT INTO `coin_transactions` (`transaction_id`, `user_id`, `amount`, `transac
 (17, 1, -20.00, 'payment', 'Reservation Payment', '2025-12-17 09:03:57'),
 (18, 1, 20.00, 'refund', 'Refund for Cancelled Booking #8', '2025-12-17 09:04:10'),
 (19, 2207, -20.00, 'payment', 'Reservation Payment', '2025-12-17 09:04:52'),
-(22, 1, -40.00, 'payment', 'Reservation Payment', '2025-12-17 09:13:03');
+(22, 1, -40.00, 'payment', 'Reservation Payment', '2025-12-17 09:13:03'),
+(23, 1, 40.00, 'refund', 'Refund for Auto-Cancelled Res #12', '2025-12-17 09:41:59'),
+(24, 2207, -20.00, 'payment', 'Overstay Penalty (Manual Completion)', '2025-12-17 10:34:06'),
+(25, 1, -80.00, 'payment', 'Reservation Payment', '2025-12-19 04:00:12'),
+(26, 1, 10.00, 'topup', 'Top-up: 10.00 Coins via Gcash', '2025-12-19 07:47:23'),
+(27, 1, 10.00, 'topup', 'Top-up: 10.00 Coins via Gcash', '2025-12-19 07:47:54'),
+(28, 1, -20.00, 'payment', 'Extension for Booking #13', '2025-12-19 08:14:02'),
+(29, 1, -40.00, 'payment', 'Extension for Booking #13', '2025-12-19 09:03:53'),
+(30, 1, 10.00, 'topup', 'Top-up: 10.00 Coins via Gcash', '2025-12-19 10:01:06');
 
 -- --------------------------------------------------------
 
@@ -153,12 +192,23 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `
 (4, 1, 'Wallet Top-Up', 'You have successfully added 50.00 coins.', 'success', 'wallet.php', 1, '2025-12-16 15:51:44'),
 (5, 1, 'Wallet Top-Up', 'You have successfully added 10.00 coins.', 'success', 'wallet.php', 1, '2025-12-17 06:13:35'),
 (6, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 1, '2025-12-17 08:34:48'),
-(7, 2207, 'Wallet Top-Up', 'You have successfully added 50.00 coins.', 'success', 'wallet.php', 0, '2025-12-17 08:38:59'),
-(8, 1, 'Booking Cancelled', 'Your reservation (ID: 7) has been cancelled.', 'info', 'bookings.php', 0, '2025-12-17 08:59:47'),
-(9, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 0, '2025-12-17 09:03:57'),
-(10, 1, 'Booking Cancelled', 'Your reservation (ID: 8) has been cancelled.', 'info', 'bookings.php', 0, '2025-12-17 09:04:10'),
-(11, 2207, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 0, '2025-12-17 09:04:52'),
-(12, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 0, '2025-12-17 09:13:03');
+(7, 2207, 'Wallet Top-Up', 'You have successfully added 50.00 coins.', 'success', 'wallet.php', 1, '2025-12-17 08:38:59'),
+(8, 1, 'Booking Cancelled', 'Your reservation (ID: 7) has been cancelled.', 'info', 'bookings.php', 1, '2025-12-17 08:59:47'),
+(9, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 1, '2025-12-17 09:03:57'),
+(10, 1, 'Booking Cancelled', 'Your reservation (ID: 8) has been cancelled.', 'info', 'bookings.php', 1, '2025-12-17 09:04:10'),
+(11, 2207, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 1, '2025-12-17 09:04:52'),
+(12, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 1, '2025-12-17 09:13:03'),
+(18, 2207, 'Reservation Confirmed', 'Your booking for slot CP-001 (ID: 9) has been confirmed by staff.', 'success', 'bookings.php', 1, '2025-12-17 09:41:59'),
+(19, 1, 'Reservation Cancelled', 'Your pending booking (ID: 12) was cancelled because another user was confirmed for this slot.', 'error', 'bookings.php', 1, '2025-12-17 09:41:59'),
+(20, 2207, 'Parking Started', 'You have checked in for slot CP-001. Your timer has started.', 'info', 'bookings.php', 1, '2025-12-17 09:51:29'),
+(21, 1, 'Reservation Confirmed', 'Your booking for slot  is confirmed.', 'success', 'bookings.php', 1, '2025-12-19 04:00:12'),
+(22, 1, 'Reservation Confirmed', 'Your booking for slot CP-002 (ID: 13) has been confirmed by staff.', 'success', 'bookings.php', 1, '2025-12-19 04:34:15'),
+(23, 1, 'Parking Started', 'You have checked in for slot CP-002. Your timer has started.', 'info', 'bookings.php', 1, '2025-12-19 04:34:31'),
+(24, 1, 'Wallet Top-Up', 'You have successfully added 10.00 coins.', 'success', 'wallet.php', 1, '2025-12-19 07:47:23'),
+(25, 1, 'Wallet Top-Up', 'You have successfully added 10.00 coins.', 'success', 'wallet.php', 1, '2025-12-19 07:47:54'),
+(26, 1, 'Booking Extended', 'Reservation #13 extended by 1 hours. New end time: 2025-12-19 16:57:00', 'success', 'bookings.php', 1, '2025-12-19 08:14:02'),
+(27, 1, 'Booking Extended', 'Reservation #13 extended by 2 hours. New end time: 2025-12-19 18:57:00', 'success', 'bookings.php', 1, '2025-12-19 09:03:53'),
+(28, 1, 'Wallet Top-Up', 'You have successfully added 10.00 coins.', 'success', 'wallet.php', 1, '2025-12-19 10:01:06');
 
 -- --------------------------------------------------------
 
@@ -579,7 +629,7 @@ INSERT INTO `parking_slots` (`parking_slot_id`, `slot_number`, `slot_type`, `slo
 (402, 'ST-199', 'standard', 'available'),
 (403, 'ST-200', 'standard', 'available'),
 (404, 'CP-001', 'compact', 'available'),
-(405, 'CP-002', 'compact', 'available'),
+(405, 'CP-002', 'compact', 'occupied'),
 (406, 'CP-003', 'compact', 'available'),
 (407, 'CP-004', 'compact', 'available'),
 (408, 'CP-005', 'compact', 'available'),
@@ -1022,7 +1072,14 @@ INSERT INTO `payments` (`reference_number`, `user_id`, `reservation_id`, `amount
 (18, 2207, NULL, 48.00, '2025-12-17 08:38:59', 'online', NULL, 'successful'),
 (19, 1, 8, 20.00, '2025-12-17 09:03:57', 'coins', '2025-12-17 09:04:10', 'refunded'),
 (20, 2207, 9, 20.00, '2025-12-17 09:04:52', 'coins', NULL, 'successful'),
-(21, 1, 12, 40.00, '2025-12-17 09:13:03', 'coins', NULL, 'successful');
+(21, 1, 12, 40.00, '2025-12-17 09:13:03', 'coins', '2025-12-17 09:41:59', 'refunded'),
+(22, 2207, 9, 20.00, '2025-12-17 10:34:06', 'coins', NULL, 'successful'),
+(23, 1, 13, 80.00, '2025-12-19 04:00:12', 'coins', NULL, 'successful'),
+(24, 1, NULL, 10.00, '2025-12-19 07:47:23', 'online', NULL, 'successful'),
+(25, 1, NULL, 10.00, '2025-12-19 07:47:54', 'online', NULL, 'successful'),
+(26, 1, 13, 20.00, '2025-12-19 08:14:02', 'coins', NULL, 'successful'),
+(27, 1, 13, 40.00, '2025-12-19 09:03:53', 'coins', NULL, 'successful'),
+(28, 1, NULL, 10.00, '2025-12-19 10:01:06', 'online', NULL, 'successful');
 
 -- --------------------------------------------------------
 
@@ -1056,8 +1113,9 @@ INSERT INTO `reservations` (`reservation_id`, `user_id`, `vehicle_id`, `parking_
 (6, 1, 1087, 4, '2025-12-16 19:48:00', '2025-12-17 19:48:00', '1', 'completed', '2025-12-16 11:49:02', '2025-12-16 11:52:31'),
 (7, 1, 1, 404, '2025-12-17 16:34:00', '2025-12-17 17:34:00', '1', 'cancelled', '2025-12-17 08:34:48', '2025-12-17 08:59:47'),
 (8, 1, 1, 404, '2025-12-17 17:03:00', '2025-12-17 18:03:00', '1', 'cancelled', '2025-12-17 09:03:57', '2025-12-17 09:04:10'),
-(9, 2207, 1091, 404, '2025-12-17 17:04:00', '2025-12-17 18:04:00', '1', 'pending', '2025-12-17 09:04:52', NULL),
-(12, 1, 1, 404, '2025-12-17 17:12:00', '2025-12-17 19:12:00', '2', 'pending', '2025-12-17 09:13:03', NULL);
+(9, 2207, 1091, 404, '2025-12-17 17:04:00', '2025-12-17 18:04:00', '1', 'completed', '2025-12-17 09:04:52', '2025-12-17 10:34:06'),
+(12, 1, 1, 404, '2025-12-17 17:12:00', '2025-12-17 19:12:00', '2', 'cancelled', '2025-12-17 09:13:03', '2025-12-17 09:41:59'),
+(13, 1, 1, 405, '2025-12-19 11:57:00', '2025-12-19 18:57:00', '7', 'ongoing', '2025-12-19 04:00:12', '2025-12-19 09:03:53');
 
 -- --------------------------------------------------------
 
@@ -1087,7 +1145,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `first_name`, `middle_name`, `last_name`, `email`, `password`, `phone`, `user_type`, `security_word`, `created_at`, `updated_at`, `is_active`, `image`, `coins`) VALUES
-(1, 'Randy', 'E', 'Calunod', 'randythegreat000@gmail.com', 'randy', '9168811468', 'client', 'randy', '2025-04-22 02:17:26', '2025-12-17 09:13:03', 1, 'profile_1_1765952941.jpg', 1900.00),
+(1, 'Randy', 'E', 'Calunod', 'randythegreat000@gmail.com', 'randy', '9168811468', 'client', 'randy', '2025-04-22 02:17:26', '2025-12-19 10:01:06', 1, 'profile_1_1765952941.jpg', 1830.00),
 (2, 'Admin', NULL, 'user', 'admin@gmail.com', 'admin', NULL, 'admin', 'randy', '2025-04-23 11:24:01', NULL, 1, 'default.jpg', 0.00),
 (4, 'Staff', '', 'User', 'staff@gmail.com', 'staff', '+639168811468', 'staff', 'easypark', '2025-05-13 06:37:29', NULL, 1, 'default.jpg', 0.00),
 (5, 'Megan', NULL, 'Chang', 'megan.chang@mail.com', 'MeganChang', '09113472403', 'client', 'easypark', '2025-03-28 09:47:57', NULL, 1, 'default.jpg', 0.00),
@@ -1894,14 +1952,15 @@ INSERT INTO `users` (`user_id`, `first_name`, `middle_name`, `last_name`, `email
 (2204, 'Melissa', NULL, 'Cooper', 'melissa.cooper@mail.com', 'MelissaCooper', '09796048257', 'client', 'easypark', '2025-02-02 09:41:55', NULL, 1, 'default.jpg', 0.00),
 (2205, 'Coadmin', NULL, 'User', 'admin2@gmail.com', 'admin2', NULL, 'admin', '', '2025-05-15 07:42:30', NULL, 1, 'default.jpg', 0.00),
 (2206, 'Florence Jean', '', 'Talirongan', 'florencejean@gmail.com', 'florenceJean999@', '+63', 'client', 'florence', '2025-05-16 09:48:16', NULL, 1, 'default.jpg', 0.00),
-(2207, 'John', '', 'Cena', 'johncena@gmail.com', 'johncena999@', '+639123456789', 'client', 'johncena', '2025-05-19 12:20:15', '2025-12-17 09:04:52', 1, 'profile_2207_1747657286.jpg', 30.00),
+(2207, 'John', '', 'Cena', 'johncena@gmail.com', 'johncena999@', '+639123456789', 'client', 'johncena', '2025-05-19 12:20:15', '2025-12-17 10:34:06', 1, 'profile_2207_1747657286.jpg', 10.00),
 (2208, 'Admin4', 'u', 'user', 'admin4@gmail.com', 'admin4', '09168811468', 'staff', '', '2025-05-19 12:50:16', NULL, 1, 'default.jpg', 0.00),
 (2211, 'staff2', 'u', 'user', 'staff2@gmail.com', 'staff2', '09168811468', 'staff', '', '2025-05-19 12:56:00', NULL, 1, 'default.jpg', 0.00),
 (2212, 'admin5', '', 'user3', 'admin5@gmail.com', 'admin5', '09168811468', 'admin', '', '2025-05-19 12:56:59', '2025-05-19 12:57:25', 1, 'default.jpg', 0.00),
 (2215, 'staff6', '', 'user', 'staff6@gmail.com', 'staff6', '0912345678', 'staff', '', '2025-05-19 14:32:13', NULL, 1, 'default.jpg', 0.00),
 (2217, 'Deez', 'Z.', 'Nutz', 'deznutzinyouface@gmail.com', 'DeezNutz_123', '+639199665555', 'client', 'Mlue', '2025-12-16 10:31:13', NULL, 1, 'default.jpg', 0.00),
 (2218, 'John', 'F.', 'Kennedy', 'email_1234@gmail.com', 'johnken_123', '+639199665555', 'client', 'Mlue', '2025-12-16 10:33:41', '2025-12-16 11:11:58', 1, 'default.jpg', 170.00),
-(2219, 'admin', '', 'user10', 'admin10@gmail.com', 'admin', '09168811468', 'admin', 'default', '2025-12-16 14:05:47', NULL, 1, 'default.jpg', 0.00);
+(2219, 'admin', '', 'user10', 'admin10@gmail.com', 'admin', '09168811468', 'admin', 'default', '2025-12-16 14:05:47', NULL, 1, 'default.jpg', 0.00),
+(2220, 'Kyle', 'G.', 'Reese', 'kylereese69@gmail.com', 'KylezHaus101', '+639991112222', 'client', 'Balls', '2025-12-19 10:09:06', NULL, 1, 'default.jpg', 0.00);
 
 -- --------------------------------------------------------
 
@@ -3582,19 +3641,19 @@ ALTER TABLE `Vehicle_Models`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT for table `coin_transactions`
 --
 ALTER TABLE `coin_transactions`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `parking_slots`
@@ -3606,25 +3665,25 @@ ALTER TABLE `parking_slots`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `reference_number` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `reference_number` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2220;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2221;
 
 --
 -- AUTO_INCREMENT for table `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `vehicle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1093;
+  MODIFY `vehicle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1095;
 
 --
 -- AUTO_INCREMENT for table `Vehicle_Models`
