@@ -410,11 +410,23 @@ if (isset($_SESSION['user_id'])) {
     style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; pointer-events: none;">
     <!-- Toasts will be appended here -->
 </div>
+<style>
     /* ANIMATIONS */
     @keyframes pulse-red {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-        70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+
+        70% {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
     }
 
     .badge-pulse {
@@ -425,7 +437,8 @@ if (isset($_SESSION['user_id'])) {
     .unread-indicator {
         width: 8px;
         height: 8px;
-        background-color: #00c4cc; /* Cyan/Teal for contrast */
+        background-color: #00c4cc;
+        /* Cyan/Teal for contrast */
         border-radius: 50%;
         margin-right: 10px;
         box-shadow: 0 0 5px #00c4cc;
@@ -455,19 +468,39 @@ if (isset($_SESSION['user_id'])) {
     }
 
     @keyframes slideIn {
-        from { transform: translateX(-100%) scale(0.9); opacity: 0; }
-        to { transform: translateX(0) scale(1); opacity: 1; }
+        from {
+            transform: translateX(-100%) scale(0.9);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
     }
 
     @keyframes fadeOut {
-        from { opacity: 1; transform: scale(1); }
-        to { opacity: 0; transform: scale(0.95); }
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
     }
-    
+
     @keyframes toastTimer {
-        from { width: 100%; }
-        to { width: 0%; }
+        from {
+            width: 100%;
+        }
+
+        to {
+            width: 0%;
+        }
     }
+</style>
 <script>
     // Local Time Clock (Device Time)
     function tick() {
