@@ -407,6 +407,13 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                         <i class="fa fa-check"></i>
                       </button>
                     <?php endif; ?>
+
+                    <?php if ($status === 'confirmed' || $status === 'ongoing'): ?>
+                      <button class="btn btn-sm btn-warning btn-action action-extend" data-id="<?= $b['reservation_id'] ?>"
+                        data-booking='<?= $rowData ?>' title="Extend Booking">
+                        <i class="fa fa-clock"></i>
+                      </button>
+                    <?php endif; ?>
                   </td>
                 </tr>
               <?php endforeach; endif; ?>
@@ -455,6 +462,60 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary rounded-pill" data-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary rounded-pill px-4" id="actionModalConfirmBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- EXTEND MODAL -->
+  <div class="modal fade modal-glass" id="extendModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-warning"><i class="fas fa-clock mr-2"></i> Extend Booking</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body p-4">
+          <input type="hidden" id="extendResId">
+          <p class="text-white-50 mb-3">Add more time to your parking session.</p>
+
+          <div class="form-group">
+            <label class="text-white font-weight-bold">Extend Duration</label>
+            <select id="extendDuration" class="form-control bg-dark text-white border-secondary">
+              <option value="0.5">30 Minutes</option>
+              <option value="1">1 Hour</option>
+              <option value="2">2 Hours</option>
+              <option value="3">3 Hours</option>
+              <option value="4">4 Hours</option>
+              <option value="5">5 Hours</option>
+            </select>
+          </div>
+
+          <div class="pricing-box p-3 rounded" style="background: rgba(255,255,255,0.05);">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-white-50">Current End Time:</span>
+              <span class="text-white" id="extendCurrentEnd">-</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-white-50">New End Time:</span>
+              <span class="text-success font-weight-bold" id="extendNewEnd">-</span>
+            </div>
+            <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2">
+              <span class="text-white">Additional Cost:</span>
+              <span class="text-warning font-weight-bold" id="extendCost">-</span>
+            </div>
+            <small class="text-white-50 d-block mt-1 text-right">Based on rate: 🪙<span
+                id="extendRate"></span>/hr</small>
+          </div>
+
+          <div id="extendError" class="alert alert-danger mt-3 d-none"></div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4" id="btnConfirmExtend">Pay & Extend</button>
         </div>
       </div>
     </div>
@@ -705,6 +766,91 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         }
       });
     };
+      });
+    };
+
+    // ---------------------------------------------------------
+    // EXTEND LOGIC
+    // ---------------------------------------------------------
+    const extendModal = $('#extendModal');
+    const extendDuration = document.getElementById('extendDuration');
+    const extendBtn = document.getElementById('btnConfirmExtend');
+    let extendBookingData = null;
+
+    $(document).on('click', '.action-extend', function (e) {
+      e.stopPropagation();
+      const btn = $(this);
+      extendBookingData = btn.data('booking'); // Object
+      // If data-booking is string, parse it, otherwise use as is
+      if (typeof extendBookingData === 'string') {
+        extendBookingData = JSON.parse(extendBookingData);
+      }
+
+      $('#extendResId').val(extendBookingData.reservation_id);
+      $('#extendRate').text(extendBookingData.rate);
+      $('#extendCurrentEnd').text(formatDateTime(extendBookingData.end_time));
+
+      updateExtendCalculations();
+      $('#extendError').addClass('d-none');
+      extendBtn.disabled = false;
+      extendBtn.innerHTML = 'Pay & Extend';
+
+      extendModal.modal('show');
+    });
+
+    extendDuration.addEventListener('change', updateExtendCalculations);
+
+    function updateExtendCalculations() {
+      if (!extendBookingData) return;
+
+      const hoursToAdd = parseFloat(extendDuration.value);
+      const rate = parseFloat(extendBookingData.rate) || 0;
+      const cost = hoursToAdd * rate;
+
+      $('#extendCost').html('🪙 ' + cost.toFixed(2));
+
+      // Calculate new end time
+      // Note: 'end_time' is "YYYY-MM-DD HH:MM:SS"
+      const currentEnd = new Date(extendBookingData.end_time.replace(' ', 'T'));
+      const newEnd = new Date(currentEnd.getTime() + (hoursToAdd * 60 * 60 * 1000));
+
+      $('#extendNewEnd').text(newEnd.toLocaleString());
+    }
+
+    extendBtn.addEventListener('click', function () {
+      const rId = $('#extendResId').val();
+      const hrs = extendDuration.value;
+
+      extendBtn.disabled = true;
+      extendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+      $('#extendError').addClass('d-none');
+
+      $.ajax({
+        url: 'update_reservation_status.php',
+        method: 'POST',
+        data: {
+          action: 'extend',
+          reservation_id: rId,
+          duration: hrs
+        },
+        dataType: 'json',
+        success: function (resp) {
+          if (resp.success) {
+            location.reload();
+          } else {
+            $('#extendError').text(resp.message || 'Failed to extend.').removeClass('d-none');
+            extendBtn.disabled = false;
+            extendBtn.innerHTML = 'Pay & Extend';
+          }
+        },
+        error: function () {
+          $('#extendError').text('System error. Please try again.').removeClass('d-none');
+          extendBtn.disabled = false;
+          extendBtn.innerHTML = 'Pay & Extend';
+        }
+      });
+    });
+
   </script>
 </body>
 

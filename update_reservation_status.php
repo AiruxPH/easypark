@@ -79,6 +79,105 @@ if ($action === 'cancel') {
         echo json_encode(['success' => false, 'message' => 'Unable to cancel booking.']);
     }
     exit();
+    // ... (previous code)
+
+} elseif ($action === 'extend') {
+    // ---------------------------------------------------------
+    // EXTEND RESERVATION LOGIC
+    // ---------------------------------------------------------
+
+    $extension_hours = floatval($_POST['duration'] ?? 0);
+    if ($extension_hours <= 0) {
+        echo json_encode(['success' => false, 'message' => 'Invalid duration.']);
+        exit();
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // 1. Fetch Current Reservation Details
+        $stmt = $pdo->prepare("SELECT r.*, s.slot_type, s.slot_number FROM reservations r JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id WHERE r.reservation_id = ?");
+        $stmt->execute([$reservation_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row)
+            throw new Exception("Reservation not found.");
+        if (!in_array($row['status'], ['confirmed', 'ongoing'])) {
+            throw new Exception("Only Confirmed or Ongoing bookings can be extended.");
+        }
+
+        $user_id = $row['user_id'];
+        $slot_id = $row['parking_slot_id'];
+        $current_end = new DateTime($row['end_time']);
+        $new_end = clone $current_end;
+        // Add hours (handling decimals like 0.5)
+        $minutes = $extension_hours * 60;
+        $new_end->modify("+$minutes minutes");
+        $new_end_str = $new_end->format('Y-m-d H:i:s');
+
+        // 2. Conflict Check
+        // We only care if someone ELSE has booked this slot in the *added* window
+        // The window is [current_end, new_end]
+        $stmtConflict = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE 
+            parking_slot_id = ? 
+            AND reservation_id != ? 
+            AND status IN ('confirmed', 'ongoing', 'pending')
+            AND (start_time < ? AND end_time > ?)");
+        // Logic: Conflict if Existing.Start < Window.End AND Existing.End > Window.Start
+        // Window.Start = current_end (roughly), Window.End = new_end
+        // Accurate overlap check:
+        $stmtConflict->execute([$slot_id, $reservation_id, $new_end_str, $row['end_time']]);
+
+        if ($stmtConflict->fetchColumn() > 0) {
+            throw new Exception("Cannot extend: The slot is already booked for the requested time.");
+        }
+
+        // 3. Calculate Cost
+        $rate = 0;
+        if (defined('SLOT_RATES') && isset(SLOT_RATES[$row['slot_type']]['hour'])) {
+            $rate = SLOT_RATES[$row['slot_type']]['hour'];
+        }
+        $amount = $extension_hours * $rate;
+
+        // 4. Payment Processing
+        if ($amount > 0) {
+            $stmtUser = $pdo->prepare("SELECT coins FROM users WHERE user_id = ?");
+            $stmtUser->execute([$user_id]);
+            $balance = $stmtUser->fetchColumn();
+
+            if ($balance < $amount) {
+                throw new Exception("Insufficient wallet balance. Needed: 🪙" . number_format($amount, 2));
+            }
+
+            // Deduct
+            $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$amount, $user_id]);
+
+            // Log Transaction
+            $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Extension for Booking #$reservation_id')")->execute([$user_id, -$amount]);
+
+            // Record Payment
+            $pdo->prepare("INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, 'successful', 'coins', NOW())")->execute([$reservation_id, $user_id, $amount]);
+        }
+
+        // 5. Update Reservation
+        // Update duration too
+        $new_duration = $row['duration'] + $extension_hours;
+        $stmtUpd = $pdo->prepare("UPDATE reservations SET end_time = ?, duration = ? WHERE reservation_id = ?");
+        $stmtUpd->execute([$new_end_str, $new_duration, $reservation_id]);
+
+        $pdo->commit();
+
+        // Notify
+        require_once 'includes/notifications.php';
+        sendNotification($pdo, $user_id, 'Booking Extended', "Reservation #$reservation_id extended by $extension_hours hours. New end time: $new_end_str", 'success', 'bookings.php');
+
+        echo json_encode(['success' => true, 'message' => "Booking extended successfully!"]);
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+
 } elseif ($action === 'complete') {
     // Modify: Check for overstay and deduct coins
     $stmt = $pdo->prepare("SELECT user_id, end_time, parking_slot_id FROM reservations WHERE reservation_id = ? AND status = 'ongoing'");
