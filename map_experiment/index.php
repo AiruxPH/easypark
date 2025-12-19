@@ -397,7 +397,29 @@
                         const g = slotsLayer.querySelector(`.slot-wrapper[data-id="${slot.slot_number}"]`);
                         if (!g) return; // Slot not on this floor
 
-                        // 1. Update Light Color
+                        // 1. Update Visuals based on SLOT TYPE (Static/Specific)
+                        // Make the slot look like a Moto spot or Car spot
+                        const box = g.querySelector('rect'); // The border box
+                        const vVisual = (slot.slot_type || 'standard').toLowerCase();
+
+                        // Default Dimensions (Standard)
+                        let width = 60;
+                        let xOff = -30;
+
+                        if (vVisual === 'two_wheeler' || vVisual === 'motorcycle') {
+                            // Make it narrower for bikes
+                            width = 30;
+                            xOff = -15;
+                            // Update Box
+                            box.setAttribute('width', width);
+                            box.setAttribute('x', xOff);
+                        } else {
+                            // Reset to standard
+                            box.setAttribute('width', 60);
+                            box.setAttribute('x', -30);
+                        }
+
+                        // 2. Update Light Color
                         const light = g.querySelector('.status-indicator');
                         let color = '#28a745';
                         if (slot.slot_status === 'occupied') color = '#dc3545';
@@ -406,29 +428,18 @@
 
                         light.setAttribute('fill', color);
 
-                        // 2. Update Vehicle
+                        // 3. Show/Hide Vehicle (Strictly based on Slot Type)
                         const carUse = g.querySelector('.car-shape');
                         if (slot.slot_status === 'occupied') {
                             carUse.setAttribute('display', 'block');
 
-                            // Determine vehicle type visual
-                            // Types: two_wheeler, standard, sedan, suv, van, truck...
-                            // Data sources: slot.vehicle_type (from vehicle) OR slot.slot_type (from slot)
-
-                            const vType = (slot.vehicle_type || slot.slot_type || 'standard').toLowerCase();
-
-                            if (vType === 'two_wheeler' || vType === 'motorcycle' || vType === 'bike') {
+                            if (vVisual === 'two_wheeler' || vVisual === 'motorcycle') {
                                 carUse.setAttribute('href', '#moto-top');
                                 carUse.setAttribute('fill', '#4db8ff');
-                            } else if (vType === 'suv') {
-                                carUse.setAttribute('href', '#car-suv');
-                                carUse.setAttribute('fill', '#d9534f'); // Darker red/rugged
-                            } else if (vType === 'van') {
-                                carUse.setAttribute('href', '#car-van');
-                                carUse.setAttribute('fill', '#f0ad4e'); // Orange/Commercial
                             } else {
-                                // Default Sedan/Standard
-                                carUse.setAttribute('href', '#car-sedan');
+                                // For standard/others, just show a generic car (Sedan)
+                                // or maybe randomly cycle? No, user said "specific to type" -> Standard = Sedan style.
+                                carUse.setAttribute('href', '#car-sedan'); // Enforce standard look
                                 carUse.setAttribute('fill', '#dc3545');
                             }
                         } else {
