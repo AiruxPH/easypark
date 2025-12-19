@@ -87,26 +87,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model_id = intval($_POST['model_id'] ?? 0);
 
         if ($plate && $color && $model_id) {
-            try {
-                $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
-                $stmt->execute([$user_id, $model_id, $plate, $color]);
+            // Check for duplicate plate
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM vehicles WHERE plate_number = ?');
+            $stmt->execute([$plate]);
+            if ($stmt->fetchColumn() > 0) {
+                $response['message'] = 'Vehicle with this plate number already exists.';
+            } else {
+                try {
+                    $stmt = $pdo->prepare('INSERT INTO vehicles (user_id, model_id, plate_number, color) VALUES (?, ?, ?, ?)');
+                    $stmt->execute([$user_id, $model_id, $plate, $color]);
 
-                $newId = $pdo->lastInsertId();
-                logActivity($pdo, $user_id, 'client', 'add_vehicle', "Added vehicle $plate");
+                    $newId = $pdo->lastInsertId();
+                    logActivity($pdo, $user_id, 'client', 'add_vehicle', "Added vehicle $plate");
 
-                // Return new vehicle data for UI
-                $stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.vehicle_id = ?');
-                $stmt->execute([$newId]);
-                $veh = $stmt->fetch(PDO::FETCH_ASSOC);
+                    // Return new vehicle data for UI
+                    $stmt = $pdo->prepare('SELECT v.*, vm.brand, vm.model, vm.type FROM vehicles v LEFT JOIN Vehicle_Models vm ON v.model_id = vm.model_id WHERE v.vehicle_id = ?');
+                    $stmt->execute([$newId]);
+                    $veh = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                $response = [
-                    'success' => true,
-                    'message' => 'Vehicle added successfully.',
-                    'vehicle' => $veh
-                ];
-            } catch (PDOException $e) {
-                $response['message'] = "Error adding vehicle: " . $e->getMessage();
-            }
+                    $response = [
+                        'success' => true,
+                        'message' => 'Vehicle added successfully.',
+                        'vehicle' => $veh
+                    ];
+                } catch (PDOException $e) {
+                    $response['message'] = "Error adding vehicle: " . $e->getMessage();
+                }
+            } // End of else (duplicate check)
         } else {
             $response['message'] = 'Please fill all vehicle fields.';
         }
