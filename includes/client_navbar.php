@@ -511,4 +511,65 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
 </div>
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<style>
+    #backToTop {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: none;
+        z-index: 9999;
+        width: 50px;
+        height: 50px;
+        backdrop-filter: blur(10px);
+        background: rgba(240, 165, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s;
+    }
+
+    #backToTop:hover {
+        background: #f0a500;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(240, 165, 0, 0.5);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    // Scroll Detection
+    window.onscroll = function () {
+        const btn = document.getElementById("backToTop");
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    // Smooth Scroll to Top
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+</script>
+
 <script src="js/notification_center.js?v=<?= time() ?>"></script>
