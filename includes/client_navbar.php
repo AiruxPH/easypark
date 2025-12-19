@@ -410,45 +410,64 @@ if (isset($_SESSION['user_id'])) {
     style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; pointer-events: none;">
     <!-- Toasts will be appended here -->
 </div>
-<style>
-    /* Toast Container pointer events hack: allow clicking toasts but let clicks pass through container */
-    #toast-container>.toast {
-        pointer-events: auto;
+    /* ANIMATIONS */
+    @keyframes pulse-red {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
 
-    /* Glass Toast */
+    .badge-pulse {
+        animation: pulse-red 2s infinite;
+    }
+
+    /* UNREAD DOT */
+    .unread-indicator {
+        width: 8px;
+        height: 8px;
+        background-color: #00c4cc; /* Cyan/Teal for contrast */
+        border-radius: 50%;
+        margin-right: 10px;
+        box-shadow: 0 0 5px #00c4cc;
+    }
+
+    /* Glass Toast Enhanced */
     .glass-toast {
-        background: rgba(40, 40, 40, 0.85) !important;
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        border-radius: 12px;
+        background: rgba(20, 20, 20, 0.85) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border-radius: 16px;
         color: #fff;
         overflow: hidden;
+        position: relative;
+    }
+
+    .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #f0a500, #ffc107);
+        width: 100%;
+        animation: toastTimer 5s linear forwards;
     }
 
     @keyframes slideIn {
-        from {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        from { transform: translateX(-100%) scale(0.9); opacity: 0; }
+        to { transform: translateX(0) scale(1); opacity: 1; }
     }
 
     @keyframes fadeOut {
-        from {
-            opacity: 1;
-        }
-
-        to {
-            opacity: 0;
-        }
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0; transform: scale(0.95); }
     }
-</style>
+    
+    @keyframes toastTimer {
+        from { width: 100%; }
+        to { width: 0%; }
+    }
 <script>
     // Local Time Clock (Device Time)
     function tick() {

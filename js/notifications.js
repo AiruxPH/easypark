@@ -56,9 +56,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!badgeEl) {
                 // Create if doesn't exist
                 badgeEl = document.createElement('span');
-                badgeEl.className = 'badge badge-danger badge-counter position-absolute';
+                badgeEl.className = 'badge badge-danger badge-counter position-absolute badge-pulse';
                 badgeEl.style.cssText = 'top: 0; right: 0; font-size: 0.6rem;';
                 bell.appendChild(badgeEl);
+            } else {
+                badgeEl.classList.add('badge-pulse');
             }
             badgeEl.innerText = count > 9 ? '9+' : count;
         } else {
@@ -103,6 +105,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function createNotificationElement(notif) {
         const bgClass = notif.is_read == 1 ? 'bg-white' : 'bg-light';
+        // Add visual hierarchy for unread
+        const unreadDot = notif.is_read == 0 ? '<div class="unread-indicator"></div>' : '';
+
         let iconClass = 'info text-white';
         let iconBg = 'bg-info';
 
@@ -137,7 +142,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
             <div style="flex: 1; min-width: 0;">
-                <div class="small text-gray-500">${formatDate(notif.created_at)}</div>
+                <div class="d-flex align-items-center mb-1">
+                    ${unreadDot}
+                    <div class="small text-gray-500">${formatDate(notif.created_at)}</div>
+                </div>
                 <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">${escapeHtml(notif.title)}</div>
                 <div class="small text-dark text-truncate" style="font-size: 0.85rem;">${escapeHtml(notif.message)}</div>
             </div>
@@ -152,24 +160,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const toast = document.createElement('div');
         toast.className = 'toast show glass-toast';
         toast.role = 'alert';
-        toast.style.cssText = 'min-width: 300px; margin-bottom: 10px; animation: slideIn 0.3s ease-out;';
+        toast.style.cssText = 'min-width: 320px; margin-bottom: 15px; animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);';
 
-        let iconHtml = '<i class="fas fa-info-circle text-info"></i>';
-        if (notif.type === 'success') iconHtml = '<i class="fas fa-check-circle text-success"></i>';
-        if (notif.type === 'warning') iconHtml = '<i class="fas fa-exclamation-triangle text-warning"></i>';
-        if (notif.type === 'error') iconHtml = '<i class="fas fa-times-circle text-danger"></i>';
+        let iconHtml = '<i class="fas fa-info-circle text-info fa-lg"></i>';
+        if (notif.type === 'success') iconHtml = '<i class="fas fa-check-circle text-success fa-lg"></i>';
+        if (notif.type === 'warning') iconHtml = '<i class="fas fa-exclamation-triangle text-warning fa-lg"></i>';
+        if (notif.type === 'error') iconHtml = '<i class="fas fa-times-circle text-danger fa-lg"></i>';
 
         toast.innerHTML = `
-            <div class="toast-header bg-transparent border-bottom border-secondary text-white">
-                <strong class="mr-auto">${iconHtml} &nbsp; ${escapeHtml(notif.title)}</strong>
-                <small class="text-white-50">Just now</small>
-                <button type="button" class="ml-2 mb-1 close text-white" onclick="this.parentElement.parentElement.remove()">
+            <div class="d-flex align-items-start p-3">
+                <div class="mr-3 mt-1">${iconHtml}</div>
+                <div class="flex-grow-1">
+                    <strong class="d-block mb-1 text-white" style="font-size: 1.05rem;">${escapeHtml(notif.title)}</strong>
+                    <div class="small text-white-50" style="line-height: 1.4;">${escapeHtml(notif.message)}</div>
+                </div>
+                <button type="button" class="ml-2 mb-1 close text-white" onclick="this.closest('.toast').remove()" style="opacity: 0.7;">
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="toast-body text-white">
-                ${escapeHtml(notif.message)}
-            </div>
+            <div class="toast-progress"></div>
         `;
 
         toastContainer.appendChild(toast);
