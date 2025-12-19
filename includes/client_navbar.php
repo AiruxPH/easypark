@@ -100,7 +100,7 @@ if (isset($_SESSION['user_id'])) {
                         <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
                             Notifications Center
                         </h6>
-                        <div id="notification-scroll-area" style="max-height: 260px; overflow-y: auto;">
+                        <div id="notification-scroll-area" style="max-height: 200px; overflow-y: auto; display: block !important;">
                             <?php if (empty($notifications)): ?>
                                 <a class="dropdown-item d-flex align-items-center py-3 text-muted justify-content-center"
                                     href="#">
