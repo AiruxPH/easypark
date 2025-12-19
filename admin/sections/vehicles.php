@@ -361,3 +361,120 @@ function sortLinkV($col, $label, $currentSort, $currentOrder, $search, $type, $b
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.querySelector('#dataTable tbody');
+        const tableHead = document.querySelector('#dataTable thead');
+        const filterForm = document.querySelector('form.form-inline');
+
+        // Input Elements
+        const searchInput = document.querySelector('input[name="search"]');
+        const typeSelect = document.querySelector('select[name="type"]');
+        const brandSelect = document.querySelector('select[name="brand"]');
+        const dateFromInput = document.querySelector('input[name="date_from"]');
+        const dateToInput = document.querySelector('input[name="date_to"]');
+
+        let currentSort = '<?= $sort ?>';
+        let currentOrder = '<?= $order ?>';
+        let currentPage = 1;
+
+        function loadVehicles(page = 1) {
+            currentPage = page;
+
+            // Build Query Params
+            const params = new URLSearchParams();
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (typeSelect && typeSelect.value) params.append('type', typeSelect.value);
+            if (brandSelect && brandSelect.value) params.append('brand', brandSelect.value);
+            if (dateFromInput && dateFromInput.value) params.append('date_from', dateFromInput.value);
+            if (dateToInput && dateToInput.value) params.append('date_to', dateToInput.value);
+
+            params.append('sort', currentSort);
+            params.append('order', currentOrder);
+            params.append('page', page);
+
+            // Update URL
+            const newUrl = 'index.php?section=vehicles&' + params.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            // Fetch
+            fetch('ajax/search_vehicles_html.php?' + params.toString())
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (tableBody) tableBody.innerHTML = data.table_html;
+                        if (tableHead) tableHead.innerHTML = data.header_html;
+
+                        // Update Pagination logic similar to Users
+                        const nav = document.querySelector('nav[aria-label="Page navigation"]');
+                        if (data.pagination_html) {
+                            if (nav) {
+                                const ul = nav.querySelector('ul');
+                                if (ul) {
+                                    ul.outerHTML = data.pagination_html;
+                                } else {
+                                    nav.innerHTML = data.pagination_html + nav.innerHTML.replace(/<ul.*<\/ul>/s, '');
+                                }
+                            } else {
+                                const cardBody = document.querySelector('.card-body');
+                                if (cardBody) cardBody.insertAdjacentHTML('beforeend', `<nav aria-label="Page navigation" class="mt-4 mb-3">${data.pagination_html}</nav>`);
+                            }
+                        } else {
+                            if (nav) nav.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.error('Data Load Error:', err));
+        }
+
+        // Event Listeners
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (e) {
+                if (e.submitter && e.submitter.value === 'true') {
+                    return; // Allow export
+                }
+                e.preventDefault();
+                loadVehicles(1);
+            });
+        }
+
+        // Auto-refresh on Select Change
+        [typeSelect, brandSelect, dateFromInput, dateToInput].forEach(el => {
+            if (el) el.addEventListener('change', () => loadVehicles(1));
+        });
+
+        // Search Debounce
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadVehicles(1), 500);
+            });
+        }
+
+        // Sorting Clicks (Delegation)
+        if (tableHead) {
+            tableHead.addEventListener('click', function (e) {
+                const link = e.target.closest('.sort-link');
+                if (link) {
+                    e.preventDefault();
+                    currentSort = link.getAttribute('data-sort');
+                    currentOrder = link.getAttribute('data-order');
+                    loadVehicles(1);
+                }
+            });
+        }
+
+        // Pagination Clicks (Delegation)
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.page-link')) {
+                const link = e.target.closest('.page-link');
+                const page = link.getAttribute('data-page');
+                if (page) {
+                    e.preventDefault();
+                    loadVehicles(page);
+                }
+            }
+        });
+    });
+</script>

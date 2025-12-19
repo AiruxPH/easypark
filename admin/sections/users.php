@@ -879,3 +879,127 @@ function sortLink($col, $label, $currentSort, $currentOrder, $search, $type, $ac
         }
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.querySelector('#dataTable tbody');
+        const tableHead = document.querySelector('#dataTable thead');
+        const paginationContainer = document.querySelector('nav[aria-label="Page navigation"] .pagination');
+        const filterForm = document.querySelector('form.form-inline');
+
+        // Input Elements
+        const searchInput = document.querySelector('input[name="search"]');
+        const typeSelect = document.querySelector('select[name="user_type"]');
+        const activeSelect = document.querySelector('select[name="active"]');
+        const dateFromInput = document.querySelector('input[name="date_from"]');
+        const dateToInput = document.querySelector('input[name="date_to"]');
+
+        let currentSort = '<?= $sort ?>';
+        let currentOrder = '<?= $order ?>';
+        let currentPage = 1;
+
+        function loadUsers(page = 1) {
+            currentPage = page;
+
+            // Build Query Params
+            const params = new URLSearchParams();
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (typeSelect && typeSelect.value) params.append('user_type', typeSelect.value);
+            if (activeSelect && activeSelect.value) params.append('active', activeSelect.value);
+            if (dateFromInput && dateFromInput.value) params.append('date_from', dateFromInput.value);
+            if (dateToInput && dateToInput.value) params.append('date_to', dateToInput.value);
+
+            params.append('sort', currentSort);
+            params.append('order', currentOrder);
+            params.append('page', page);
+
+            // Update URL
+            const newUrl = 'index.php?section=users&' + params.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            // Fetch
+            fetch('ajax/search_users_html.php?' + params.toString())
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (tableBody) tableBody.innerHTML = data.table_html;
+                        if (tableHead) tableHead.innerHTML = data.header_html;
+
+                        // Update Pagination
+                        const nav = document.querySelector('nav[aria-label="Page navigation"]');
+                        if (data.pagination_html) {
+                            if (nav) {
+                                // Replace just the UL inside
+                                const ul = nav.querySelector('ul');
+                                if (ul) {
+                                    ul.outerHTML = data.pagination_html;
+                                } else {
+                                    nav.innerHTML = data.pagination_html + nav.innerHTML.replace(/<ul.*<\/ul>/s, '');
+                                }
+                            } else {
+                                // If nav was missing/hidden, we might need to recreate it. 
+                                // Simpler to replace the innerHTML of a container if we wrapped it.
+                                // For now, let's find the container `nav` again.
+                                // If it doesn't exist, we append it after table.
+                                const cardBody = document.querySelector('.card-body');
+                                if (cardBody) cardBody.insertAdjacentHTML('beforeend', `<nav aria-label="Page navigation" class="mt-4 mb-3">${data.pagination_html}</nav>`);
+                            }
+                        } else {
+                            if (nav) nav.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.error('Data Load Error:', err));
+        }
+
+        // Event Listeners
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (e) {
+                // Check if it's the Export button
+                if (e.submitter && e.submitter.value === 'true') {
+                    return; // Allow default submission for export
+                }
+                e.preventDefault();
+                loadUsers(1);
+            });
+        }
+
+        // Auto-refresh on Select Change
+        [typeSelect, activeSelect, dateFromInput, dateToInput].forEach(el => {
+            if (el) el.addEventListener('change', () => loadUsers(1));
+        });
+
+        // Search Debounce
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadUsers(1), 500);
+            });
+        }
+
+        // Sorting Clicks (Delegation)
+        if (tableHead) {
+            tableHead.addEventListener('click', function (e) {
+                const link = e.target.closest('.sort-link');
+                if (link) {
+                    e.preventDefault();
+                    currentSort = link.getAttribute('data-sort');
+                    currentOrder = link.getAttribute('data-order');
+                    loadUsers(1);
+                }
+            });
+        }
+
+        // Pagination Clicks (Delegation)
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.page-link')) {
+                const link = e.target.closest('.page-link');
+                const page = link.getAttribute('data-page');
+                if (page) {
+                    e.preventDefault();
+                    loadUsers(page);
+                }
+            }
+        });
+    });
+</script>
