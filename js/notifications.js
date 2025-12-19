@@ -3,6 +3,7 @@
  * Handles real-time notification polling and UI updates.
  */
 console.log('NOTIFICATIONS.JS LOADED');
+alert('DEBUG: Notifications JS is running!');
 
 document.addEventListener('DOMContentLoaded', function () {
     const POLL_INTERVAL = 5000; // 5 seconds
