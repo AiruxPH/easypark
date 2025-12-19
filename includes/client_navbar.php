@@ -100,14 +100,41 @@ if (isset($_SESSION['user_id'])) {
                         <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
                             Notifications Center
                         </h6>
-                        <div id="notification-scroll-area" style="max-height: 350px; overflow-y: auto;">
+                        <div id="notification-scroll-area" style="max-height: 260px; overflow-y: auto;">
                             <?php if (empty($notifications)): ?>
                                 <a class="dropdown-item d-flex align-items-center py-3 text-muted justify-content-center"
                                     href="#">
                                     <small>No new notifications</small>
                                 </a>
                             <?php else: ?>
-                                <?php foreach ($notifications as $notif): ?>
+                                <?php
+                                $lastDateLabel = '';
+                                foreach ($notifications as $notif):
+                                    // Calculate Date Label (PHP version of JS logic)
+                                    $notifDate = strtotime($notif['created_at']);
+                                    $now = time();
+                                    $today = strtotime('today midnight');
+                                    $yesterday = strtotime('yesterday midnight');
+                                    $dateOnly = strtotime(date('Y-m-d', $notifDate));
+
+                                    $dateLabel = '';
+                                    if ($dateOnly == $today) {
+                                        $dateLabel = 'TODAY';
+                                    } elseif ($dateOnly == $yesterday) {
+                                        $dateLabel = 'YESTERDAY';
+                                    } else {
+                                        $dateLabel = strtoupper(date('M j, Y', $notifDate));
+                                    }
+
+                                    if ($dateLabel !== $lastDateLabel):
+                                        $lastDateLabel = $dateLabel;
+                                        ?>
+                                        <h6 class="dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent"
+                                            style="opacity: 0.9;">
+                                            <?= $dateLabel ?>
+                                        </h6>
+                                    <?php endif; ?>
+
                                     <?php
                                     $bgClass = $notif['is_read'] ? 'bg-white' : 'bg-light';
                                     $iconClass = 'info-circle text-primary';
@@ -147,8 +174,14 @@ if (isset($_SESSION['user_id'])) {
                                             </div>
                                         </div>
                                         <div style="flex: 1; min-width: 0;">
-                                            <div class="small text-gray-500">
-                                                <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
+                                            <div class="d-flex align-items-center mb-1">
+                                                <?php if (!$notif['is_read']): ?>
+                                                    <!-- Unread Dot -->
+                                                    <div class="unread-indicator"></div>
+                                                <?php endif; ?>
+                                                <div class="small text-gray-500">
+                                                    <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
+                                                </div>
                                             </div>
                                             <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">
                                                 <?= htmlspecialchars($notif['title']) ?>

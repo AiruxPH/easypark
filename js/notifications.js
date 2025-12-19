@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const header = document.createElement('h6');
                     header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
                     header.style.fontSize = '0.7rem';
-                    header.style.opacity = '0.7';
+                    header.style.opacity = '0.9';
                     header.innerText = dateLabel;
                     scrollArea.appendChild(header);
                     lastDateLabel = dateLabel;
