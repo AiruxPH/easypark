@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial Fetch
     fetchNotifications();
 
-    // Start Polling
-    setInterval(fetchNotifications, POLL_INTERVAL);
+    // Start Polling (Disabled temporarily for server recovery)
+    // setInterval(fetchNotifications, POLL_INTERVAL);
 
     function fetchNotifications() {
         if (!scrollAreaCheck) return; // Safety check if user not logged in or element missing
