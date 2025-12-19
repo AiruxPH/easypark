@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const a = document.createElement('a');
-        a.className = `d-block w-100 text-decoration-none px-4 py-3 border-bottom notification-item ${bgClass} text-dark`;
+        a.className = `d-block w-100 text-decoration-none px-3 py-2 border-bottom notification-item ${bgClass} text-dark`;
         a.href = '#';
         a.dataset.id = notif.notification_id;
         a.dataset.link = notif.link || '';
@@ -187,17 +187,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         a.innerHTML = `
             <div class="mr-3">
-                <div class="icon-circle ${iconBg} d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px;">
-                    <i class="fas fa-${iconClass}"></i>
+                <div class="icon-circle ${iconBg} d-flex align-items-center justify-content-center rounded-circle" style="width: 32px; height: 32px;">
+                    <i class="fas fa-${iconClass}" style="font-size: 0.8rem;"></i>
                 </div>
             </div>
             <div style="flex: 1; min-width: 0;">
                 <div class="d-flex align-items-center mb-1">
                     ${unreadDot}
-                    <div class="small text-gray-500">${formatDate(notif.created_at)}</div>
+                    <div class="small text-gray-500" style="font-size: 0.7rem;">${formatDate(notif.created_at)}</div>
                 </div>
-                <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">${escapeHtml(notif.title)}</div>
-                <div class="small text-dark text-truncate" style="font-size: 0.85rem;">${escapeHtml(notif.message)}</div>
+                <div class="font-weight-bold text-truncate" style="font-size: 0.85rem;">${escapeHtml(notif.title)}</div>
+                <div class="small text-dark text-truncate" style="font-size: 0.75rem;">${escapeHtml(notif.message)}</div>
             </div>
         `;
         return a;
