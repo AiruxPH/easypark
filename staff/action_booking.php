@@ -152,6 +152,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservation_id'], $_P
                     logActivity($pdo, $staff_id, 'staff', 'mark_arrived', "Marked booking #$r_id as arrived (ongoing)");
                 }
 
+            } elseif ($action === 'extend') {
+                // STAFF EXTEND LOGIC
+                $extension_hours = floatval($_POST['duration'] ?? 0);
+                if ($extension_hours <= 0) {
+                    throw new Exception("Invalid duration.");
+                }
+
+                // 1. Fetch Current Details
+                $stmt = $pdo->prepare("SELECT r.*, s.slot_type FROM reservations r JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id WHERE r.reservation_id = ?");
+                $stmt->execute([$r_id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$row || !in_array($row['status'], ['confirmed', 'ongoing'])) {
+                    throw new Exception("Only Confirmed or Ongoing bookings can be extended.");
+                }
+
+                $slot_id = $row['parking_slot_id'];
+                $current_end = new DateTime($row['end_time']);
+                $new_end = clone $current_end;
+                $minutes = $extension_hours * 60;
+                $new_end->modify("+$minutes minutes");
+                $new_end_str = $new_end->format('Y-m-d H:i:s');
+
+                // 2. Conflict Check
+                $stmtConflict = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE 
+                    parking_slot_id = ? 
+                    AND reservation_id != ? 
+                    AND status IN ('confirmed', 'ongoing', 'pending')
+                    AND (start_time < ? AND end_time > ?)");
+                $stmtConflict->execute([$slot_id, $r_id, $new_end_str, $row['end_time']]);
+
+                if ($stmtConflict->fetchColumn() > 0) {
+                    throw new Exception("Cannot extend: The slot is already booked for the requested time.");
+                }
+
+                // 3. Calculate Cost (Mixed Rate)
+                $hour_rate = 0;
+                $day_rate = 0;
+                if (defined('SLOT_RATES') && isset(SLOT_RATES[$row['slot_type']])) {
+                    $hour_rate = SLOT_RATES[$row['slot_type']]['hour'] ?? 0;
+                    $day_rate = SLOT_RATES[$row['slot_type']]['day'] ?? ($hour_rate * 24);
+                }
+
+                $days = floor($extension_hours / 24);
+                $rem_hours = $extension_hours - ($days * 24);
+                $amount = ($days * $day_rate) + ($rem_hours * $hour_rate);
+
+                // 4. Payment Processing (From User's Wallet)
+                if ($amount > 0) {
+                    $stmtUser = $pdo->prepare("SELECT coins FROM users WHERE user_id = ?");
+                    $stmtUser->execute([$u_id]);
+                    $balance = $stmtUser->fetchColumn();
+
+                    if ($balance < $amount) {
+                        throw new Exception("Customer has insufficient wallet balance. Needed: 🪙" . number_format($amount, 2));
+                    }
+
+                    $pdo->prepare("UPDATE users SET coins = coins - ? WHERE user_id = ?")->execute([$amount, $u_id]);
+                    $pdo->prepare("INSERT INTO coin_transactions (user_id, amount, transaction_type, description) VALUES (?, ?, 'payment', 'Extension for Booking #$r_id (Staff)')")->execute([$u_id, -$amount]);
+                    $pdo->prepare("INSERT INTO payments (reservation_id, user_id, amount, status, method, payment_date) VALUES (?, ?, ?, 'successful', 'coins', NOW())")->execute([$r_id, $u_id, $amount]);
+                }
+
+                // 5. Update Reservation
+                $new_duration = $row['duration'] + $extension_hours;
+                $stmtUpd = $pdo->prepare("UPDATE reservations SET end_time = ?, duration = ? WHERE reservation_id = ?");
+                $stmtUpd->execute([$new_end_str, $new_duration, $r_id]);
+
+                // 6. Notify & Log
+                sendNotification($pdo, $u_id, 'Booking Extended', "Your reservation #$r_id was extended by staff ($extension_hours hrs). New end: $new_end_str", 'success', 'bookings.php');
+                logActivity($pdo, $staff_id, 'staff', 'reservation_extended', "Extended booking #$r_id by $extension_hours hours. Cost: $amount (deducted from user)");
+
             } elseif ($action === 'complete') {
                 // Ongoing -> Completed (Customer Leaving)
                 // 1. Check for Overstay
