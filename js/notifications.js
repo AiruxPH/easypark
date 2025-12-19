@@ -69,37 +69,60 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateDropdown(notifications) {
-        // Clear existing list (except header and footer if possible, but easier to rebuild body)
-        // Current structure has header -> items -> footer.
-        // Let's identify the content area. 
-        // We will remove all "notification-item" and "no-notif-msg" elements and re-insert them after the header.
+        // Target the inner scroll area
+        const scrollArea = document.getElementById('notification-scroll-area');
+        if (!scrollArea) return;
 
-        const items = dropdownList.querySelectorAll('.notification-item, .no-notif-msg');
-        items.forEach(el => el.remove());
-
-        const header = dropdownList.querySelector('.dropdown-header');
-        const footer = dropdownList.querySelector('a.dropdown-item.text-center'); // Mark all read
+        scrollArea.innerHTML = ''; // Clear current list
 
         if (notifications.length === 0) {
             const noMsg = document.createElement('a');
             noMsg.className = 'dropdown-item d-flex align-items-center py-3 text-muted justify-content-center no-notif-msg';
             noMsg.href = '#';
             noMsg.innerHTML = '<small>No new notifications</small>';
-            header.insertAdjacentElement('afterend', noMsg);
+            scrollArea.appendChild(noMsg);
         } else {
-            // Insert in reverse order so they appear top-down (newest first is usually default in array)
-            // But insertAdjacentElement('afterend') on header adds to the top of the list.
-            // So we iterate in REVERSE of the array if the array is sorted DESC (newest 0).
-            // Wait, standard append approach:
+            // Sort Descending by Date
+            notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-            // We need to insert AFTER header.
-            let refNode = header;
+            let lastDateLabel = '';
 
             notifications.forEach(notif => {
+                const dateLabel = getRelativeDateLabel(notif.created_at);
+
+                // sticky header if date changes
+                if (dateLabel !== lastDateLabel) {
+                    const header = document.createElement('h6');
+                    header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
+                    header.style.fontSize = '0.7rem';
+                    header.style.opacity = '0.7';
+                    header.innerText = dateLabel;
+                    scrollArea.appendChild(header);
+                    lastDateLabel = dateLabel;
+                }
+
                 const el = createNotificationElement(notif);
-                refNode.insertAdjacentElement('afterend', el);
-                refNode = el; // Append next one after this one
+                scrollArea.appendChild(el);
             });
+        }
+    }
+
+    function getRelativeDateLabel(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfYesterday = new Date(startOfToday);
+        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+        const notifDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        if (notifDate.getTime() === startOfToday.getTime()) {
+            return 'TODAY';
+        } else if (notifDate.getTime() === startOfYesterday.getTime()) {
+            return 'YESTERDAY';
+        } else {
+            // Return e.g. "DEC 18, 2025"
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
         }
     }
 

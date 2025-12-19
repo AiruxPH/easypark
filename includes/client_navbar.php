@@ -96,67 +96,71 @@ if (isset($_SESSION['user_id'])) {
                         <?php endif; ?>
                     </a>
                     <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in p-0"
-                        aria-labelledby="alertsDropdown" style="width: 25rem; max-height: 400px; overflow-y: auto;">
+                        aria-labelledby="alertsDropdown" style="width: 25rem;">
                         <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
                             Notifications Center
                         </h6>
-                        <?php if (empty($notifications)): ?>
-                            <a class="dropdown-item d-flex align-items-center py-3 text-muted justify-content-center" href="#">
-                                <small>No new notifications</small>
-                            </a>
-                        <?php else: ?>
-                            <?php foreach ($notifications as $notif): ?>
-                                <?php
-                                $bgClass = $notif['is_read'] ? 'bg-white' : 'bg-light';
-                                $iconClass = 'info-circle text-primary';
-                                $iconBg = 'bg-primary';
-                                switch ($notif['type']) {
-                                    case 'success':
-                                        $iconClass = 'check text-white';
-                                        $iconBg = 'bg-success';
-                                        break;
-                                    case 'warning':
-                                        $iconClass = 'exclamation-triangle text-white';
-                                        $iconBg = 'bg-warning';
-                                        break;
-                                    case 'error':
-                                        $iconClass = 'times text-white';
-                                        $iconBg = 'bg-danger';
-                                        break;
-                                    case 'info':
-                                    default:
-                                        $iconClass = 'info text-white';
-                                        $iconBg = 'bg-info';
-                                        break;
-                                }
-                                // Ensure link is not null
-                                $link = $notif['link'] ? $notif['link'] : '';
-                                ?>
-                                <a class="dropdown-item d-flex align-items-center py-3 border-bottom notification-item <?= $bgClass ?>"
-                                    href="#" data-id="<?= $notif['notification_id'] ?>" data-link="<?= htmlspecialchars($link) ?>"
-                                    data-title="<?= htmlspecialchars($notif['title']) ?>"
-                                    data-message="<?= htmlspecialchars($notif['message']) ?>"
-                                    onclick="handleNotificationClick(event)">
-                                    <div class="mr-3">
-                                        <div class="icon-circle <?= $iconBg ?> d-flex align-items-center justify-content-center rounded-circle"
-                                            style="width: 40px; height: 40px;">
-                                            <i class="fas fa-<?= $iconClass ?>"></i>
-                                        </div>
-                                    </div>
-                                    <div style="flex: 1; min-width: 0;">
-                                        <div class="small text-gray-500">
-                                            <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
-                                        </div>
-                                        <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">
-                                            <?= htmlspecialchars($notif['title']) ?>
-                                        </div>
-                                        <div class="small text-dark text-truncate" style="font-size: 0.85rem;">
-                                            <?= htmlspecialchars($notif['message']) ?>
-                                        </div>
-                                    </div>
+                        <div id="notification-scroll-area" style="max-height: 350px; overflow-y: auto;">
+                            <?php if (empty($notifications)): ?>
+                                <a class="dropdown-item d-flex align-items-center py-3 text-muted justify-content-center"
+                                    href="#">
+                                    <small>No new notifications</small>
                                 </a>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <?php foreach ($notifications as $notif): ?>
+                                    <?php
+                                    $bgClass = $notif['is_read'] ? 'bg-white' : 'bg-light';
+                                    $iconClass = 'info-circle text-primary';
+                                    $iconBg = 'bg-primary';
+                                    switch ($notif['type']) {
+                                        case 'success':
+                                            $iconClass = 'check text-white';
+                                            $iconBg = 'bg-success';
+                                            break;
+                                        case 'warning':
+                                            $iconClass = 'exclamation-triangle text-white';
+                                            $iconBg = 'bg-warning';
+                                            break;
+                                        case 'error':
+                                            $iconClass = 'times text-white';
+                                            $iconBg = 'bg-danger';
+                                            break;
+                                        case 'info':
+                                        default:
+                                            $iconClass = 'info text-white';
+                                            $iconBg = 'bg-info';
+                                            break;
+                                    }
+                                    // Ensure link is not null
+                                    $link = $notif['link'] ? $notif['link'] : '';
+                                    ?>
+                                    <a class="dropdown-item d-flex align-items-center py-3 border-bottom notification-item <?= $bgClass ?>"
+                                        href="#" data-id="<?= $notif['notification_id'] ?>"
+                                        data-link="<?= htmlspecialchars($link) ?>"
+                                        data-title="<?= htmlspecialchars($notif['title']) ?>"
+                                        data-message="<?= htmlspecialchars($notif['message']) ?>"
+                                        onclick="handleNotificationClick(event)">
+                                        <div class="mr-3">
+                                            <div class="icon-circle <?= $iconBg ?> d-flex align-items-center justify-content-center rounded-circle"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-<?= $iconClass ?>"></i>
+                                            </div>
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div class="small text-gray-500">
+                                                <?= date('F j, Y, g:i a', strtotime($notif['created_at'])) ?>
+                                            </div>
+                                            <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">
+                                                <?= htmlspecialchars($notif['title']) ?>
+                                            </div>
+                                            <div class="small text-dark text-truncate" style="font-size: 0.85rem;">
+                                                <?= htmlspecialchars($notif['message']) ?>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                         <a class="dropdown-item text-center small text-gray-500 py-2 bg-light" href="#"
                             onclick="markAllRead(event)">Mark all as Read</a>
                     </div>
