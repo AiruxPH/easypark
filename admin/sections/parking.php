@@ -100,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
         $stmt->execute([$new_status, $slot_id]);
         */
 
+        /* UNREACHABLE / DISABLED
         // Log Activity
         logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_status_update', "Updated slot ID $slot_id status to '$new_status'");
 
@@ -173,9 +174,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
             $stmt = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE parking_slot_id = ? AND status IN ('confirmed', 'ongoing') AND end_time > NOW()");
             $stmt->execute([$slot_id]);
         }
+        */
 
+        /* UNREACHABLE
         header('Location: ?section=parking&status=' . urlencode($status) . '&type=' . urlencode($type) . '&page=' . $page);
         exit;
+        */
     }
 }
 
