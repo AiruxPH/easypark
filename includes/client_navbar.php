@@ -134,10 +134,10 @@ if (isset($_SESSION['user_id'])) {
                                     if ($dateLabel !== $lastDateLabel):
                                         $lastDateLabel = $dateLabel;
                                         ?>
-                                        <h6 class="dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent"
+                                        <div class="dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent"
                                             style="opacity: 0.9;">
                                             <?= $dateLabel ?>
-                                        </h6>
+                                        </div>
                                     <?php endif; ?>
 
                                     <?php

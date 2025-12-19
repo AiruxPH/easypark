@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // 3. Render Groups
             groups.forEach(group => {
                 // Render Header
-                const header = document.createElement('h6');
+                const header = document.createElement('div');
                 header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
                 header.style.fontSize = '0.7rem';
                 header.style.opacity = '0.9';
