@@ -108,7 +108,12 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
 <body class="bg-car">
     <?php include 'includes/client_navbar.php'; ?>
     <div class="container py-5">
-        <h2 class="text-white mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Notifications</h2>
+        <div class="d-flex align-items-center mb-4">
+            <h2 class="text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Notifications</h2>
+            <span class="badge badge-light ml-3 px-3 py-2" style="font-size: 1rem; border-radius: 20px; color: #333;">
+                Total: <?= count($notifications) ?>
+            </span>
+        </div>
 
         <div class="glass-panel p-3 mb-4">
             <div class="d-flex flex-wrap align-items-center justify-content-between">
