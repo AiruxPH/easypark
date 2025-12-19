@@ -148,11 +148,13 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .badge-action {
             font-size: 0.8rem;
             padding: 0.5em 0.8em;
-            width: 110px;
+            min-width: 100px; /* Use min-width instead of fixed width */
+            width: auto;      /* Allow expansion */
             display: inline-block;
             text-align: center;
             border-radius: 4px;
             font-weight: 500;
+            white-space: nowrap; /* Keep single line if possible, or use normal to wrap */
         }
 
         .btn-back {
