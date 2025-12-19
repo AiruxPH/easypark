@@ -198,10 +198,11 @@ $overstayCount = count($overstays);
                                             <td><?= htmlspecialchars($os['end_time']) ?></td>
                                             <td class="text-danger font-weight-bold"><?= $os['minutes_over'] ?> mins</td>
                                             <td>
-                                                <button class="btn btn-sm btn-danger"
+                                                <!-- <button class="btn btn-sm btn-danger"
                                                     onclick="resolveOverstay(<?= $os['reservation_id'] ?>, '<?= $os['plate_number'] ?>')">
                                                     Resolve Issue
-                                                </button>
+                                                </button> -->
+                                                <span class="text-muted small">Action Disabled</span>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -474,12 +474,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     <div class="form-group">
                         <label>Current Status</label>
                         <select class="form-control font-weight-bold bg-dark text-light border-secondary"
-                            id="edit_slot_status" name="slot_status" required onchange="toggleBookerSelection()">
+                            id="edit_slot_status" name="slot_status" required onchange="toggleBookerSelection()"
+                            disabled>
                             <option value="available" class="text-success">🟢 Available</option>
                             <option value="reserved" class="text-warning">🟡 Reserved</option>
                             <option value="occupied" class="text-danger">🔴 Occupied</option>
                             <option value="unavailable" class="text-secondary">⚪ Unavailable (Maintenance)</option>
                         </select>
+                        <small class="text-danger font-weight-bold"><i class="fa fa-lock"></i> Status changes are
+                            currently disabled.</small>
                     </div>
 
                     <!-- Booker Selection Field (Hidden by default) -->
@@ -500,7 +503,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                         <button type="button" class="btn btn-outline-danger" onclick="deleteSlotConfirm()">
                             <i class="fa fa-trash"></i> Delete
                         </button>
-                        <button type="submit" class="btn btn-primary px-4">
+                        <button type="submit" class="btn btn-primary px-4" disabled title="Admin actions disabled">
                             <i class="fa fa-save"></i> Save Changes
                         </button>
                     </div>
