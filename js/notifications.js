@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Elements
     const badge = document.querySelector('.badge-counter');
-    const dropdownList = document.querySelector('.dropdown-list');
+    const scrollAreaCheck = document.getElementById('notification-scroll-area'); // New check target
     const toastContainer = document.getElementById('toast-container');
     const notificationSound = document.getElementById('notificationSound'); // Audio element
 
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(fetchNotifications, POLL_INTERVAL);
 
     function fetchNotifications() {
-        if (!dropdownList) return; // Safety check if user not logged in or element missing
+        if (!scrollAreaCheck) return; // Safety check if user not logged in or element missing
 
         fetch('fetch_notifications.php?limit=5')
             .then(response => response.json())
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateBadge(count) {
-        const bell = document.getElementById('alertsDropdown');
+        const bell = document.getElementById('alertsTrigger');
         if (!bell) return;
 
         let badgeEl = bell.querySelector('.badge-counter');
