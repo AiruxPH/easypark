@@ -103,7 +103,7 @@ $stmt->execute($active_params);
 $active_total = $stmt->fetchColumn();
 
 // Fetch
-$sql_active = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name
+$sql_active = "SELECT r.reservation_id, r.status, r.start_time, r.end_time, r.duration, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, u.first_name, u.last_name, u.coins
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id

@@ -124,6 +124,7 @@ require_once __DIR__ . '/section-common.php';
                   }
                   $b['hour_rate'] = $hour_rate;
                   $b['day_rate'] = $day_rate;
+                  $b['user_balance'] = floatval($b['coins'] ?? 0); // Inject Balance
                   $bJson = htmlspecialchars(json_encode($b));
                   ?>
                   <button type="button" class="btn btn-warning btn-sm shadow-sm action-extend mr-1"
@@ -190,6 +191,11 @@ require_once __DIR__ . '/section-common.php';
               <span class="text-warning font-weight-bold" id="extendCost">-</span>
             </div>
             <div class="text-right"><small class="text-muted" id="extendRateDisplay"></small></div>
+
+            <!-- Validation Error Container -->
+            <div id="staffExtendError"
+              class="alert alert-danger mt-2 mb-0 d-none text-center p-2 small font-weight-bold"></div>
+
           </div>
         </form>
       </div>
@@ -210,6 +216,8 @@ require_once __DIR__ . '/section-common.php';
     const extendModal = $('#extendModal');
     const extendDuration = document.getElementById('extendDuration');
     const extentForm = document.getElementById('extendForm');
+    const staffExtendError = $('#staffExtendError');
+    const btnConfirmExtend = $('#btnConfirmExtend');
 
     $(document).off('click', '.action-extend').on('click', '.action-extend', function (e) {
       e.preventDefault();
@@ -243,9 +251,20 @@ require_once __DIR__ . '/section-common.php';
       const currentEnd = new Date(extendBookingData.end_time.replace(' ', 'T'));
       const newEnd = new Date(currentEnd.getTime() + (hoursToAdd * 60 * 60 * 1000));
       $('#extendNewEnd').text(newEnd.toLocaleString());
+
+      // VALIDATION: Check User Balance (Staff View)
+      const userBalance = parseFloat(extendBookingData.user_balance) || 0;
+
+      if (cost > userBalance) {
+        staffExtendError.html('<i class="fas fa-ban"></i> Customer has insufficient funds.').removeClass('d-none');
+        btnConfirmExtend.prop('disabled', true);
+      } else {
+        staffExtendError.addClass('d-none');
+        btnConfirmExtend.prop('disabled', false);
+      }
     }
 
-    $('#btnConfirmExtend').on('click', function () {
+    btnConfirmExtend.on('click', function () {
       if (confirm("Are you sure? This will deduct coins from the customer's wallet.")) {
         extentForm.submit();
       }

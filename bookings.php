@@ -23,12 +23,17 @@ ORDER BY r.start_time DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// Get user profile pic for navbar
-$stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
+// Get user profile pic and balance
+$stmt = $pdo->prepare('SELECT image, coins FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])) ? 'images/' . $user['image'] : 'images/default.jpg';
+$user_balance = floatval($user['coins'] ?? 0);
 ?>
+<script>
+  // Pass balance to JS global scope
+  window.USER_BALANCE = <?= $user_balance ?>;
+</script>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -812,22 +817,31 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       const hourRate = parseFloat(extendBookingData.hour_rate) || 0;
       const dayRate = parseFloat(extendBookingData.day_rate) || (hourRate * 24);
 
-      // Mixed Logic
+      // Mixed Rate Calculation
       const days = Math.floor(hoursToAdd / 24);
       const remHours = hoursToAdd - (days * 24);
-
       const cost = (days * dayRate) + (remHours * hourRate);
 
       $('#extendCost').html('🪙 ' + cost.toFixed(2));
-      if (days > 0) {
-        $('#extendCost').append(` <small class="text-white-50">(${days}d @ ${dayRate} + ${remHours.toFixed(1)}h @ ${hourRate})</small>`);
-      }
+      $('#extendRate').text(`${dayRate}/day | ${hourRate}/hr`); // Update rate display dynamically if needed, or keep static
 
-      // Calculate new end time
+      // New End Time
       const currentEnd = new Date(extendBookingData.end_time.replace(' ', 'T'));
       const newEnd = new Date(currentEnd.getTime() + (hoursToAdd * 60 * 60 * 1000));
-
       $('#extendNewEnd').text(newEnd.toLocaleString());
+
+      // VALIDATION: Check User Balance
+      const balance = window.USER_BALANCE || 0;
+      const errorDiv = $('#extendError');
+      const submitBtn = $('#btnConfirmExtend');
+
+      if (cost > balance) {
+        errorDiv.removeClass('d-none').html(`<i class="fas fa-exclamation-circle"></i> Insufficient Balance. You have <strong>🪙${balance.toFixed(2)}</strong>, but this extension costs <strong>🪙${cost.toFixed(2)}</strong>.`);
+        submitBtn.prop('disabled', true);
+      } else {
+        errorDiv.addClass('d-none');
+        submitBtn.prop('disabled', false);
+      }
     }
 
     extendBtn.addEventListener('click', function () {
