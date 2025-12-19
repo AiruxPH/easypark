@@ -512,8 +512,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
 </div>
 <!-- Back to Top Button -->
-<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg" onclick="scrollToTop()" data-toggle="tooltip"
-    data-placement="left" title="Back to Top">
+<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg" onclick="scrollToTop()">
     <i class="fas fa-arrow-up"></i>
 </button>
 
@@ -554,24 +553,13 @@ if (isset($_SESSION['user_id'])) {
 </style>
 
 <script>
-    // Init Tooltips (Wait for jQuery to load)
-    window.addEventListener('load', function () {
-        if (typeof $ !== 'undefined') {
-            $('[data-toggle="tooltip"]').tooltip();
-        }
-    });
-
     // Scroll Detection (Safer Event Listener)
     window.addEventListener('scroll', function() {
         const btn = document.getElementById("backToTop");
         if (!btn) return;
 
-        // Debug scroll position (Remove after verifying)
-        // console.log('Scroll Y:', window.scrollY); 
-
         if (window.scrollY > 300) {
             btn.style.display = "block";
-            // Ensure opacity is resetting just in case
             btn.style.opacity = "1";
         } else {
             btn.style.display = "none";
