@@ -12,13 +12,21 @@ require_once 'includes/constants.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch all bookings for this user
-$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, r.status, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, p.amount, p.status AS payment_status, p.method, p.payment_date
+// Fetch all bookings for this user
+// Aggregating payments to prevent duplicates on extension (GROUP BY reservation_id)
+$sql = "SELECT r.reservation_id, r.start_time, r.end_time, r.duration, r.status, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model, 
+        SUM(p.amount) as amount, 
+        SUBSTRING_INDEX(GROUP_CONCAT(p.status ORDER BY p.payment_date DESC), ',', 1) as payment_status, 
+        SUBSTRING_INDEX(GROUP_CONCAT(p.method ORDER BY p.payment_date DESC), ',', 1) as method, 
+        MAX(p.payment_date) as payment_date,
+        GROUP_CONCAT(CONCAT(p.amount, '|', p.payment_date, '|', p.status, '|', p.method) ORDER BY p.payment_date DESC SEPARATOR ';;') as payment_history
 FROM reservations r
 JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id
 JOIN vehicles v ON r.vehicle_id = v.vehicle_id
 JOIN Vehicle_Models m ON v.model_id = m.model_id
 LEFT JOIN payments p ON r.reservation_id = p.reservation_id
 WHERE r.user_id = ?
+GROUP BY r.reservation_id, r.start_time, r.end_time, r.duration, r.status, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model
 ORDER BY r.start_time DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$user_id]);
@@ -677,15 +685,45 @@ $user_balance = floatval($user['coins'] ?? 0);
                  </div>
 
                  <h6 class="small text-uppercase text-white-50 mb-2"><i class="fas fa-receipt mr-1"></i> Payment</h6>
-                 <div class="p-2 rounded small" style="background: rgba(255,255,255,0.05);">
+                 <div class="p-2 rounded small mb-2" style="background: rgba(255,255,255,0.05);">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-white-50">Total</span>
+                        <span class="text-white-50">Total Paid</span>
                         <span class="text-warning font-weight-bold">🪙 ${Number(booking.amount).toFixed(2)}</span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-white-50">Sts</span>
-                        <span class="text-capitalize text-${booking.payment_status === 'successful' ? 'success' : 'warning'}">${booking.payment_status || 'N/A'}</span>
-                    </div>
+                 </div>
+
+                 <!-- Payment History Table -->
+                 <div class="table-responsive rounded" style="background: rgba(255,255,255,0.02); max-height: 120px; overflow-y: auto;">
+                    <table class="table table-sm table-borderless mb-0 small text-white-50">
+                        <thead class="border-bottom border-secondary" style="background: rgba(0,0,0,0.2);">
+                            <tr>
+                                <th class="py-1 pl-2">Date</th>
+                                <th class="py-1">Amt</th>
+                                <th class="py-1 pr-2 text-right">Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(() => {
+                                if (!booking.payment_history) return '<tr><td colspan="3" class="text-center py-2">No history</td></tr>';
+                                const rows = booking.payment_history.split(';;');
+                                return rows.map(r => {
+                                    const cols = r.split('|');
+                                    // cols: 0=amount, 1=date, 2=status, 3=method
+                                    if (cols.length < 2) return '';
+                                    const amt = parseFloat(cols[0]).toFixed(2);
+                                    const date = new Date(cols[1].replace(' ', 'T')).toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                                    const method = cols[3] || 'N/A';
+                                    return `
+                                        <tr>
+                                            <td class="py-1 pl-2">${date}</td>
+                                            <td class="py-1 text-white">🪙${amt}</td>
+                                            <td class="py-1 pr-2 text-right text-capitalize">${method}</td>
+                                        </tr>
+                                    `;
+                                }).join('');
+                            })()}
+                        </tbody>
+                    </table>
                  </div>
             </div>
         </div>
