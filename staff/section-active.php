@@ -137,7 +137,7 @@ require_once __DIR__ . '/section-common.php';
                     data-booking='<?= $bJson ?>' title="Extend Booking"><i class="fas fa-clock"></i></button>
 
                   <button type="button" class="btn btn-success btn-sm shadow-sm action-complete" data-booking='<?= $bJson ?>'
-                    title="Mark as Completed (Vehicle Exited)">Complete</button>
+                    title="Mark as Completed (Vehicle Exited)"><i class="fas fa-check"></i></button>
                 <?php else: ?>
                   <span class="text-white-50 small">--</span>
                 <?php endif; ?>
