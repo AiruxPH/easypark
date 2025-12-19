@@ -12,9 +12,10 @@ require_once 'includes/db.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch all notifications
+// Fetch all notifications - Renamed to avoid pollution from client_navbar.php include
 $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->execute([$user_id]);
-$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$allNotifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get user profile pic (standard boilerplate for consistency)
 $stmt = $pdo->prepare('SELECT image FROM users WHERE user_id = ?');
@@ -111,7 +112,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         <div class="d-flex align-items-center mb-4">
             <h2 class="text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Notifications</h2>
             <span class="badge badge-light ml-3 px-3 py-2" style="font-size: 1rem; border-radius: 20px; color: #333;">
-                Total: <?= count($notifications) ?>
+                Total: <?= count($allNotifications) ?>
             </span>
         </div>
 
@@ -155,12 +156,12 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (count($notifications) === 0): ?>
+                        <?php if (count($allNotifications) === 0): ?>
                             <tr>
                                 <td colspan="4" class="text-center py-5 text-white-50">You have no notifications.</td>
                             </tr>
                         <?php else:
-                            foreach ($notifications as $n):
+                            foreach ($allNotifications as $n):
                                 $bgClass = ($n['is_read'] == 0) ? 'row-unread' : '';
 
                                 // Icon logic
@@ -188,7 +189,8 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                                     </td>
                                     <td>
                                         <h6 class="mb-1 font-weight-bold text-white notif-title">
-                                            <?= htmlspecialchars($n['title']) ?></h6>
+                                            <?= htmlspecialchars($n['title']) ?>
+                                        </h6>
                                         <p class="mb-0 small text-white-50 notif-message"><?= htmlspecialchars($n['message']) ?>
                                         </p>
                                     </td>
