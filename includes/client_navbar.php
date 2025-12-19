@@ -203,7 +203,12 @@ if (isset($_SESSION['user_id'])) {
         </ul>
     </div>
     </div>
+    </div>
 </nav>
+
+<!-- Audio for Notifications -->
+<audio id="notificationSound" src="https://cdn.freesound.org/previews/536/536108_11566085-lq.mp3"
+    preload="auto"></audio>
 
 <!-- Notification Details Modal -->
 <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel"

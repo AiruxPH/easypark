@@ -4,13 +4,14 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    const POLL_INTERVAL = 30000; // 30 seconds
+    const POLL_INTERVAL = 5000; // 5 seconds
     let lastUnreadCount = -1; // Initialize with -1 to force first update
 
     // Elements
     const badge = document.querySelector('.badge-counter');
     const dropdownList = document.querySelector('.dropdown-list');
     const toastContainer = document.getElementById('toast-container');
+    const notificationSound = document.getElementById('notificationSound'); // Audio element
 
     // Initial Fetch
     fetchNotifications();
@@ -28,12 +29,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateBadge(data.unread_count);
                     updateDropdown(data.notifications);
 
-                    // If count INCREASED (and it's not the initial load), show a toast
+                    // If count INCREASED (and it's not the initial load), show a toast and play sound
                     if (lastUnreadCount !== -1 && data.unread_count > lastUnreadCount) {
                         // Find the newest unread notification to show
                         const newest = data.notifications.find(n => n.is_read == 0);
                         if (newest) {
                             showToast(newest);
+                            if (notificationSound) {
+                                notificationSound.play().catch(e => console.log('Audio play failed (user interaction needed first):', e));
+                            }
                         }
                     }
                     lastUnreadCount = data.unread_count;
