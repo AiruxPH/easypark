@@ -23,16 +23,30 @@ foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $vid) {
   $active_vehicle_ids[$vid] = true;
 }
 // Check if user has any active or pending reservation
+$active_reservation = null;
 $user_has_active_reservation = false;
-$stmt = $pdo->prepare('SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ("pending", "confirmed", "ongoing")');
+$stmt = $pdo->prepare('SELECT r.*, s.slot_number, s.slot_type, v.plate_number, m.brand, m.model 
+                       FROM reservations r 
+                       JOIN parking_slots s ON r.parking_slot_id = s.parking_slot_id 
+                       JOIN vehicles v ON r.vehicle_id = v.vehicle_id 
+                       JOIN Vehicle_Models m ON v.model_id = m.model_id
+                       WHERE r.user_id = ? AND r.status IN ("pending", "confirmed", "ongoing") 
+                       LIMIT 1');
 $stmt->execute([$user_id]);
-if ($stmt->fetchColumn() > 0) {
+$active_reservation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($active_reservation) {
   $user_has_active_reservation = true;
 }
+
 $selected_vehicle_id = isset($_POST['vehicle_id']) ? $_POST['vehicle_id'] : ($vehicles[0]['vehicle_id'] ?? null);
-// If selected vehicle is not allowed, set to null
-if ($selected_vehicle_id && isset($active_vehicle_ids[$selected_vehicle_id])) {
-  $selected_vehicle_id = null;
+
+// Note: We no longer nullify selected_vehicle_id if it has an active booking, 
+// so the user can still see slots for that vehicle type if they want (read-only).
+if ($selected_vehicle_id && isset($active_vehicle_ids[$selected_vehicle_id]) && !$user_has_active_reservation) {
+  // Only nullify if we strictly wanted to block, but we want read-only.
+  // Actually, we should just let it be. simpler.
+  // $selected_vehicle_id = null; 
 }
 $selected_vehicle_type = null;
 if ($selected_vehicle_id) {
