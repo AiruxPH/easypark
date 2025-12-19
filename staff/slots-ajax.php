@@ -110,9 +110,8 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ob_start();
 foreach ($slots as $slot): ?>
   <div class="col-md-4 mb-3 slot-card">
-    <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>"
-      style="border-width:3px; cursor: pointer;" onclick="viewSlotDetails(this)"
-      data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
+    <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?> slot-card-hover"
+      style="border-width:3px; cursor: pointer;" data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
       data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>"
       data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>"
       data-owner="<?= htmlspecialchars($slot['owner_name'] ?? '') ?>"
