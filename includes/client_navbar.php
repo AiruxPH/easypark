@@ -107,58 +107,50 @@ if (isset($_SESSION['user_id'])) {
                         <a class="dropdown-item text-center small text-gray-500 py-2 bg-light" href="#"
                             onclick="markAllRead(event)">Mark all as Read</a>
                     </div>
-                </li>
-            </ul>
-    </nav>
-    <!-- End of Topbar -->
+        </div>
+        </li>
 
-    <!-- Init Notifications Data -->
-    <script>
-        window.initialNotifications = <?= json_encode($notifications ?? []) ?>;
-    </script>
-    </li>
-
-    <li class="nav-item">
-        <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
-            style="padding: 0.375rem 1rem;" data-toggle="tooltip" title="Manage your profile" data-placement="bottom">
-            <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
-                style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
-            My Account (<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>)
-        </a>
-    </li>
-    <?php
-    // Fetch user coins
-    $coins = 0.00;
-    if (isset($_SESSION['user_id']) && isset($pdo)) {
-        $stmt = $pdo->prepare('SELECT coins FROM users WHERE user_id = ?');
-        $stmt->execute([$_SESSION['user_id']]);
-        $coins = $stmt->fetchColumn() ?: 0.00;
-    }
-    $coinColor = ($coins >= 0) ? '#28a745' : '#dc3545';
-    ?>
-    <li class="nav-item d-flex align-items-center ml-2">
-        <a href="wallet.php" class="badge badge-light px-3 py-2 border shadow-sm"
-            style="font-size: 1rem; color: #333; font-weight: 700; text-decoration: none;" data-toggle="tooltip"
-            title="View Wallet Balance" data-placement="bottom">
-            🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
-        </a>
-    </li>
-    <li class="nav-item d-flex align-items-center ml-2">
-        <a href="logout.php" class="btn btn-danger btn-sm shadow-sm" style="padding: 0.375rem 0.75rem;"
-            data-toggle="tooltip" title="Sign Out securely" data-placement="bottom">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </li>
-<?php else: ?>
-    <li class="nav-item ml-2">
-        <a class="nav-link btn btn-primary px-4 text-white" href="login.php" data-toggle="tooltip"
-            title="Log in or Register" data-placement="bottom">Login/Sign Up</a>
-    </li>
-<?php endif; ?>
-</ul>
-</div>
-</div>
-</div>
+        <li class="nav-item">
+            <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
+                style="padding: 0.375rem 1rem;" data-toggle="tooltip" title="Manage your profile" data-placement="bottom">
+                <img src="<?= htmlspecialchars($profilePic) ?>" alt="Profile"
+                    style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid #fff;margin-right:8px;">
+                My Account (<?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>)
+            </a>
+        </li>
+        <?php
+        // Fetch user coins
+        $coins = 0.00;
+        if (isset($_SESSION['user_id']) && isset($pdo)) {
+            $stmt = $pdo->prepare('SELECT coins FROM users WHERE user_id = ?');
+            $stmt->execute([$_SESSION['user_id']]);
+            $coins = $stmt->fetchColumn() ?: 0.00;
+        }
+        $coinColor = ($coins >= 0) ? '#28a745' : '#dc3545';
+        ?>
+        <li class="nav-item d-flex align-items-center ml-2">
+            <a href="wallet.php" class="badge badge-light px-3 py-2 border shadow-sm"
+                style="font-size: 1rem; color: #333; font-weight: 700; text-decoration: none;" data-toggle="tooltip"
+                title="View Wallet Balance" data-placement="bottom">
+                🪙 <span style="color: <?= $coinColor ?>;"><?= number_format($coins, 2) ?></span>
+            </a>
+        </li>
+        <li class="nav-item d-flex align-items-center ml-2">
+            <a href="logout.php" class="btn btn-danger btn-sm shadow-sm" style="padding: 0.375rem 0.75rem;"
+                data-toggle="tooltip" title="Sign Out securely" data-placement="bottom">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    <?php else: ?>
+        <li class="nav-item ml-2">
+            <a class="nav-link btn btn-primary px-4 text-white" href="login.php" data-toggle="tooltip"
+                title="Log in or Register" data-placement="bottom">Login/Sign Up</a>
+        </li>
+    <?php endif; ?>
+    </ul>
+    </div>
+    </div>
+    </div>
 </nav>
 
 <!-- Audio for Notifications -->
@@ -479,10 +471,12 @@ if (isset($_SESSION['user_id'])) {
     }
 </style>
 <script>
+    // Init Notifications
+    window.initialNotifications = <?= json_encode($notifications ?? []) ?>;
+
     // Local Time Clock (Device Time)
     function tick() {
         const now = new Date();
-
         const options = {
             month: 'short',
             day: 'numeric',
