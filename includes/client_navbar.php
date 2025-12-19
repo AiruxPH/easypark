@@ -314,8 +314,8 @@ if (isset($_SESSION['user_id'])) {
         transform: translateX(-50%);
         border-width: 0 10px 10px 10px;
         border-style: solid;
-        border-color: transparent transparent rgba(240, 165, 0, 0.9) transparent;
-        /* Match header color */
+        border-color: transparent transparent rgba(30, 30, 30, 0.95) transparent;
+        /* Match card bg */
         z-index: 1050;
         animation: fadeInUp 0.2s ease-out;
     }
@@ -339,13 +339,16 @@ if (isset($_SESSION['user_id'])) {
     }
 
     .dropdown-header {
-        background: rgba(240, 165, 0, 0.9) !important;
-        /* Primary color */
-        color: #000 !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        /* Subtle light overlay instead of solid orange */
+        color: #f0a500 !important;
+        /* Orange Text */
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
 
     .notification-item {
