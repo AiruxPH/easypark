@@ -51,17 +51,21 @@ $searchableCols = ['slot_number', 'slot_type', 'slot_status'];
 if ($search !== '' && $searchableCols) {
   $searchConds = [];
   foreach ($searchableCols as $col) {
-    $searchConds[] = "$col LIKE :search";
+    if ($col == 'slot_number' || $col == 'slot_type' || $col == 'slot_status') {
+      $searchConds[] = "parking_slots.$col LIKE :search";
+    } else {
+      $searchConds[] = "$col LIKE :search";
+    }
   }
   $where[] = '(' . implode(' OR ', $searchConds) . ')';
   $params[':search'] = "%$search%";
 }
 if ($type !== '') {
-  $where[] = "slot_type = :type";
+  $where[] = "parking_slots.slot_type = :type";
   $params[':type'] = $type;
 }
 if ($status !== '') {
-  $where[] = "slot_status = :status";
+  $where[] = "parking_slots.slot_status = :status";
   $params[':status'] = $status;
 }
 $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
@@ -77,7 +81,23 @@ $total_pages = ceil($total / $per_page);
 
 $allowedSort = ['slot_number', 'slot_type', 'slot_status'];
 $sortCol = in_array($sort, $allowedSort) ? $sort : 'slot_number';
-$sql = "SELECT parking_slot_id, slot_number, slot_type, slot_status FROM parking_slots $whereSql ORDER BY $sortCol ASC LIMIT :offset, :per_page";
+
+// UPDATED QUERY: include booking info
+$sql = "SELECT 
+          parking_slots.*,
+          v.plate_number,
+          CONCAT(u.first_name, ' ', u.last_name) as owner_name,
+          r.start_time,
+          r.end_time
+        FROM parking_slots 
+        LEFT JOIN reservations r ON parking_slots.parking_slot_id = r.parking_slot_id 
+            AND r.status IN ('confirmed', 'ongoing') 
+            AND (r.status = 'ongoing' OR (r.start_time <= NOW() AND r.end_time >= NOW()))
+        LEFT JOIN vehicles v ON r.vehicle_id = v.vehicle_id 
+        LEFT JOIN users u ON r.user_id = u.user_id
+        $whereSql 
+        ORDER BY parking_slots.$sortCol ASC 
+        LIMIT :offset, :per_page";
 $stmt = $pdo->prepare($sql);
 foreach ($params as $k => $v) {
   $stmt->bindValue($k, $v);
@@ -110,6 +130,23 @@ foreach ($slots as $slot): ?>
         ?>
         <p class="card-text">Status: <span
             class="font-weight-bold <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span></p>
+
+        <?php if ($slot['owner_name'] && ($slot['slot_status'] === 'occupied' || $slot['slot_status'] === 'reserved')): ?>
+          <hr class="border-secondary my-2">
+          <div class="small">
+            <div class="text-white-50">Occupant:</div>
+            <div class="font-weight-bold"><?= htmlspecialchars($slot['owner_name']) ?></div>
+            <?php if ($slot['plate_number']): ?>
+              <div class="text-white-50 mt-1">Vehicle:</div>
+              <div class="font-weight-bold text-warning"><?= htmlspecialchars($slot['plate_number']) ?></div>
+            <?php endif; ?>
+            <?php if ($slot['start_time']): ?>
+              <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                Waiting until: <?= date('M d, H:i', strtotime($slot['end_time'])) ?>
+              </div>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
   </div>
