@@ -50,6 +50,11 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
 $sql = "
     SELECT 
         ps.*,
+        (SELECT COUNT(*) FROM reservations r2 
+         WHERE r2.parking_slot_id = ps.parking_slot_id 
+         AND r2.status IN ('pending', 'confirmed', 'ongoing') 
+         AND (r2.status = 'ongoing' OR r2.end_time > NOW())
+        ) as active_bookings,
         r.reservation_id,
         r.status as res_status,
         v.plate_number,
@@ -87,18 +92,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
     $winning_res_id = $_POST['winning_reservation_id'] ?? null;
 
     if (in_array($new_status, ['available', 'reserved', 'occupied', 'unavailable'])) {
-        // ADMIN RESTRICTION: Disable updates
-        // $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
-        // $stmt->execute([$new_status, $slot_id]);
 
-        // Show error/info instead of processing
-        echo "<script>alert('Action Disabled: Admin cannot modify booking status manually.'); window.history.back();</script>";
-        exit;
+        // 1. Check for active bookings
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ('pending', 'confirmed', 'ongoing') AND (status = 'ongoing' OR end_time > NOW())");
+        $checkStmt->execute([$slot_id]);
+        $activeCount = $checkStmt->fetchColumn();
 
-        /* DISABLED LOGIC
+        if ($activeCount > 0) {
+            echo "<script>alert('Action Denied: Cannot update slot status while there are active bookings.'); window.history.back();</script>";
+            exit;
+        }
+
+        // 2. Allow Update if No Active Bookings
         $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
         $stmt->execute([$new_status, $slot_id]);
-        */
 
         /* UNREACHABLE / DISABLED
         // Log Activity
@@ -221,7 +228,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
     $stmt->execute([$delId]);
     $slotNum = $stmt->fetchColumn();
 
-    if ($slotNum) {
+    // Check for active bookings before delete
+    $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE parking_slot_id = ? AND status IN ('pending', 'confirmed', 'ongoing') AND (status = 'ongoing' OR end_time > NOW())");
+    $checkStmt->execute([$delId]);
+    $activeCount = $checkStmt->fetchColumn();
+
+    if ($activeCount > 0) {
+        // Prevent deletion
+        // Since this is a POST, we can't easily alert, but we can prevent the action.
+        // Ideally we redirect with error, but for now we just exit or redirect back.
+        logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_delete_fail', "Attempted delete slot $slotNum but had active bookings.");
+    } elseif ($slotNum) {
         $stmt = $pdo->prepare("DELETE FROM parking_slots WHERE parking_slot_id = ?");
         $stmt->execute([$delId]);
 
@@ -495,8 +512,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                             <option value="occupied" class="text-danger">🔴 Occupied</option>
                             <option value="unavailable" class="text-secondary">⚪ Unavailable (Maintenance)</option>
                         </select>
-                        <small class="text-danger font-weight-bold"><i class="fa fa-lock"></i> Status changes are
-                            currently disabled.</small>
+                        <small id="lockMessage" class="text-danger font-weight-bold" style="display:none;"><i
+                                class="fa fa-lock"></i> Slot is locked due to active bookings.</small>
                     </div>
 
                     <!-- Booker Selection Field (Hidden by default) -->
@@ -514,10 +531,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteSlotConfirm()">
+                        <button type="button" class="btn btn-outline-danger" id="btnDeleteSlot"
+                            onclick="deleteSlotConfirm()">
                             <i class="fa fa-trash"></i> Delete
                         </button>
-                        <button type="submit" class="btn btn-primary px-4" disabled title="Admin actions disabled">
+                        <button type="submit" class="btn btn-primary px-4">
                             <i class="fa fa-save"></i> Save Changes
                         </button>
                     </div>
@@ -538,8 +556,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
         $('#edit_slot_number').val(slot.slot_number);
         $('#modalResultSlotNumber').text(slot.slot_number);
         $('#edit_slot_type').val(slot.slot_type);
-        $('#edit_slot_status').val(slot.slot_status).prop('disabled', true); // Force disable
-        $('#editSlotForm button[type="submit"]').prop('disabled', true); // Force disable submit
+        $('#edit_slot_status').val(slot.slot_status);
+
+        // CONDITIONAL LOCKING:
+        const hasActiveBookings = parseInt(slot.active_bookings) > 0;
+
+        if (hasActiveBookings) {
+            $('#edit_slot_status').prop('disabled', true);
+            $('#editSlotForm button[type="submit"]').prop('disabled', true).attr('title', 'Cannot modify slot with active bookings');
+            $('#btnDeleteSlot').prop('disabled', true).attr('title', 'Cannot delete slot with active bookings');
+            $('#lockMessage').show();
+        } else {
+            $('#edit_slot_status').prop('disabled', false);
+            $('#editSlotForm button[type="submit"]').prop('disabled', false).attr('title', '');
+            $('#btnDeleteSlot').prop('disabled', false).attr('title', '');
+            $('#lockMessage').hide();
+        }
 
         // Display Current Occupant Info if Occupied
         if (slot.slot_status === 'occupied' || (slot.slot_status === 'reserved' && slot.owner_name)) {
