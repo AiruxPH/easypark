@@ -22,6 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? '';
 
+    // 0. Live Plate Check
+    if ($action === 'check_plate') {
+        $plate = trim($_POST['plate_number'] ?? '');
+        if ($plate) {
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM vehicles WHERE plate_number = ?');
+            $stmt->execute([$plate]);
+            $exists = $stmt->fetchColumn() > 0;
+            echo json_encode(['success' => true, 'exists' => $exists]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
+        exit;
+    }
+
     // 1. Update Profile Details
     if ($action === 'update_profile') {
         $first_name = trim($_POST['first_name'] ?? '');

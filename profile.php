@@ -518,7 +518,8 @@ $recent_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
           <div class="modal-body">
             <div class="form-group">
               <label>Plate Number</label>
-              <input type="text" name="plate_number" class="form-control" required>
+              <input type="text" name="plate_number" id="plateInput" class="form-control" required autocomplete="off">
+              <small id="plateFeedback" class="form-text font-weight-bold ml-1"></small>
             </div>
             <div class="form-group">
               <label>Color</label>
@@ -673,6 +674,51 @@ $recent_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
             btn.prop('disabled', false).text('Update Password');
             showToast('Server error occurred.', true);
           });
+      });
+
+      // 2.b Live Plate Checker
+      let plateTimeout = null;
+      $('#plateInput').on('input', function() {
+        const input = $(this);
+        const feedback = $('#plateFeedback');
+        const submitBtn = input.closest('form').find('button[type="submit"]');
+        const plate = input.val().trim();
+
+        // Reset UI
+        feedback.text('').removeClass('text-success text-danger');
+        submitBtn.prop('disabled', false); // Default to enabled unless error
+
+        if (plate.length < 3) return; // Wait for at least 3 chars
+
+        clearTimeout(plateTimeout);
+        feedback.html('<i class="fas fa-spinner fa-spin text-muted"></i> Checking...');
+
+        plateTimeout = setTimeout(() => {
+          const formData = new FormData();
+          formData.append('action', 'check_plate');
+          formData.append('plate_number', plate);
+
+          fetch('action_client_profile.php', {
+              method: 'POST',
+              body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                if (data.exists) {
+                  feedback.html('<i class="fas fa-times-circle"></i> Plate number already taken').addClass('text-danger');
+                  submitBtn.prop('disabled', true);
+                } else {
+                  feedback.html('<i class="fas fa-check-circle"></i> Available').addClass('text-success');
+                  submitBtn.prop('disabled', false); // Ensure enabled
+                }
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              feedback.text(''); // Clear on error
+            });
+        }, 500); // 500ms Debounce
       });
 
       // 3. Add Vehicle
