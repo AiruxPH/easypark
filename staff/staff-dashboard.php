@@ -549,8 +549,11 @@ if (isset($_POST['delete_pic'])) {
       $('.staff-navbar .nav-link[data-section="' + section + '"]').addClass('active');
 
       let url = sectionFiles[section];
+      let sep = url.includes('?') ? '&' : '?';
+      url += sep + 't=' + new Date().getTime();
+
       if (Object.keys(params).length > 0) {
-        url += '?' + $.param(params);
+        url += '&' + $.param(params);
       }
 
       $('#section-content').fadeOut(100, function () {
