@@ -4,311 +4,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic Parking Map (Prototype)</title>
+    <title>Realistic Parking Map (Design v2)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            background: #222;
-            color: #fff;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        body { 
+            margin: 0; 
+            background: #1a1a1a; 
+            color: #fff; 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
             min-height: 100vh;
         }
-
-        h1 {
-            margin-bottom: 20px;
+        
+        h1 { 
+            margin-bottom: 20px; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .map-container {
-            width: 90%;
-            max-width: 1000px;
-            background: #333;
-            border-radius: 10px;
+            width: 95%;
+            max-width: 1100px;
+            background: #2b2b2b;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             position: relative;
+            border: 1px solid #444;
         }
 
-        svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Slot Styles */
-        .slot-shape {
-            cursor: pointer;
-            transition: fill 0.3s, stroke-width 0.2s;
-            stroke: #fff;
-            stroke-width: 2px;
-        }
-
-        .slot-shape:hover {
-            opacity: 0.8;
-            stroke-width: 4px;
-        }
-
-        .status-available {
-            fill: #28a745;
-        }
-
-        .status-occupied {
-            fill: #dc3545;
-        }
-
-        .status-reserved {
-            fill: #ffc107;
-        }
-
-        .status-unavailable {
-            fill: #6c757d;
-        }
-
-        .slot-label {
-            fill: #fff;
-            font-weight: bold;
-            pointer-events: none;
-            font-size: 14px;
-            text-anchor: middle;
-            alignment-baseline: middle;
-        }
-
-        .legend {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
+        svg { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+            background: #333; /* Fallback */
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         /* Tooltip */
         #tooltip {
             position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 12px 18px;
+            border-radius: 8px;
             pointer-events: none;
             display: none;
-            z-index: 10;
-            border: 1px solid #555;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translate(-50%, -100%); /* Center above cursor */
+            margin-top: -15px;
         }
+        #tooltip strong { display: block; margin-bottom: 4px; font-size: 16px; color: #111; }
+        #tooltip .status-badge { 
+            display: inline-block; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        /* Status Colors for JS injection */
+        .color-available { background: #28a745; }
+        .color-occupied { background: #dc3545; }
+        .color-reserved { background: #ffc107; color: black !important; }
+        .color-unavailable { background: #6c757d; }
+
+        .legend { display: flex; gap: 20px; margin-top: 25px; font-size: 14px; font-weight: 500; color: #ccc; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 5px currentColor; }
     </style>
 </head>
-
 <body>
 
-    <h1>🅿️ Live Parking Overview</h1>
+    <h1>🅿️ Parking Lot View</h1>
 
     <div class="map-container">
-        <!-- SVG Parking Lot -->
-        <svg viewBox="0 0 800 500" id="parkingMap">
-            <!-- Asphalt Background -->
-            <rect width="800" height="500" fill="#444" rx="15" />
+        <!-- SVG Canvas -->
+        <svg viewBox="0 0 900 600" id="parkingMap">
+            <defs>
+                <!-- Asphalt Pattern -->
+                <pattern id="asphalt" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <rect width="100" height="100" fill="#3a3a3a"/>
+                    <!-- Simple noise simulation with dots -->
+                    <circle cx="20" cy="20" r="1.5" fill="#444" opacity="0.5"/>
+                    <circle cx="70" cy="60" r="1.5" fill="#444" opacity="0.5"/>
+                    <circle cx="40" cy="80" r="1.5" fill="#222" opacity="0.3"/>
+                    <circle cx="80" cy="10" r="1.5" fill="#222" opacity="0.3"/>
+                </pattern>
 
+                <!-- Top-Down Car Shape (Standard) -->
+                <g id="car-top" transform="scale(0.8)">
+                    <!-- Shadow -->
+                    <rect x="-32" y="-55" width="64" height="110" rx="10" fill="#000" opacity="0.4" filter="url(#blur)"/>
+                    <!-- Body -->
+                    <path d="M -28,-50 Q -30,-20 -30,0 Q -30,20 -28,50 L 28,50 Q 30,20 30,0 Q 30,-20 28,-50 Z" fill="currentColor" stroke="#fff" stroke-width="1"/>
+                    <!-- Windshields -->
+                    <path d="M -25,-35 L 25,-35 L 22,-20 L -22,-20 Z" fill="#333"/>
+                    <path d="M -25,35 L 25,35 L 22,20 L -22,20 Z" fill="#333"/>
+                    <!-- Roof -->
+                    <rect x="-26" y="-20" width="52" height="40" rx="5" fill="currentColor" filter="brightness(1.2)"/>
+                    <rect x="-26" y="-20" width="52" height="40" rx="5" fill="#fff" opacity="0.1"/>
+                </g>
+
+                <!-- Top-Down Moto Shape -->
+                <g id="moto-top" transform="scale(0.7)">
+                     <rect x="-10" y="-30" width="20" height="60" rx="5" fill="currentColor" stroke="#fff" stroke-width="1"/>
+                     <circle cx="0" cy="-20" r="6" fill="#333"/> <!-- Handlebars -->
+                     <rect x="-15" y="-22" width="30" height="4" fill="#333"/>
+                </g>
+
+                <filter id="blur">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+                </filter>
+                
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            
+            <!-- Floor -->
+            <rect width="900" height="600" fill="url(#asphalt)" />
+            
             <!-- Road Markings -->
-            <path d="M 50,250 L 750,250" stroke="#eda121" stroke-width="4" stroke-dasharray="15,15" />
+            <!-- Central Divider -->
+            <path d="M 50,300 L 850,300" stroke="#eda121" stroke-width="4" stroke-dasharray="20,20" />
+            <!-- Arrows -->
+            <path d="M 100,280 L 140,280 L 130,270 M 140,280 L 130,290" stroke="#rgba(255,255,255,0.5)" stroke-width="3" fill="none"/>
+            <path d="M 800,320 L 760,320 L 770,330 M 760,320 L 770,310" stroke="#rgba(255,255,255,0.5)" stroke-width="3" fill="none"/>
 
-            <!-- Parking Rows (A, B, C) -->
-            <!-- We will generate these dynamically based on assumed layout, 
-                 OR define static placeholders. 
-                 Let's define a nice grid assuming DB has slots "1" to "20". -->
+            <!-- JS populates slots here -->
+            <g id="slots-layer"></g>
 
-            <!-- Row Top (Slots 1-10) -->
-            <g transform="translate(60, 50)">
-                <text x="-40" y="50" fill="#ccc" font-size="20">Row A</text>
-                <!-- Slots will be injected here via JS if not matching, 
-                     but for "Realistic Map" we usually draw them manually.
-                     Let's draw 10 slots. Class 'slot-group' for easier selecting. -->
+            <!-- Decorative Elements -->
+            <text x="50" y="550" fill="#666" font-size="24" font-weight="900" opacity="0.5" transform="rotate(-90 50,550)">SECTION A</text>
+            <text x="850" y="50" fill="#666" font-size="24" font-weight="900" opacity="0.5" transform="rotate(90 850,50)">SECTION B</text>
 
-                <!-- Slot 1 -->
-                <g class="slot-group" data-id="1" transform="translate(0,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-1" />
-                    <text x="30" y="55" class="slot-label">1</text>
-                </g>
-                <g class="slot-group" data-id="2" transform="translate(70,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-2" />
-                    <text x="30" y="55" class="slot-label">2</text>
-                </g>
-                <g class="slot-group" data-id="3" transform="translate(140,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-3" />
-                    <text x="30" y="55" class="slot-label">3</text>
-                </g>
-                <g class="slot-group" data-id="4" transform="translate(210,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-4" />
-                    <text x="30" y="55" class="slot-label">4</text>
-                </g>
-                <g class="slot-group" data-id="5" transform="translate(280,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-5" />
-                    <text x="30" y="55" class="slot-label">5</text>
-                </g>
-                <g class="slot-group" data-id="6" transform="translate(350,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-6" />
-                    <text x="30" y="55" class="slot-label">6</text>
-                </g>
-                <g class="slot-group" data-id="7" transform="translate(420,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-7" />
-                    <text x="30" y="55" class="slot-label">7</text>
-                </g>
-                <g class="slot-group" data-id="8" transform="translate(490,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-8" />
-                    <text x="30" y="55" class="slot-label">8</text>
-                </g>
-                <g class="slot-group" data-id="9" transform="translate(560,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-9" />
-                    <text x="30" y="55" class="slot-label">9</text>
-                </g>
-                <g class="slot-group" data-id="10" transform="translate(630,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-10" />
-                    <text x="30" y="55" class="slot-label">10</text>
-                </g>
-            </g>
-
-            <!-- Row Bottom (Slots 11-20) -->
-            <g transform="translate(60, 350)">
-                <text x="-40" y="50" fill="#ccc" font-size="20">Row B</text>
-                <!-- Slot 11 -->
-                <g class="slot-group" data-id="11" transform="translate(0,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-11" />
-                    <text x="30" y="55" class="slot-label">11</text>
-                </g>
-                <g class="slot-group" data-id="12" transform="translate(70,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-12" />
-                    <text x="30" y="55" class="slot-label">12</text>
-                </g>
-                <g class="slot-group" data-id="13" transform="translate(140,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-13" />
-                    <text x="30" y="55" class="slot-label">13</text>
-                </g>
-                <g class="slot-group" data-id="14" transform="translate(210,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-14" />
-                    <text x="30" y="55" class="slot-label">14</text>
-                </g>
-                <g class="slot-group" data-id="15" transform="translate(280,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-15" />
-                    <text x="30" y="55" class="slot-label">15</text>
-                </g>
-                <g class="slot-group" data-id="16" transform="translate(350,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-16" />
-                    <text x="30" y="55" class="slot-label">16</text>
-                </g>
-                <g class="slot-group" data-id="17" transform="translate(420,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-17" />
-                    <text x="30" y="55" class="slot-label">17</text>
-                </g>
-                <g class="slot-group" data-id="18" transform="translate(490,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-18" />
-                    <text x="30" y="55" class="slot-label">18</text>
-                </g>
-                <g class="slot-group" data-id="19" transform="translate(560,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-19" />
-                    <text x="30" y="55" class="slot-label">19</text>
-                </g>
-                <g class="slot-group" data-id="20" transform="translate(630,0)">
-                    <rect width="60" height="100" class="slot-shape status-unavailable" id="rect-20" />
-                    <text x="30" y="55" class="slot-label">20</text>
-                </g>
-            </g>
-
-            <!-- Entrance / Exit -->
-            <text x="10" y="255" fill="#f0ad4e" font-size="16" font-weight="bold">ENTRANCE</text>
-            <text x="730" y="255" fill="#f0ad4e" font-size="16" font-weight="bold">EXIT</text>
         </svg>
 
         <div id="tooltip"></div>
     </div>
 
+    <!-- Live Legend -->
     <div class="legend">
-        <div class="legend-item">
-            <div class="dot" style="background: #28a745"></div> Available
-        </div>
-        <div class="legend-item">
-            <div class="dot" style="background: #dc3545"></div> Occupied
-        </div>
-        <div class="legend-item">
-            <div class="dot" style="background: #ffc107"></div> Reserved
-        </div>
-        <div class="legend-item">
-            <div class="dot" style="background: #6c757d"></div> Unavailable
-        </div>
+        <div class="legend-item"><div class="legend-dot" style="background:#28a745; box-shadow:0 0 8px #28a745;"></div> Available</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dc3545; box-shadow:0 0 8px #dc3545;"></div> Occupied (Car)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffc107; box-shadow:0 0 8px #ffc107;"></div> Reserved</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#6c757d;"></div> Unavailable</div>
     </div>
 
     <script>
         const tooltip = document.getElementById('tooltip');
+        const slotsLayer = document.getElementById('slots-layer');
 
-        // Fetch and Update
+        // Configuration for Drawing Slots
+        // We will generate SVG groups dynamically to match the "Design"
+        // Let's create two rows of 10 slots.
+        const SLOTS_CONFIG = [
+            // Row A (Top) - y=50, facing down
+            ...Array.from({length: 10}, (_, i) => ({ id: i + 1, x: 80 + (i * 75), y: 50, rotation: 180 })),
+            // Row B (Bottom) - y=400, facing up
+            ...Array.from({length: 10}, (_, i) => ({ id: i + 11, x: 80 + (i * 75), y: 400, rotation: 0 }))
+        ];
+
+        // Draw initial grid
+        function drawGrid() {
+            slotsLayer.innerHTML = ''; // clear
+            
+            SLOTS_CONFIG.forEach(cfg => {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("class", "slot-wrapper");
+                g.setAttribute("transform", `translate(${cfg.x}, ${cfg.y})`);
+                g.dataset.id = cfg.id; // Matching slot_number 1, 2, 3...
+
+                // Parking Line Box (White borders)
+                const box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                box.setAttribute("x", -30);
+                box.setAttribute("y", 0);
+                box.setAttribute("width", 60);
+                box.setAttribute("height", 110);
+                box.setAttribute("fill", "none");
+                box.setAttribute("stroke", "#fff");
+                box.setAttribute("stroke-width", "2");
+                box.setAttribute("opacity", "0.6");
+                
+                // Number
+                const num = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                num.textContent = cfg.id;
+                num.setAttribute("x", 0);
+                num.setAttribute("y", cfg.rotation === 180 ? 20 : 100); // Near the "road" end or wall end? Usually near road.
+                // If y=0 is "wall", y=110 is road.
+                // Let's put number near the entry
+                num.setAttribute("y", 130); 
+                num.setAttribute("fill", "#888");
+                num.setAttribute("font-size", "14");
+                num.setAttribute("font-weight", "bold");
+                num.setAttribute("text-anchor", "middle");
+                
+                // Status Indicator Light (LED strip at the back)
+                const light = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                light.setAttribute("class", "status-indicator");
+                light.setAttribute("x", -25);
+                light.setAttribute("y", 5);
+                light.setAttribute("width", 50);
+                light.setAttribute("height", 4);
+                light.setAttribute("rx", 2);
+                light.setAttribute("fill", "#28a745"); // default green
+                light.setAttribute("filter", "url(#glow)");
+
+                // Car Group (Hidden by default)
+                const carG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                carG.setAttribute("class", "vehicle-visual");
+                carG.setAttribute("transform", "translate(0, 60)"); // center in slot
+                
+                // Use the defs based on type, dynamically set later. 
+                // Creating a simplified placeholder use
+                const useCar = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                useCar.setAttribute("href", "#car-top");
+                useCar.setAttribute("class", "car-shape");
+                useCar.setAttribute("display", "none");
+                useCar.setAttribute("fill", "#dc3545"); // default car color
+                
+                carG.appendChild(useCar);
+
+                g.appendChild(box);
+                g.appendChild(num);
+                g.appendChild(light);
+                g.appendChild(carG);
+                
+                // Add Events
+                g.addEventListener('mouseenter', handleHover);
+                g.addEventListener('mouseleave', () => tooltip.style.display = 'none');
+                
+                slotsLayer.appendChild(g);
+            });
+        }
+
+        // Live Update
         function updateMap() {
             fetch('api.php')
                 .then(res => res.json())
                 .then(slots => {
-                    // Reset all first? No, just update matching.
                     slots.forEach(slot => {
-                        // Assuming slot_number maps to our data-id
-                        // We need a way to map 'Slot 1' or 'A1' -> data-id="1"
-                        // Our SVG has IDs 1-20. 
-                        // Let's try to match exactly or sanitize string.
-                        // Ideally the DB slot_number is just a number.
-                        // If it's "A-01", we might need logic.
+                        // Find the group
+                        const g = slotsLayer.querySelector(`.slot-wrapper[data-id="${slot.slot_number}"]`);
+                        if (!g) return;
 
-                        // Try to find by data-id matching slot_number
-                        let element = document.querySelector(`.slot-group[data-id="${slot.slot_number}"]`);
+                        // 1. Update Light Color
+                        const light = g.querySelector('.status-indicator');
+                        let color = '#28a745'; // Green
+                        if (slot.slot_status === 'occupied') color = '#dc3545';
+                        else if (slot.slot_status === 'reserved') color = '#ffc107';
+                        else if (slot.slot_status === 'unavailable') color = '#6c757d';
+                        
+                        light.setAttribute('fill', color);
+                        
+                        // 2. Show/Hide Vehicle
+                        const carUse = g.querySelector('.car-shape');
+                        if (slot.slot_status === 'occupied') {
+                            carUse.setAttribute('display', 'block');
+                            // Determine vehicle type visual
+                            if (slot.slot_type === 'two_wheeler') {
+                                carUse.setAttribute('href', '#moto-top');
+                                carUse.setAttribute('fill', '#4db8ff'); // distinct color for moto
+                            } else {
+                                carUse.setAttribute('href', '#car-top');
+                                // Randomize car color slightly? Or use slot color.
+                                // Let's use a nice varied palette if possible, or static red for "Occupied"
+                                carUse.setAttribute('fill', '#dc3545');
+                            }
+                        } else {
+                            carUse.setAttribute('display', 'none');
+                        }
 
-                        // Fallback: If slot_number is 1, and our SVG expects 01? Or vice versa.
-                        // Let's just try exact match first.
-                        if (!element) return;
-
-                        const rect = element.querySelector('rect');
-                        const text = element.querySelector('text');
-
-                        // Update Class
-                        rect.setAttribute('class', `slot-shape status-${slot.slot_status}`);
-
-                        // Data for Tooltip
-                        element.dataset.type = slot.slot_type;
-                        element.dataset.status = slot.slot_status;
-                        element.dataset.plate = slot.plate_number || 'N/A';
+                        // Store Data for Tooltip
+                        g.dataset.status = slot.slot_status;
+                        g.dataset.type = slot.slot_type;
+                        g.dataset.plate = slot.plate_number;
                     });
-                })
-                .catch(err => console.error('Map Update Error:', err));
+                });
         }
 
-        // Mouse Events for Tooltip
-        document.querySelectorAll('.slot-group').forEach(group => {
-            group.addEventListener('mouseenter', e => {
-                const rect = group.getBoundingClientRect();
-                tooltip.style.display = 'block';
-                tooltip.style.left = rect.left + 'px';
-                tooltip.style.top = (rect.bottom + 5) + 'px';
+        function handleHover(e) {
+            const g = e.currentTarget;
+            const rect = g.getBoundingClientRect();
+            const status = g.dataset.status || 'available';
+            const type = g.dataset.type || 'standard';
+            const plate = g.dataset.plate;
 
-                const id = group.dataset.id;
-                const status = group.dataset.status || 'Unknown';
-                const type = group.dataset.type || '-';
-                const plate = group.dataset.plate === 'N/A' || !group.dataset.plate ? '' : `<br>🚗 Plate: ${group.dataset.plate}`;
+            let statusClass = 'color-' + status;
+            
+            tooltip.style.display = 'block';
+            tooltip.style.left = (rect.left + rect.width/2) + 'px';
+            tooltip.style.top = rect.top + 'px';
 
-                tooltip.innerHTML = `<strong>Slot ${id}</strong><br>Status: ${status}<br>Type: ${type}${plate}`;
-            });
-            group.addEventListener('mouseleave', () => {
-                tooltip.style.display = 'none';
-            });
-        });
+            let content = `<strong>Slot ${g.dataset.id}</strong>`;
+            content += `<span class="status-badge ${statusClass}">${status}</span>`;
+            if (status === 'occupied' && plate) {
+                content += `<div style="margin-top:6px; font-family:monospace; background:#eee; color:#333; padding:2px 4px; border-radius:3px; text-align:center;">${plate}</div>`;
+            }
+            content += `<div style="margin-top:4px; font-size:11px; color:#666; text-transform:uppercase;">${type}</div>`;
+            
+            tooltip.innerHTML = content;
+        }
 
-        // Loop
-        updateMap();
-        setInterval(updateMap, 3000); // Live refresh every 3s
+        // Initialize
+        drawGrid(); // Render SVG structure
+        updateMap(); // Fetch data
+        setInterval(updateMap, 3000); // Loop
     </script>
 </body>
-
 </html>
