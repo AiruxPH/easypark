@@ -108,6 +108,9 @@ require_once __DIR__ . '/section-common.php';
               <td>
                 <?php if ($b['status'] === 'pending'): ?>
                   <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-info btn-sm shadow-sm view-details"
+                      data-booking='<?= htmlspecialchars(json_encode($b)) ?>' title="View Details"><i
+                        class="fas fa-eye"></i></button>
                     <form method="post" action="action_booking.php" class="mr-1">
                       <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
                       <button type="submit" name="action" value="confirm" class="btn btn-success btn-sm shadow-sm"
@@ -161,5 +164,73 @@ require_once __DIR__ . '/section-common.php';
       // But to keep it simple, we leave the client sort logic for the visible table for now, or just disable it if not in requirements.
       // The prompt is about filtering.
     });
+
+    // View Details Logic
+    $(document).off('click', '.view-details').on('click', '.view-details', function () {
+      const booking = $(this).data('booking');
+
+      $('#view_ref').text(booking.reservation_id);
+      $('#view_client').text(booking.first_name + ' ' + booking.last_name);
+      $('#view_slot').text(booking.slot_number + ' (' + booking.slot_type + ')');
+      $('#view_vehicle').text(booking.plate_number + ' | ' + booking.brand + ' ' + booking.model);
+
+      const start = new Date(booking.start_time).toLocaleString();
+      const end = new Date(booking.end_time).toLocaleString();
+      $('#view_time').text(start + ' - ' + end);
+
+      $('#view_duration').text(booking.duration + ' hrs');
+
+      // Status Badge
+      let badgeClass = 'badge-secondary';
+      if (booking.status === 'confirmed') badgeClass = 'badge-success';
+      if (booking.status === 'pending') badgeClass = 'badge-warning';
+      if (booking.status === 'cancelled') badgeClass = 'badge-danger';
+
+      $('#view_status').removeClass().addClass('badge ' + badgeClass).text(booking.status.toUpperCase());
+
+      $('#viewBookingModal').modal('show');
+    });
   });
 </script>
+
+<!-- View Booking Detail Modal -->
+<div class="modal fade" id="viewBookingModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card border-0" style="color:white;">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Booking Details <span id="view_ref" class="text-warning font-weight-bold ml-2"></span>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Client:</div>
+          <div class="col-8 font-weight-bold" id="view_client"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Slot:</div>
+          <div class="col-8" id="view_slot"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Vehicle:</div>
+          <div class="col-8 text-warning" id="view_vehicle"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Time:</div>
+          <div class="col-8 small" id="view_time"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Duration:</div>
+          <div class="col-8" id="view_duration"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Status:</div>
+          <div class="col-8"><span id="view_status" class="badge"></span></div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

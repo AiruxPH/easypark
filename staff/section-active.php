@@ -108,6 +108,9 @@ require_once __DIR__ . '/section-common.php';
               </td>
               <td>
                 <?php if ($b['status'] === 'confirmed'): ?>
+                  <button type="button" class="btn btn-info btn-sm shadow-sm view-details mr-1"
+                    data-booking='<?= htmlspecialchars(json_encode($b)) ?>' title="View Details"><i
+                      class="fas fa-eye"></i></button>
                   <form method="post" action="action_booking.php" style="display:inline-block">
                     <input type="hidden" name="reservation_id" value="<?= $b['reservation_id'] ?>">
                     <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm shadow-sm"
@@ -127,6 +130,9 @@ require_once __DIR__ . '/section-common.php';
                   $b['user_balance'] = floatval($b['coins'] ?? 0); // Inject Balance
                   $bJson = htmlspecialchars(json_encode($b));
                   ?>
+                  <button type="button" class="btn btn-info btn-sm shadow-sm view-details mr-1" data-booking='<?= $bJson ?>'
+                    title="View Details"><i class="fas fa-eye"></i></button>
+
                   <button type="button" class="btn btn-warning btn-sm shadow-sm action-extend mr-1"
                     data-booking='<?= $bJson ?>' title="Extend Booking"><i class="fas fa-clock"></i></button>
 
@@ -322,5 +328,85 @@ require_once __DIR__ . '/section-common.php';
       modalBody.html(html);
       $('#actionModal').modal('show');
     });
+
+    // View Details Logic (Active)
+    $(document).off('click', '.view-details').on('click', '.view-details', function () {
+      const booking = $(this).data('booking');
+
+      $('#view_active_ref').text(booking.reservation_id);
+      $('#view_active_client').text(booking.first_name + ' ' + booking.last_name);
+      $('#view_active_slot').text(booking.slot_number + ' (' + booking.slot_type + ')');
+      $('#view_active_vehicle').text(booking.plate_number + ' | ' + booking.brand + ' ' + booking.model);
+
+      const start = new Date(booking.start_time).toLocaleString();
+      const end = new Date(booking.end_time).toLocaleString();
+      $('#view_active_time').text(start + ' - ' + end);
+
+      $('#view_active_duration').text(booking.duration + ' hrs');
+
+      // Status Badge
+      let badgeClass = 'badge-secondary';
+      if (booking.status === 'confirmed') badgeClass = 'badge-success';
+      if (booking.status === 'ongoing') badgeClass = 'badge-info';
+      if (booking.status === 'overdue' || booking.status === 'OVERDUE') badgeClass = 'badge-danger';
+
+      $('#view_active_status').removeClass().addClass('badge ' + badgeClass).text(booking.status.toUpperCase());
+
+      // Active specific: Show Balance?
+      if (booking.user_balance) {
+        $('#view_active_balance').text('🪙 ' + parseFloat(booking.user_balance).toFixed(2));
+        $('#view_active_balance_row').show();
+      } else {
+        $('#view_active_balance_row').hide();
+      }
+
+      $('#viewActiveModal').modal('show');
+    });
   });
 </script>
+
+<!-- View Active Detail Modal -->
+<div class="modal fade" id="viewActiveModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card border-0" style="color:white;">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Booking Details <span id="view_active_ref"
+            class="text-warning font-weight-bold ml-2"></span></h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Client:</div>
+          <div class="col-8 font-weight-bold" id="view_active_client"></div>
+        </div>
+        <div class="row mb-3" id="view_active_balance_row">
+          <div class="col-4 text-white-50">Wallet:</div>
+          <div class="col-8 text-warning font-weight-bold" id="view_active_balance"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Slot:</div>
+          <div class="col-8" id="view_active_slot"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Vehicle:</div>
+          <div class="col-8 text-warning" id="view_active_vehicle"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Time:</div>
+          <div class="col-8 small" id="view_active_time"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Duration:</div>
+          <div class="col-8" id="view_active_duration"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Status:</div>
+          <div class="col-8"><span id="view_active_status" class="badge"></span></div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

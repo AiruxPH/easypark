@@ -53,12 +53,13 @@ require_once __DIR__ . '/section-common.php';
           <th class="sortable">End</th>
           <th class="sortable">Duration</th>
           <th class="sortable">Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <?php if (count($history_reservations) === 0): ?>
           <tr>
-            <td colspan="8" class="text-center py-5 text-white-50">
+            <td colspan="9" class="text-center py-5 text-white-50">
               <i class="fas fa-history fa-3x mb-3 d-block opacity-50"></i>
               No history found matching your criteria.
             </td>
@@ -105,6 +106,11 @@ require_once __DIR__ . '/section-common.php';
                 ?>
                 <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars(ucfirst($b['status'])) ?></span>
               </td>
+              <td>
+                <button type="button" class="btn btn-info btn-sm shadow-sm view-details"
+                  data-booking='<?= htmlspecialchars(json_encode($b)) ?>' title="View Details"><i
+                    class="fas fa-eye"></i></button>
+              </td>
             </tr>
           <?php endforeach; endif; ?>
       </tbody>
@@ -134,5 +140,74 @@ require_once __DIR__ . '/section-common.php';
       timeout = setTimeout(filterAndSortHistory, 500);
     });
     $('#historyStatusFilter, #historyDateFrom, #historyDateTo').on('change', filterAndSortHistory);
+
+    // View Details Logic (History)
+    $(document).off('click', '.view-details').on('click', '.view-details', function () {
+      const booking = $(this).data('booking');
+
+      $('#view_hist_ref').text(booking.reservation_id);
+      $('#view_hist_client').text(booking.first_name + ' ' + booking.last_name);
+      $('#view_hist_slot').text(booking.slot_number + ' (' + booking.slot_type + ')');
+      $('#view_hist_vehicle').text(booking.plate_number + ' | ' + booking.brand + ' ' + booking.model);
+
+      const start = new Date(booking.start_time).toLocaleString();
+      const end = new Date(booking.end_time).toLocaleString();
+      $('#view_hist_time').text(start + ' - ' + end);
+
+      $('#view_hist_duration').text(booking.duration + ' hrs');
+
+      // Status Badge
+      let badgeClass = 'badge-secondary';
+      if (booking.status === 'completed') badgeClass = 'badge-success';
+      if (booking.status === 'cancelled') badgeClass = 'badge-danger';
+      if (booking.status === 'expired') badgeClass = 'badge-warning';
+      if (booking.status === 'void') badgeClass = 'badge-dark';
+
+      $('#view_hist_status').removeClass().addClass('badge ' + badgeClass).text(booking.status.toUpperCase());
+
+      $('#viewHistoryModal').modal('show');
+    });
   });
 </script>
+
+<!-- View History Detail Modal -->
+<div class="modal fade" id="viewHistoryModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card border-0" style="color:white;">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Historical Booking <span id="view_hist_ref"
+            class="text-warning font-weight-bold ml-2"></span></h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Client:</div>
+          <div class="col-8 font-weight-bold" id="view_hist_client"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Slot:</div>
+          <div class="col-8" id="view_hist_slot"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Vehicle:</div>
+          <div class="col-8 text-warning" id="view_hist_vehicle"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Time:</div>
+          <div class="col-8 small" id="view_hist_time"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Duration:</div>
+          <div class="col-8" id="view_hist_duration"></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-4 text-white-50">Status:</div>
+          <div class="col-8"><span id="view_hist_status" class="badge"></span></div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
