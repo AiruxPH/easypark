@@ -276,26 +276,16 @@
         // Both floors use the same X/Y layout for simplicity (Simulating stacked floors)
         const SLOTS_CONFIG = [
             // --- Level 1 ---
-            ...Array.from({ length: 10 }, (_, i) => ({ id: i + 1, floor: 1, x: 80 + (i * 75), y: 50, rotation: 180 })), // Row A
+            // Slots 1-5 (Top Row)
+            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 1, floor: 1, x: 150 + (i * 120), y: 50, rotation: 180 })),
+            // Slots 6-10 (Bottom Row)
+            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 6, floor: 1, x: 150 + (i * 120), y: 400, rotation: 0 })),
 
             // --- Level 2 ---
-            // We map slots 11-20 to similar positions but maybe slightly different layout or same?
-            // Let's reuse the positions so it feels like switching floors.
-            // But let's split them: Slot 11-15 (Row A of Floor 2), Slot 16-20 (Row B of Floor 2)
-            // Actually, in the previous version, we showed 1-20 all on one screen (Row A 1-10, Row B 11-20).
-            // Users might expect Level 1 to have some slots and Level 2 to have others.
-            // Let's re-map:
-            // Level 1: Slots 1-10 (Row A & B split? Or just Row A?)
-            // Let's put Slots 1-10 on Level 1 (5 Top, 5 Bottom)
-            // Level 2: Slots 11-20 on Level 2 (5 Top, 5 Bottom)
-
-            // Level 1: Slots 1-5 (Top), 6-10 (Bottom)
-            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 1, floor: 1, x: 150 + (i * 120), y: 50, rotation: 180 })), // Top
-            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 6, floor: 1, x: 150 + (i * 120), y: 400, rotation: 0 })),  // Bottom
-
-            // Level 2: Slots 11-15 (Top), 16-20 (Bottom)
-            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 11, floor: 2, x: 150 + (i * 120), y: 50, rotation: 180 })), // Top
-            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 16, floor: 2, x: 150 + (i * 120), y: 400, rotation: 0 })),  // Bottom
+            // Slots 11-15 (Top Row)
+            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 11, floor: 2, x: 150 + (i * 120), y: 50, rotation: 180 })),
+            // Slots 16-20 (Bottom Row)
+            ...Array.from({ length: 5 }, (_, i) => ({ id: i + 16, floor: 2, x: 150 + (i * 120), y: 400, rotation: 0 })),
         ];
 
         function switchFloor(floor) {
