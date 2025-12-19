@@ -50,7 +50,9 @@ require_once __DIR__ . '/section-common.php';
           <th class="sortable">End</th>
           <th class="sortable">Duration</th>
           <th class="sortable">Status</th>
-          <th>Actions</th>
+          <th class="sortable">Duration</th>
+          <th class="sortable">Status</th>
+          <th style="min-width: 160px;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -352,14 +354,6 @@ require_once __DIR__ . '/section-common.php';
 
       $('#view_active_status').removeClass().addClass('badge ' + badgeClass).text(booking.status.toUpperCase());
 
-      // Active specific: Show Balance?
-      if (booking.user_balance) {
-        $('#view_active_balance').text('🪙 ' + parseFloat(booking.user_balance).toFixed(2));
-        $('#view_active_balance_row').show();
-      } else {
-        $('#view_active_balance_row').hide();
-      }
-
       $('#viewActiveModal').modal('show');
     });
   });
@@ -378,10 +372,6 @@ require_once __DIR__ . '/section-common.php';
         <div class="row mb-3">
           <div class="col-4 text-white-50">Client:</div>
           <div class="col-8 font-weight-bold" id="view_active_client"></div>
-        </div>
-        <div class="row mb-3" id="view_active_balance_row">
-          <div class="col-4 text-white-50">Wallet:</div>
-          <div class="col-8 text-warning font-weight-bold" id="view_active_balance"></div>
         </div>
         <div class="row mb-3">
           <div class="col-4 text-white-50">Slot:</div>
