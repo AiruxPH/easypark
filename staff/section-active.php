@@ -50,8 +50,6 @@ require_once __DIR__ . '/section-common.php';
           <th class="sortable">End</th>
           <th class="sortable">Duration</th>
           <th class="sortable">Status</th>
-          <th class="sortable">Duration</th>
-          <th class="sortable">Status</th>
           <th style="min-width: 160px;">Actions</th>
         </tr>
       </thead>
