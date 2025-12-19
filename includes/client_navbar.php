@@ -462,6 +462,7 @@ if (isset($_SESSION['user_id'])) {
 <script>
     // Init Notifications
     window.initialNotifications = <?= json_encode($notifications ?? []) ?>;
+    console.log('Server-side notifications:', window.initialNotifications);
 
     // Local Time Clock (Device Time)
     function tick() {

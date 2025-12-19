@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const a = document.createElement('a');
-        a.className = `d-block w-100 text-decoration-none px-4 py-3 border-bottom notification-item ${bgClass}`;
+        a.className = `d-block w-100 text-decoration-none px-4 py-3 border-bottom notification-item ${bgClass} text-dark`;
         a.href = '#';
         a.dataset.id = notif.notification_id;
         a.dataset.link = notif.link || '';
