@@ -434,7 +434,7 @@ $user_balance = floatval($user['coins'] ?? 0);
   <!-- Reservation Details Modal -->
   <div class="modal fade modal-glass" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document"> <!-- Changed to lg for better width -->
+    <div class="modal-dialog modal-dialog-centered" role="document"> <!-- Default width -->
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title font-weight-bold text-warning" id="bookingModalLabel"><i class="fa fa-ticket mr-2"></i>
@@ -602,71 +602,64 @@ $user_balance = floatval($user['coins'] ?? 0);
       // Helper for badges
       const getStatusBadge = (status) => {
         const map = {
-            'pending': 'warning', 'confirmed': 'success', 'ongoing': 'success',
-            'completed': 'primary', 'cancelled': 'danger', 'expired': 'dark', 'void': 'danger', 'overdue': 'danger'
+          'pending': 'warning', 'confirmed': 'success', 'ongoing': 'success',
+          'completed': 'primary', 'cancelled': 'danger', 'expired': 'dark', 'void': 'danger', 'overdue': 'danger'
         };
         const color = map[status] || 'secondary';
-        return `<span class="badge badge-${color} text-uppercase px-3 py-2">${status}</span>`;
+        return `<span class="badge badge-${color} text-uppercase px-2 py-1 small">${status}</span>`;
       };
 
       let html = `
-        <div class="row mb-3">
-            <div class="col-12 d-flex justify-content-between align-items-center border-bottom border-secondary pb-3">
-                <h4 class="mb-0 text-white">Ref: <span class="text-warning">#${booking.reservation_id}</span></h4>
+        <div class="row mb-2">
+            <div class="col-12 d-flex justify-content-between align-items-center border-bottom border-secondary pb-2">
+                <h5 class="mb-0 text-white">Ref: <span class="text-warning">#${booking.reservation_id}</span></h5>
                 ${getStatusBadge(booking.status)}
             </div>
         </div>
 
         <div class="row">
             <!-- Left Column: Slot & Vehicle -->
-            <div class="col-md-6 border-right border-secondary">
-                <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-parking mr-2"></i> Parking Info</h6>
+            <div class="col-6 border-right border-secondary pr-2">
+                <h6 class="small text-uppercase text-white-50 mb-2"><i class="fas fa-parking mr-1"></i> Parking</h6>
                 
-                <div class="d-flex align-items-center mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05);">
-                    <div class="mr-3 text-center">
-                        <span class="display-4 font-weight-bold text-success d-block" style="line-height:1;">${booking.slot_number}</span>
-                        <small class="text-white-50">${booking.slot_type}</small>
+                <div class="d-flex align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.05);">
+                    <div class="text-center w-100">
+                        <span class="h3 font-weight-bold text-success d-block mb-0" style="line-height:1;">${booking.slot_number}</span>
+                        <small class="text-white-50" style="font-size:0.75rem">${booking.slot_type}</small>
                     </div>
                 </div>
 
-                <h6 class="text-uppercase text-white-50 mt-4 mb-3"><i class="fas fa-car mr-2"></i> Vehicle Details</h6>
-                <div class="pl-2">
-                    <p class="mb-1 text-white font-weight-bold" style="font-size: 1.1rem;">${booking.brand} ${booking.model}</p>
-                    <p class="text-white-50"><span class="badge badge-light">${booking.plate_number}</span></p>
+                <h6 class="small text-uppercase text-white-50 mt-3 mb-2"><i class="fas fa-car mr-1"></i> Vehicle</h6>
+                <div class="pl-1">
+                    <p class="mb-0 text-white font-weight-bold small">${booking.brand} ${booking.model}</p>
+                    <small class="text-white-50">${booking.plate_number}</small>
                 </div>
             </div>
 
             <!-- Right Column: Timing & Payment -->
-            <div class="col-md-6 pl-md-4">
-                 <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-clock mr-2"></i> Timing</h6>
-                 <div class="pl-2 mb-4">
-                    <div class="mb-2">
-                        <small class="text-white-50 d-block">Start Time</small>
-                        <span class="text-white">${formatDateTime(booking.start_time)}</span>
+            <div class="col-6 pl-3">
+                 <h6 class="small text-uppercase text-white-50 mb-2"><i class="fas fa-clock mr-1"></i> Timing</h6>
+                 <div class="pl-1 mb-3 small">
+                    <div class="mb-1">
+                        <span class="text-white-50">Start:</span> <span class="text-white">${formatDateTime(booking.start_time)}</span>
                     </div>
-                    <div class="mb-2">
-                        <small class="text-white-50 d-block">End Time</small>
-                        <span class="text-white">${formatDateTime(booking.end_time)}</span>
+                    <div class="mb-1">
+                        <span class="text-white-50">End:</span> <span class="text-white">${formatDateTime(booking.end_time)}</span>
                     </div>
-                    <div class="mb-2">
-                         <small class="text-white-50 d-block">Duration</small>
-                         <span class="text-info">${booking.duration} hours</span>
+                    <div>
+                         <span class="text-white-50">Dur:</span> <span class="text-info">${booking.duration} hrs</span>
                     </div>
                  </div>
 
-                 <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-receipt mr-2"></i> Payment</h6>
-                 <div class="p-3 rounded" style="background: rgba(255,255,255,0.05);">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-white-50">Total Amount</span>
+                 <h6 class="small text-uppercase text-white-50 mb-2"><i class="fas fa-receipt mr-1"></i> Payment</h6>
+                 <div class="p-2 rounded small" style="background: rgba(255,255,255,0.05);">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-white-50">Total</span>
                         <span class="text-warning font-weight-bold">🪙 ${Number(booking.amount).toFixed(2)}</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-white-50">Status</span>
-                        <span class="text-capitalize text-${booking.payment_status==='successful'?'success':'warning'}">${booking.payment_status || 'N/A'}</span>
-                    </div>
                     <div class="d-flex justify-content-between">
-                        <span class="text-white-50">Date</span>
-                        <small class="text-white text-right">${formatDateTime(booking.payment_date)}</small>
+                        <span class="text-white-50">Sts</span>
+                        <span class="text-capitalize text-${booking.payment_status === 'successful' ? 'success' : 'warning'}">${booking.payment_status || 'N/A'}</span>
                     </div>
                  </div>
             </div>
@@ -676,17 +669,17 @@ $user_balance = floatval($user['coins'] ?? 0);
       // Timer Section (if active)
       if (booking.status === 'confirmed' || booking.status === 'ongoing') {
         html += `
-            <div class="row mt-4">
-                <div class="col-12 text-center pt-3 border-top border-secondary">
-                    <h5 class="text-white-50 mb-2">Time Remaining</h5>
-                    <h2 class="text-info font-weight-bold" id="modalTimer">Loading...</h2>
+            <div class="row mt-3">
+                <div class="col-12 text-center pt-2 border-top border-secondary">
+                    <small class="text-white-50 d-block mb-1">Time Remaining</small>
+                    <h4 class="text-info font-weight-bold mb-0" id="modalTimer">Loading...</h4>
                 </div>
             </div>
         `;
       }
 
       modalBodyContent.innerHTML = html;
-      
+
       // ... (Timer Logic remains same) ...
       if (timerInterval) clearInterval(timerInterval);
       if (booking.status === 'confirmed' || booking.status === 'ongoing') {
@@ -694,21 +687,21 @@ $user_balance = floatval($user['coins'] ?? 0);
           const end = new Date(booking.end_time.replace(' ', 'T'));
           const now = new Date();
           let diff = Math.floor((end.getTime() - now.getTime()) / 1000); // Seconds
-          
+
           if (diff > 0) {
             const h = Math.floor(diff / 3600);
             diff %= 3600;
             const m = Math.floor(diff / 60);
             const s = diff % 60;
             const el = document.getElementById('modalTimer');
-            if(el) el.textContent = `${h}h ${m}m ${s}s`;
+            if (el) el.textContent = `${h}h ${m}m ${s}s`;
           } else {
-             const el = document.getElementById('modalTimer');
-             if(el) {
-                 el.textContent = 'Expired / Overdue';
-                 el.classList.remove('text-info');
-                 el.classList.add('text-danger');
-             }
+            const el = document.getElementById('modalTimer');
+            if (el) {
+              el.textContent = 'Expired / Overdue';
+              el.classList.remove('text-info');
+              el.classList.add('text-danger');
+            }
             clearInterval(timerInterval);
           }
         }
