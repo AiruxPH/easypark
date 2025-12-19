@@ -291,14 +291,33 @@ if (isset($_SESSION['user_id'])) {
         color: white;
     }
 
-    /* GLASS NOTIFICATION DROPDOWN */
+    /* FLOATING NOTIFICATION CARD */
     .dropdown-list {
         background: rgba(30, 30, 30, 0.95) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 25px;
-        /* Fully curved */
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
         overflow: hidden;
+        margin-top: 15px !important;
+        /* Detach from navbar */
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    /* ARROW (Caret pointing up) */
+    .nav-link[aria-expanded="true"]::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        /* Position below the bell */
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0 10px 10px 10px;
+        border-style: solid;
+        border-color: transparent transparent rgba(240, 165, 0, 0.9) transparent;
+        /* Match header color */
+        z-index: 1050;
+        animation: fadeInUp 0.2s ease-out;
     }
 
     /* Custom Scrollbar for Dropdown */
