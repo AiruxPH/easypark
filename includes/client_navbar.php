@@ -512,7 +512,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
 </div>
 <!-- Back to Top Button -->
-<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg" onclick="scrollToTop()">
+<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg" onclick="scrollToTop()" data-toggle="tooltip" data-placement="left" title="Back to Top">
     <i class="fas fa-arrow-up"></i>
 </button>
 
@@ -553,6 +553,11 @@ if (isset($_SESSION['user_id'])) {
 </style>
 
 <script>
+    // Init Tooltips
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
     // Scroll Detection
     window.onscroll = function () {
         const btn = document.getElementById("backToTop");
