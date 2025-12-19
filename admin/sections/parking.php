@@ -87,8 +87,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_slot'])) {
     $winning_res_id = $_POST['winning_reservation_id'] ?? null;
 
     if (in_array($new_status, ['available', 'reserved', 'occupied', 'unavailable'])) {
+        // ADMIN RESTRICTION: Disable updates
+        // $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
+        // $stmt->execute([$new_status, $slot_id]);
+
+        // Show error/info instead of processing
+        echo "<script>alert('Action Disabled: Admin cannot modify booking status manually.'); window.history.back();</script>";
+        exit;
+
+        /* DISABLED LOGIC
         $stmt = $pdo->prepare('UPDATE parking_slots SET slot_status = ? WHERE parking_slot_id = ?');
         $stmt->execute([$new_status, $slot_id]);
+        */
 
         // Log Activity
         logActivity($pdo, $_SESSION['user_id'], 'admin', 'parking_status_update', "Updated slot ID $slot_id status to '$new_status'");
@@ -524,7 +534,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
         $('#edit_slot_number').val(slot.slot_number);
         $('#modalResultSlotNumber').text(slot.slot_number);
         $('#edit_slot_type').val(slot.slot_type);
-        $('#edit_slot_status').val(slot.slot_status);
+        $('#edit_slot_status').val(slot.slot_status).prop('disabled', true); // Force disable
+        $('#editSlotForm button[type="submit"]').prop('disabled', true); // Force disable submit
 
         // Display Current Occupant Info if Occupied
         if (slot.slot_status === 'occupied' || (slot.slot_status === 'reserved' && slot.owner_name)) {
