@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $amountCoins = floatval($_POST['amount_coins']);
     $paymentMethod = $_POST['payment_method'] ?? 'online';
 
-    if ($amountCoins < 5 || $amountCoins > 3000) {
-        $_SESSION['flash_error'] = "Top-up amount must be between 5 and 3000 Coins.";
+    if ($amountCoins < 5 || $amountCoins > 5000) {
+        $_SESSION['flash_error'] = "Top-up amount must be between 5 and 5000 Coins.";
         header("Location: wallet.php");
         exit;
     } else {
@@ -212,6 +212,55 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
+                    <!-- LARGER BUNDLES -->
+                    <div class="row">
+                        <!-- Package 4: Elite -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card coin-card h-100"
+                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"
+                                onclick="openPaymentModal(500, 450, 'Elite')">
+                                <div
+                                    class="card-body text-center d-flex flex-column justify-content-center position-relative">
+                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-10%
+                                    </div>
+                                    <h5 class="font-weight-bold">Elite</h5>
+                                    <h3><i class="fas fa-coins fa-xs"></i> 500</h3>
+                                    <p class="mb-0 small">₱450.00</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Package 5: Titan -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card coin-card h-100"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                                onclick="openPaymentModal(1500, 1275, 'Titan')">
+                                <div
+                                    class="card-body text-center d-flex flex-column justify-content-center position-relative">
+                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-15%
+                                    </div>
+                                    <h5 class="font-weight-bold">Titan</h5>
+                                    <h3><i class="fas fa-coins fa-xs"></i> 1,500</h3>
+                                    <p class="mb-0 small">₱1,275.00</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Package 6: Royal -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card coin-card h-100"
+                                style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);"
+                                onclick="openPaymentModal(3000, 2400, 'Royal')">
+                                <div
+                                    class="card-body text-center d-flex flex-column justify-content-center position-relative">
+                                    <div class="badge badge-danger position-absolute" style="top:5px; right:5px;">-20%
+                                    </div>
+                                    <h5 class="font-weight-bold">Royal</h5>
+                                    <h3><i class="fas fa-coins fa-xs"></i> 3,000</h3>
+                                    <p class="mb-0 small">₱2,400.00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <hr class="border-secondary my-4">
 
                     <h6 class="text-white font-weight-bold mb-3">Custom Amount</h6>
@@ -222,7 +271,7 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <input type="number" id="customAmount"
                                 class="form-control bg-dark text-white border-secondary"
-                                placeholder="Enter amount (5 - 3000)" min="5" max="3000">
+                                placeholder="Enter amount (5 - 5000)" min="5" max="5000">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit">Buy</button>
                             </div>
@@ -346,8 +395,8 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         function submitCustom() {
             var val = parseFloat($('#customAmount').val());
-            if (isNaN(val) || val < 5 || val > 3000) {
-                alert('Please enter a valid amount between 5 and 3000.');
+            if (isNaN(val) || val < 5 || val > 5000) {
+                alert('Please enter a valid amount between 5 and 5000.');
                 return;
             }
             // 1:1 rate
