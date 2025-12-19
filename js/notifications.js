@@ -252,6 +252,13 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
+    // Initial Render from Server Data (Pure JS)
+    if (window.initialNotifications) {
+        updateDropdown(window.initialNotifications);
+    }
+
+    // Start Polling
+    setInterval(checkNotifications, 5000);
 });
 
 // Global functions for inline onclick handlers
