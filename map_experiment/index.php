@@ -318,34 +318,52 @@
                 box.setAttribute("width", 60);
                 box.setAttribute("height", 110);
                 box.setAttribute("fill", "none");
-                box.setAttribute("stroke", "#rgba(255,255,255,0.3)");
+                // FIX: Removed invalid '#' before rgba
+                box.setAttribute("stroke", "rgba(255,255,255,0.3)");
                 box.setAttribute("stroke-width", "3");
 
                 // Number
                 const num = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 num.textContent = cfg.id;
                 num.setAttribute("x", 0);
-                num.setAttribute("y", cfg.rotation === 180 ? 20 : 130);
+                // Position text based on orientation relative to "road" (entry)
+                // If facing 180 (Top Row), entry is at bottom (y=110). Text near entry: y=130?
+                // If facing 0 (Bottom Row), entry is at top (y=0). Text near entry: y=-20?
+                // Visual adjustment:
+                if (cfg.rotation === 180) {
+                    num.setAttribute("y", 135); // Below the slot (Road side)
+                } else {
+                    num.setAttribute("y", -15); // Above the slot (Road side)
+                }
+
                 num.setAttribute("fill", "#666");
                 num.setAttribute("font-size", "16");
                 num.setAttribute("font-weight", "900");
                 num.setAttribute("text-anchor", "middle");
 
-                // Status Indicator Light (LED strip at the back)
+                // Status Indicator Light
                 const light = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                 light.setAttribute("class", "status-indicator");
                 light.setAttribute("x", -25);
-                light.setAttribute("y", 5);
+                // Light at the "Back" of the slot (Wall side)
+                if (cfg.rotation === 180) {
+                    light.setAttribute("y", 5); // Start of slot (Top/Wall)
+                } else {
+                    light.setAttribute("y", 100); // End of slot (Bottom/Wall)
+                }
+
                 light.setAttribute("width", 50);
                 light.setAttribute("height", 4);
                 light.setAttribute("rx", 2);
-                light.setAttribute("fill", "#28a745"); // default green
+                light.setAttribute("fill", "#28a745");
                 light.setAttribute("filter", "url(#glow)");
 
-                // Car Group (Hidden by default)
+                // Car Group
                 const carG = document.createElementNS("http://www.w3.org/2000/svg", "g");
                 carG.setAttribute("class", "vehicle-visual");
-                carG.setAttribute("transform", "translate(0, 60)"); // center in slot
+                // Center + Rotation
+                // If rotation is 180, flip the car
+                carG.setAttribute("transform", `translate(0, 55) rotate(${cfg.rotation})`);
 
                 // Use the defs based on type, dynamically set later. 
                 const useCar = document.createElementNS("http://www.w3.org/2000/svg", "use");
@@ -356,10 +374,10 @@
 
                 carG.appendChild(useCar);
 
+                g.appendChild(num); // Text first (behind lines maybe? no, z-index depends on order)
                 g.appendChild(box);
-                g.appendChild(num);
                 g.appendChild(light);
-                g.appendChild(carG);
+                g.appendChild(carG); // Car on top
 
                 // Add Events
                 g.addEventListener('mouseenter', handleHover);
@@ -381,21 +399,20 @@
 
                         // 1. Update Light Color
                         const light = g.querySelector('.status-indicator');
-                        let color = '#28a745'; // Green
+                        let color = '#28a745';
                         if (slot.slot_status === 'occupied') color = '#dc3545';
                         else if (slot.slot_status === 'reserved') color = '#ffc107';
                         else if (slot.slot_status === 'unavailable') color = '#6c757d';
 
                         light.setAttribute('fill', color);
 
-                        // 2. Show/Hide Vehicle
+                        // 2. Update Vehicle
                         const carUse = g.querySelector('.car-shape');
                         if (slot.slot_status === 'occupied') {
                             carUse.setAttribute('display', 'block');
-                            // Determine vehicle type visual
                             if (slot.slot_type === 'two_wheeler') {
                                 carUse.setAttribute('href', '#moto-top');
-                                carUse.setAttribute('fill', '#4db8ff'); // distinct color for moto
+                                carUse.setAttribute('fill', '#4db8ff');
                             } else {
                                 carUse.setAttribute('href', '#car-top');
                                 carUse.setAttribute('fill', '#dc3545');
@@ -404,7 +421,7 @@
                             carUse.setAttribute('display', 'none');
                         }
 
-                        // Store Data for Tooltip
+                        // Store Data
                         g.dataset.status = slot.slot_status;
                         g.dataset.type = slot.slot_type;
                         g.dataset.plate = slot.plate_number;
