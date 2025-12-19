@@ -86,31 +86,16 @@ if (isset($_SESSION['user_id'])) {
                     }
                 </style>
 
-                <li class="nav-item dropdown mr-3">
-                    <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Notifications">
+                <li class="nav-item mr-3">
+                    <a class="nav-link position-relative" href="#" id="alertsTrigger" role="button" data-toggle="modal"
+                        data-target="#notificationCenterModal" title="Notifications">
                         <i class="fas fa-bell fa-fw" style="font-size: 1.2rem;"></i>
                         <?php if ($unreadCount > 0): ?>
                             <span class="badge badge-danger badge-counter position-absolute"
                                 style="top: 0; right: 0; font-size: 0.6rem;"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
                         <?php endif; ?>
                     </a>
-                    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in p-0"
-                        aria-labelledby="alertsDropdown" style="width: 25rem;">
-                        <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0 border-bottom">
-                            Notifications Center
-                        </h6>
-                        <div id="notification-scroll-area"
-                            style="max-height: 200px; overflow-y: auto; display: block !important;">
-                            <!-- Content rendered via JS -->
-                        </div>
-                        <a class="dropdown-item text-center small text-gray-500 py-2 bg-light border-bottom"
-                            href="all_notifications.php">
-                            View All Notifications
-                        </a>
-                        <a class="dropdown-item text-center small text-gray-500 py-2 bg-light" href="#"
-                            onclick="markAllRead(event)">Mark all as Read</a>
-                    </div>
+                </li>
                 </li>
 
                 <li class="nav-item">
@@ -496,3 +481,32 @@ if (isset($_SESSION['user_id'])) {
     setInterval(tick, 1000);
     tick();
 </script>
+
+<!-- Notification Center Modal -->
+<div class="modal fade" id="notificationCenterModal" tabindex="-1" role="dialog" aria-labelledby="notifCenterLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content"
+            style="background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title font-weight-bold" id="notifCenterLabel">
+                    <i class="fas fa-bell mr-2 text-warning"></i> Notification Center
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0" id="notification-scroll-area" style="max-height: 60vh; overflow-y: auto;">
+                <!-- Content rendered via JS -->
+            </div>
+            <div class="modal-footer border-top border-secondary justify-content-between">
+                <a href="#" onclick="markAllRead(event)" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-check-double mr-1"></i> Mark All as Read
+                </a>
+                <a href="all_notifications.php" class="btn btn-sm btn-primary">
+                    View All Activity <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

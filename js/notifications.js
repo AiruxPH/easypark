@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     updateBadge(data.unread_count);
-                    updateDropdown(data.notifications);
+                    updateNotificationList(data.notifications);
 
                     // If count INCREASED (and it's not the initial load), show a toast and play sound
                     if (lastUnreadCount !== -1 && data.unread_count > lastUnreadCount) {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function updateDropdown(notifications) {
+    function updateNotificationList(notifications) {
         // Target the inner scroll area
         const scrollArea = document.getElementById('notification-scroll-area');
         if (!scrollArea) return;
@@ -76,10 +76,9 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollArea.innerHTML = ''; // Clear current list
 
         if (notifications.length === 0) {
-            const noMsg = document.createElement('a');
-            noMsg.className = 'dropdown-item d-flex align-items-center py-3 text-muted justify-content-center no-notif-msg';
-            noMsg.href = '#';
-            noMsg.innerHTML = '<small>No new notifications</small>';
+            const noMsg = document.createElement('div');
+            noMsg.className = 'd-flex align-items-center py-5 text-muted justify-content-center flex-column';
+            noMsg.innerHTML = '<i class="far fa-bell-slash fa-2x mb-2 opacity-50"></i><small>No new notifications</small>';
             scrollArea.appendChild(noMsg);
         } else {
             // 1. Sort notifications safely
@@ -106,8 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
             groups.forEach(group => {
                 // Render Header
                 const header = document.createElement('div');
-                header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
-                header.style.fontSize = '0.7rem';
+                header.className = 'px-4 text-white-50 font-weight-bold small mt-3 mb-2 text-uppercase';
+                header.style.fontSize = '0.75rem';
                 header.style.opacity = '0.9';
                 header.innerText = group.label;
                 scrollArea.appendChild(header);
@@ -173,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const a = document.createElement('a');
-        a.className = `dropdown-item d-flex align-items-center py-3 border-bottom notification-item ${bgClass}`;
+        a.className = `d-block w-100 text-decoration-none px-4 py-3 border-bottom notification-item ${bgClass}`;
         a.href = '#';
         a.dataset.id = notif.notification_id;
         a.dataset.link = notif.link || '';
@@ -254,11 +253,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // Initial Render from Server Data (Pure JS)
     if (window.initialNotifications) {
-        updateDropdown(window.initialNotifications);
+        updateNotificationList(window.initialNotifications);
     }
 
-    // Start Polling
-    setInterval(checkNotifications, 5000);
+    // Start Polling (Fixed: Removed duplicate interval call to undefined checkNotifications)
 });
 
 // Global functions for inline onclick handlers
