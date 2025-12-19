@@ -178,6 +178,9 @@ if ($action === 'cancel') {
         require_once 'includes/notifications.php';
         sendNotification($pdo, $user_id, 'Booking Extended', "Reservation #$reservation_id extended by $extension_hours hours. New end time: $new_end_str", 'success', 'bookings.php');
 
+        // Log Activity
+        logActivity($pdo, $user_id, 'client', 'reservation_extended', "Reservation #$reservation_id extended by $extension_hours hours. Cost: $amount");
+
         echo json_encode(['success' => true, 'message' => "Booking extended successfully!"]);
 
     } catch (Exception $e) {
