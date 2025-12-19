@@ -9,7 +9,8 @@ $sql = "
         ps.slot_number,
         ps.slot_status, 
         ps.slot_type,
-        v.plate_number
+        v.plate_number,
+        v.vehicle_type
     FROM parking_slots ps
     LEFT JOIN reservations r ON ps.parking_slot_id = r.parking_slot_id 
         AND r.status = 'ongoing'

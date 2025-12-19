@@ -410,11 +410,25 @@
                         const carUse = g.querySelector('.car-shape');
                         if (slot.slot_status === 'occupied') {
                             carUse.setAttribute('display', 'block');
-                            if (slot.slot_type === 'two_wheeler') {
+
+                            // Determine vehicle type visual
+                            // Types: two_wheeler, standard, sedan, suv, van, truck...
+                            // Data sources: slot.vehicle_type (from vehicle) OR slot.slot_type (from slot)
+
+                            const vType = (slot.vehicle_type || slot.slot_type || 'standard').toLowerCase();
+
+                            if (vType === 'two_wheeler' || vType === 'motorcycle' || vType === 'bike') {
                                 carUse.setAttribute('href', '#moto-top');
                                 carUse.setAttribute('fill', '#4db8ff');
+                            } else if (vType === 'suv') {
+                                carUse.setAttribute('href', '#car-suv');
+                                carUse.setAttribute('fill', '#d9534f'); // Darker red/rugged
+                            } else if (vType === 'van') {
+                                carUse.setAttribute('href', '#car-van');
+                                carUse.setAttribute('fill', '#f0ad4e'); // Orange/Commercial
                             } else {
-                                carUse.setAttribute('href', '#car-top');
+                                // Default Sedan/Standard
+                                carUse.setAttribute('href', '#car-sedan');
                                 carUse.setAttribute('fill', '#dc3545');
                             }
                         } else {
