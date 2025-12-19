@@ -76,10 +76,13 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.png" type="image/png">
     <style>
         body {
             font-family: 'Outfit', sans-serif;
+            color: #e0e0e0;
         }
+
         .bg-car {
             background-image: url('images/bg-car.jpg');
             background-size: cover;
@@ -89,39 +92,106 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             min-height: 100vh;
         }
 
-        /* Glassmorphism Card (similar to Reservations/Bookings) */
+        /* Dark Glassmorphism */
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(43, 45, 66, 0.85);
+            /* Dark base */
+            backdrop-filter: blur(12px);
             border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Form Controls */
+        .form-control {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border-color: #f0a500;
+            box-shadow: none;
+        }
+
+        .input-group-text {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        /* Table */
+        .table {
+            color: #e0e0e0;
+        }
+
+        .table thead th {
+            border-top: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #f0a500;
+        }
+
+        .table td {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
         }
 
         .table-hover tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-            transition: background-color 0.2s;
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .badge-action {
-            font-size: 0.85rem;
-            padding: 0.4em 0.8em;
-            width: 100px;
-            /* Fixed width for alignment */
+            font-size: 0.8rem;
+            padding: 0.5em 0.8em;
+            width: 110px;
             display: inline-block;
             text-align: center;
+            border-radius: 4px;
+            font-weight: 500;
         }
-        
+
         .btn-back {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s;
         }
+
         .btn-back:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
-            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* Pagination */
+        .page-link {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .page-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .page-item.active .page-link {
+            background-color: #f0a500;
+            border-color: #f0a500;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .page-item.disabled .page-link {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #666;
         }
     </style>
 </head>
@@ -132,9 +202,9 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
-                <i class="fa fa-history mr-2"></i> My Activity History
+                <i class="fa fa-history mr-2 text-warning"></i> My Activity History
             </h2>
-            <a href="profile.php" class="btn btn-back rounded-pill px-4">
+            <a href="profile.php" class="btn btn-back rounded-pill px-4 shadow-sm">
                 <i class="fa fa-arrow-left mr-2"></i> Back to Profile
             </a>
         </div>
@@ -146,33 +216,33 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col-md-4 mb-2">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-white border-right-0"><i
-                                        class="fa fa-search text-muted"></i></span>
+                                <span class="input-group-text border-right-0"><i class="fa fa-search"></i></span>
                             </div>
                             <input type="text" name="search" class="form-control border-left-0"
                                 placeholder="Search details..." value="<?= htmlspecialchars($search) ?>">
                         </div>
                     </div>
                     <div class="col-md-4 mb-2">
-                         <div class="input-group">
+                        <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-filter text-muted"></i></span>
+                                <span class="input-group-text border-right-0"><i class="fa fa-filter"></i></span>
                             </div>
                             <select name="action_filter" class="form-control border-left-0">
-                                <option value="">All Actions</option>
-                                <option value="login_logout" <?= $actionFilter === 'login_logout' ? 'selected' : '' ?>>Login / Logout</option>
-                                <option value="reservation" <?= $actionFilter === 'reservation' ? 'selected' : '' ?>>Reservations</option>
-                                <option value="wallet" <?= $actionFilter === 'wallet' ? 'selected' : '' ?>>Wallet / Top-up</option>
-                                <option value="profile" <?= $actionFilter === 'profile' ? 'selected' : '' ?>>Profile Updates</option>
+                                <option value="" class="text-dark">All Actions</option>
+                                <option value="login_logout" class="text-dark" <?= $actionFilter === 'login_logout' ? 'selected' : '' ?>>Login / Logout</option>
+                                <option value="reservation" class="text-dark" <?= $actionFilter === 'reservation' ? 'selected' : '' ?>>Reservations</option>
+                                <option value="wallet" class="text-dark" <?= $actionFilter === 'wallet' ? 'selected' : '' ?>>Wallet / Top-up</option>
+                                <option value="profile" class="text-dark" <?= $actionFilter === 'profile' ? 'selected' : '' ?>>Profile Updates</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary btn-block shadow-sm">Filter</button>
+                        <button type="submit"
+                            class="btn btn-warning btn-block shadow-sm font-weight-bold">Filter</button>
                     </div>
                     <?php if ($search || $actionFilter): ?>
                         <div class="col-md-2 mb-2">
-                            <a href="activity_logs.php" class="btn btn-outline-secondary btn-block">Clear</a>
+                            <a href="activity_logs.php" class="btn btn-outline-light btn-block">Clear</a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -180,7 +250,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th width="20%">Date & Time</th>
                             <th width="15%">Action</th>
@@ -197,7 +267,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 if (strpos($act, 'login') !== false)
                                     $badgeClass = 'info';
                                 elseif (strpos($act, 'logout') !== false)
-                                    $badgeClass = 'light border';
+                                    $badgeClass = 'light';
                                 elseif (strpos($act, 'reservation') !== false)
                                     $badgeClass = 'primary';
                                 elseif (strpos($act, 'cancel') !== false || strpos($act, 'delete') !== false)
@@ -209,27 +279,27 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 ?>
                                 <tr>
                                     <td>
-                                        <div class="font-weight-bold text-dark">
+                                        <div class="font-weight-bold text-white">
                                             <?= date('M d, Y', strtotime($log['created_at'])) ?>
                                         </div>
-                                        <small class="text-muted">
+                                        <small class="text-white-50">
                                             <?= date('h:i A', strtotime($log['created_at'])) ?>
                                         </small>
                                     </td>
                                     <td>
-                                        <span class="badge badge-<?= $badgeClass ?> badge-action shadow-sm">
-                                            <?= ucfirst(str_replace('_', ' ', $log['action'])) ?>
+                                        <span class="badge badge-<?= $badgeClass ?> badge-action shadow-sm text-uppercase">
+                                            <?= str_replace('_', ' ', $log['action']) ?>
                                         </span>
                                     </td>
-                                    <td class="text-secondary">
+                                    <td class="text-light">
                                         <?= htmlspecialchars($log['details']) ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="3" class="text-center py-5 text-muted">
-                                    <i class="fa fa-info-circle fa-2x mb-3 d-block text-gray-300"></i>
+                                <td colspan="3" class="text-center py-5 text-white-50">
+                                    <i class="fa fa-info-circle fa-2x mb-3 d-block text-white-50"></i>
                                     No activity logs found.
                                 </td>
                             </tr>
@@ -285,11 +355,11 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
                         <?php endif; ?>
 
-                        <label class="mr-2 text-muted small">Jump to:</label>
+                        <label class="mr-2 text-white-50 small">Jump to:</label>
                         <input type="number" name="page" min="1" max="<?= $totalPages ?>"
-                            class="form-control form-control-sm border-secondary" style="width: 70px;"
+                            class="form-control form-control-sm border-secondary text-white bg-dark" style="width: 70px;"
                             placeholder="<?= $page ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-primary ml-1">Go</button>
+                        <button type="submit" class="btn btn-sm btn-outline-warning ml-1">Go</button>
                     </form>
                 </nav>
             <?php endif; ?>
