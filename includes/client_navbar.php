@@ -107,8 +107,7 @@ if (isset($_SESSION['user_id'])) {
                         <a class="dropdown-item text-center small text-gray-500 py-2 bg-light" href="#"
                             onclick="markAllRead(event)">Mark all as Read</a>
                     </div>
-        </div>
-        </li>
+                </li>
 
         <li class="nav-item">
             <a class="btn btn-primary d-flex align-items-center" href="profile.php" id="accountButton"
