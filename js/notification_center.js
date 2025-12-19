@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
-    const POLL_INTERVAL = 5000; // 5 seconds
+    const POLL_INTERVAL = 30000; // 30 seconds
     let lastUnreadCount = -1; // Initialize with -1 to force first update
 
     // Elements
