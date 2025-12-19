@@ -356,3 +356,86 @@ $pendingCount = $pendingCountStmt->fetchColumn() ?: 0;
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.querySelector('table tbody');
+        const filterForm = document.querySelector('form'); // The main filter form
+
+        // Inputs
+        const searchInput = document.querySelector('input[name="search"]');
+        const statusSelect = document.querySelector('select[name="status"]');
+        const dateFromInput = document.querySelector('input[name="date_from"]');
+        const dateToInput = document.querySelector('input[name="date_to"]');
+
+        let currentPage = 1;
+
+        function loadPayments(page = 1) {
+            currentPage = page;
+
+            const params = new URLSearchParams();
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (statusSelect && statusSelect.value) params.append('status', statusSelect.value);
+            if (dateFromInput && dateFromInput.value) params.append('date_from', dateFromInput.value);
+            if (dateToInput && dateToInput.value) params.append('date_to', dateToInput.value);
+            params.append('page', page);
+
+            // Fetch
+            const newUrl = 'index.php?section=payments&' + params.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            fetch('ajax/search_payments_html.php?' + params.toString())
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (tableBody) tableBody.innerHTML = data.table_html;
+
+                        // Update Pagination
+                        const nav = document.querySelector('nav[aria-label="Page navigation"]');
+                        if (data.pagination_html) {
+                            if (nav) {
+                                const ul = nav.querySelector('ul');
+                                if (ul) ul.outerHTML = data.pagination_html;
+                                else nav.innerHTML = data.pagination_html + nav.innerHTML.replace(/<ul.*<\/ul>/s, '');
+                            } else {
+                                const cardBody = document.querySelector('.card-body');
+                                if (cardBody) cardBody.insertAdjacentHTML('beforeend', `<nav aria-label="Page navigation" class="mt-4 mb-4">${data.pagination_html}</nav>`);
+                            }
+                        } else {
+                            if (nav) nav.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.error('Payments Load Error:', err));
+        }
+
+        // Listeners
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                loadPayments(1);
+            });
+        }
+        [statusSelect, dateFromInput, dateToInput].forEach(el => {
+            if (el) el.addEventListener('change', () => loadPayments(1));
+        });
+
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadPayments(1), 500);
+            });
+        }
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.page-link')) {
+                const link = e.target.closest('.page-link');
+                const page = link.getAttribute('data-page');
+                if (page) {
+                    e.preventDefault();
+                    loadPayments(page);
+                }
+            }
+        });
+    });
+</script>

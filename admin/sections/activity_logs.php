@@ -227,3 +227,99 @@ $actions = $actionStmt->fetchAll(PDO::FETCH_COLUMN);
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.querySelector('table tbody');
+        const filterForm = document.querySelector('form');
+
+        // Inputs
+        const searchInput = document.querySelector('input[name="search"]');
+        const actionSelect = document.querySelector('select[name="action"]');
+        // We need user_type_context to respect the role filter (staff/client vs all)
+        // Since we can't easily read PHP session in JS, we infer it from PHP rendered HTML or rely on default 'admin'.
+        // Actually, the server script needs it. We can add a hidden input or just let the backend handle it if we pass it? 
+        // The backend relies on session or context. Let's look at `search_activity_logs_html.php`.
+        // It reads $_GET['user_type_context']. We should pass the session user type if possible.
+        // Or simpler: The backend script `search_activity_logs_html.php` should really inspect $_SESSION['user_type'].
+        // But for now let's pass it if we can, or fix the backend to use session.
+        // Re-checking backend: `search_activity_logs_html.php` uses `$_GET['user_type_context']`.
+        // So we should inject it here.
+        const currentUserType = '<?= $current_user_type ?>';
+
+        let currentPage = 1;
+
+        function loadLogs(page = 1) {
+            currentPage = page;
+
+            const params = new URLSearchParams();
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (actionSelect && actionSelect.value) params.append('action', actionSelect.value);
+            params.append('user_type_context', currentUserType);
+            params.append('page', page);
+
+            // Fetch
+            const newUrl = 'index.php?section=activity_logs&' + params.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            fetch('ajax/search_activity_logs_html.php?' + params.toString())
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (tableBody) tableBody.innerHTML = data.table_html;
+
+                        // Update Pagination
+                        const nav = document.querySelector('nav[aria-label="Page navigation"]');
+                        if (data.pagination_html) {
+                            if (nav) {
+                                const ul = nav.querySelector('ul');
+                                if (ul) ul.outerHTML = data.pagination_html;
+                                else nav.innerHTML = data.pagination_html + nav.innerHTML.replace(/<ul.*<\/ul>/s, '');
+                            } else {
+                                const container = document.querySelector('.table-responsive');
+                                if (container) container.insertAdjacentHTML('beforeend', `<nav aria-label="Page navigation" class="mt-4">${data.pagination_html}</nav>`);
+                            }
+                        } else {
+                            if (nav) nav.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.error('Logs Load Error:', err));
+        }
+
+        // Listeners
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                loadLogs(1);
+            });
+        }
+        if (actionSelect) {
+            // Remove the inline onchange="this.form.submit()" first if it exists, or just override it?
+            // The replace_file_content overwrites the HTML, but the PHP loop above generated it.
+            // Waait. The PHP file has `onchange="this.form.submit()"`.
+            // We should remove that attribute in our JS or just preventDefault?
+            // Better: remove it programmatically.
+            actionSelect.removeAttribute('onchange');
+            actionSelect.addEventListener('change', () => loadLogs(1));
+        }
+
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadLogs(1), 500);
+            });
+        }
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.page-link')) {
+                const link = e.target.closest('.page-link');
+                const page = link.getAttribute('data-page');
+                if (page) {
+                    e.preventDefault();
+                    loadLogs(page);
+                }
+            }
+        });
+    });
+</script>
