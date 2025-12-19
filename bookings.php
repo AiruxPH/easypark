@@ -772,8 +772,7 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
         }
       });
     };
-      });
-    };
+
 
     // ---------------------------------------------------------
     // EXTEND LOGIC
