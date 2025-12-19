@@ -25,9 +25,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 0. Live Plate Check
     if ($action === 'check_plate') {
         $plate = trim($_POST['plate_number'] ?? '');
+        $excludeId = intval($_POST['exclude_vehicle_id'] ?? 0);
+
         if ($plate) {
-            $stmt = $pdo->prepare('SELECT COUNT(*) FROM vehicles WHERE plate_number = ?');
-            $stmt->execute([$plate]);
+            $sql = 'SELECT COUNT(*) FROM vehicles WHERE plate_number = ?';
+            $params = [$plate];
+
+            if ($excludeId > 0) {
+                $sql .= ' AND vehicle_id != ?';
+                $params[] = $excludeId;
+            }
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
             $exists = $stmt->fetchColumn() > 0;
             echo json_encode(['success' => true, 'exists' => $exists]);
         } else {
