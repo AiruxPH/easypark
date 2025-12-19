@@ -16,12 +16,35 @@ if ($_SESSION['user_type'] != 'client' && $_SESSION['user_type'] == 'staff') {
   exit();
 }
 
+// Fetches user stats
 require_once 'includes/db.php';
 $user_id = $_SESSION['user_id'];
-// Optional: Fetch user details for personal greeting if needed
-$stmt = $pdo->prepare('SELECT first_name FROM users WHERE user_id = ?');
+
+// 1. Fetch User Name & Wallet Balance
+$stmt = $pdo->prepare('SELECT first_name, coins FROM users WHERE user_id = ?');
 $stmt->execute([$user_id]);
-$user_name = $stmt->fetchColumn();
+$user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+$user_name = $user_data['first_name'];
+$user_coins = $user_data['coins'];
+
+// 2. Fetch Active Bookings Count
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE user_id = ? AND status IN ('confirmed', 'ongoing')");
+$stmt->execute([$user_id]);
+$active_bookings_count = $stmt->fetchColumn();
+
+// 3. Check for Critical Session (Ongoing or Immediate Upcoming)
+$stmt = $pdo->prepare("SELECT r.*, p.slot_number, p.slot_type 
+    FROM reservations r 
+    JOIN parking_slots p ON r.parking_slot_id = p.parking_slot_id 
+    WHERE r.user_id = ? 
+    AND r.status IN ('ongoing', 'confirmed') 
+    AND r.end_time > NOW() 
+    ORDER BY 
+        CASE WHEN r.status = 'ongoing' THEN 1 ELSE 2 END, 
+        r.start_time ASC 
+    LIMIT 1");
+$stmt->execute([$user_id]);
+$current_session = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -161,7 +184,13 @@ $user_name = $stmt->fetchColumn();
       border-radius: 24px;
       padding: 2.5rem;
       height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .glass-card:hover {
@@ -192,8 +221,53 @@ $user_name = $stmt->fetchColumn();
     .feature-title {
       font-size: 1.25rem;
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       color: #fff;
+    }
+
+    .stat-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 10px rgba(240, 165, 0, 0.3);
+    }
+
+    /* Current Session Widget */
+    .session-widget {
+      background: rgba(240, 165, 0, 0.15);
+      border: 1px solid rgba(240, 165, 0, 0.3);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: left;
+      animation: fadeInUp 1s ease-out;
+      width: 100%;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+    }
+
+    .session-badge {
+      background: var(--primary);
+      color: #000;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     /* Animations */
@@ -328,9 +402,40 @@ $user_name = $stmt->fetchColumn();
   <header class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="display-title">Welcome Back, <?= htmlspecialchars($user_name ?? 'Driver') ?>!</h1>
-      <p class="lead-text">Ready to park? Your perfect spot is just a click away.</p>
-      <a href="reservations.php" class="btn btn-glow"><i class="fas fa-car mr-2"></i> Book Now</a>
+
+      <?php if ($current_session): ?>
+        <!-- ACTIVE SESSION WIDGET -->
+        <div class="session-widget">
+          <div class="session-header">
+            <span class="text-white-50 small"><i class="fas fa-satellite-dish mr-2 text-success"></i> LIVE STATUS</span>
+            <span class="session-badge"><?= strtoupper($current_session['status']) ?></span>
+          </div>
+          <div class="row align-items-center">
+            <div class="col-8">
+              <h2 class="font-weight-bold text-white mb-0">Slot <?= htmlspecialchars($current_session['slot_number']) ?>
+              </h2>
+              <p class="text-white-50 mb-0"><?= htmlspecialchars(ucfirst($current_session['slot_type'])) ?> Parking</p>
+            </div>
+            <div class="col-4 text-right">
+              <i class="fas fa-parking fa-3x text-white-50"></i>
+            </div>
+          </div>
+          <hr class="border-secondary my-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-white-50 d-block">Ends at</small>
+              <strong class="text-white"><?= date('h:i A', strtotime($current_session['end_time'])) ?></strong>
+            </div>
+            <a href="bookings.php" class="btn btn-sm btn-outline-warning rounded-pill px-3">View Details</a>
+          </div>
+        </div>
+      <?php else: ?>
+        <!-- STANDARD GREETING -->
+        <h1 class="display-title">Welcome Back, <?= htmlspecialchars($user_name ?? 'Driver') ?>!</h1>
+        <p class="lead-text">Ready to park? Your perfect spot is just a click away.</p>
+        <a href="reservations.php" class="btn btn-glow"><i class="fas fa-car mr-2"></i> Book Now</a>
+      <?php endif; ?>
+
     </div>
 
     <div class="scroll-indicator">
@@ -342,18 +447,23 @@ $user_name = $stmt->fetchColumn();
   <section class="features-section">
     <div class="container">
       <div class="row">
-        <!-- Feature 1 -->
+        <!-- Feature 1: My Bookings -->
         <div class="col-md-4 mb-4">
           <a href="bookings.php" class="text-decoration-none">
             <div class="glass-card text-center">
               <div class="feature-icon"><i class="fas fa-list-alt"></i></div>
               <h4 class="feature-title">My Bookings</h4>
-              <p class="text-white-50 small mb-0">View your active reservations and history.</p>
+              <?php if ($active_bookings_count > 0): ?>
+                <div class="stat-text"><?= $active_bookings_count ?> Active</div>
+                <p class="text-white-50 small mb-0">View your current reservations.</p>
+              <?php else: ?>
+                <p class="text-white-50 small mb-0">No active bookings.</p>
+              <?php endif; ?>
             </div>
           </a>
         </div>
 
-        <!-- Feature 2 -->
+        <!-- Feature 2: New Reservation -->
         <div class="col-md-4 mb-4">
           <a href="reservations.php" class="text-decoration-none">
             <div class="glass-card text-center">
@@ -364,13 +474,14 @@ $user_name = $stmt->fetchColumn();
           </a>
         </div>
 
-        <!-- Feature 3 -->
+        <!-- Feature 3: My Wallet -->
         <div class="col-md-4 mb-4">
           <a href="wallet.php" class="text-decoration-none">
             <div class="glass-card text-center">
               <div class="feature-icon"><i class="fas fa-wallet"></i></div>
               <h4 class="feature-title">My Wallet</h4>
-              <p class="text-white-50 small mb-0">Top up and manage your payment methods.</p>
+              <div class="stat-text">🪙 <?= number_format($user_coins, 2) ?></div>
+              <p class="text-white-50 small mb-0">Tap to Top Up</p>
             </div>
           </a>
         </div>
