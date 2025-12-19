@@ -511,4 +511,4 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
 </div>
-<script src="js/notifications.js"></script>
+<script src="js/notifications.js?v=<?= time() ?>"></script>
