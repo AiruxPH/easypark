@@ -561,16 +561,22 @@ if (isset($_SESSION['user_id'])) {
         }
     });
 
-
-    // Scroll Detection
-    window.onscroll = function () {
+    // Scroll Detection (Safer Event Listener)
+    window.addEventListener('scroll', function() {
         const btn = document.getElementById("backToTop");
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        if (!btn) return;
+
+        // Debug scroll position (Remove after verifying)
+        // console.log('Scroll Y:', window.scrollY); 
+
+        if (window.scrollY > 300) {
             btn.style.display = "block";
+            // Ensure opacity is resetting just in case
+            btn.style.opacity = "1";
         } else {
             btn.style.display = "none";
         }
-    };
+    });
 
     // Smooth Scroll to Top
     function scrollToTop() {
