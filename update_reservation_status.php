@@ -131,12 +131,20 @@ if ($action === 'cancel') {
             throw new Exception("Cannot extend: The slot is already booked for the requested time.");
         }
 
-        // 3. Calculate Cost
-        $rate = 0;
-        if (defined('SLOT_RATES') && isset(SLOT_RATES[$row['slot_type']]['hour'])) {
-            $rate = SLOT_RATES[$row['slot_type']]['hour'];
+        // 3. Calculate Cost (Mixed Rate)
+        $hour_rate = 0;
+        $day_rate = 0;
+
+        if (defined('SLOT_RATES') && isset(SLOT_RATES[$row['slot_type']])) {
+            $hour_rate = SLOT_RATES[$row['slot_type']]['hour'] ?? 0;
+            $day_rate = SLOT_RATES[$row['slot_type']]['day'] ?? ($hour_rate * 24); // Fallback if no day rate
         }
-        $amount = $extension_hours * $rate;
+
+        // Formula: Full Days * DayRate + Remaining Hours * HourRate
+        $days = floor($extension_hours / 24);
+        $rem_hours = $extension_hours - ($days * 24);
+
+        $amount = ($days * $day_rate) + ($rem_hours * $hour_rate);
 
         // 4. Payment Processing
         if ($amount > 0) {

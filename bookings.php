@@ -252,11 +252,14 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
                 $showTimer = $isConfirmed && $b['end_time'] > $now && $b['start_time'] <= $now;
 
                 // Inject Rate into booking data for JS usage
-                $rate = 0;
-                if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']]['hour'])) {
-                  $rate = SLOT_RATES[$b['slot_type']]['hour'];
+                $hour_rate = 0;
+                $day_rate = 0;
+                if (defined('SLOT_RATES') && isset(SLOT_RATES[$b['slot_type']])) {
+                  $hour_rate = SLOT_RATES[$b['slot_type']]['hour'] ?? 0;
+                  $day_rate = SLOT_RATES[$b['slot_type']]['day'] ?? ($hour_rate * 24);
                 }
-                $b['rate'] = $rate;
+                $b['hour_rate'] = $hour_rate;
+                $b['day_rate'] = $day_rate;
 
                 $rowData = htmlspecialchars(json_encode($b));
                 // Calculate remaining time for duration column
@@ -490,6 +493,9 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
               <option value="3">3 Hours</option>
               <option value="4">4 Hours</option>
               <option value="5">5 Hours</option>
+              <option value="24" class="font-weight-bold">1 Day (24 Hours)</option>
+              <option value="48" class="font-weight-bold">2 Days (48 Hours)</option>
+              <option value="72" class="font-weight-bold">3 Days (72 Hours)</option>
             </select>
           </div>
 
@@ -781,13 +787,13 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       e.stopPropagation();
       const btn = $(this);
       extendBookingData = btn.data('booking'); // Object
-      // If data-booking is string, parse it, otherwise use as is
+
       if (typeof extendBookingData === 'string') {
         extendBookingData = JSON.parse(extendBookingData);
       }
 
       $('#extendResId').val(extendBookingData.reservation_id);
-      $('#extendRate').text(extendBookingData.rate);
+      $('#extendRate').text(`${extendBookingData.hour_rate}/hr | ${extendBookingData.day_rate}/day`);
       $('#extendCurrentEnd').text(formatDateTime(extendBookingData.end_time));
 
       updateExtendCalculations();
@@ -804,13 +810,21 @@ $profilePic = (!empty($user['image']) && file_exists('images/' . $user['image'])
       if (!extendBookingData) return;
 
       const hoursToAdd = parseFloat(extendDuration.value);
-      const rate = parseFloat(extendBookingData.rate) || 0;
-      const cost = hoursToAdd * rate;
+      const hourRate = parseFloat(extendBookingData.hour_rate) || 0;
+      const dayRate = parseFloat(extendBookingData.day_rate) || (hourRate * 24);
+
+      // Mixed Logic
+      const days = Math.floor(hoursToAdd / 24);
+      const remHours = hoursToAdd - (days * 24);
+
+      const cost = (days * dayRate) + (remHours * hourRate);
 
       $('#extendCost').html('🪙 ' + cost.toFixed(2));
+      if (days > 0) {
+        $('#extendCost').append(` <small class="text-white-50">(${days}d @ ${dayRate} + ${remHours.toFixed(1)}h @ ${hourRate})</small>`);
+      }
 
       // Calculate new end time
-      // Note: 'end_time' is "YYYY-MM-DD HH:MM:SS"
       const currentEnd = new Date(extendBookingData.end_time.replace(' ', 'T'));
       const newEnd = new Date(currentEnd.getTime() + (hoursToAdd * 60 * 60 * 1000));
 

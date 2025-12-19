@@ -9,7 +9,8 @@ require_once __DIR__ . '/section-common.php';
     <h4 class="text-warning mb-0"><i class="fas fa-calendar-check mr-2"></i> Manage Expected Bookings</h4>
   </div>
 
-  <div class="p-3 mb-4 rounded border border-secondary" style="background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.7);">
+  <div class="p-3 mb-4 rounded border border-secondary"
+    style="background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.7);">
     <i class="fas fa-info-circle mr-2 text-warning"></i>
     Only upcoming <strong>pending</strong> bookings are shown. Use action buttons to Confirm or Cancel requests.
   </div>
@@ -79,7 +80,21 @@ require_once __DIR__ . '/section-common.php';
               </td>
               <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['start_time']))) ?></td>
               <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['end_time']))) ?></td>
-              <td><?= htmlspecialchars($b['duration']) ?></td>
+              <td>
+                <?php
+                $start = new DateTime($b['start_time']);
+                $end = new DateTime($b['end_time']);
+                $diff = $start->diff($end);
+                $parts = [];
+                if ($diff->d > 0)
+                  $parts[] = $diff->d . 'd';
+                if ($diff->h > 0)
+                  $parts[] = $diff->h . 'h';
+                if ($diff->i > 0)
+                  $parts[] = $diff->i . 'm';
+                echo htmlspecialchars(implode(' ', $parts) ?: '0m');
+                ?>
+              </td>
               <td>
                 <?php
                 $badgeClass = 'badge-glass-warning';

@@ -76,7 +76,21 @@ require_once __DIR__ . '/section-common.php';
               </td>
               <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['start_time']))) ?></td>
               <td><?= htmlspecialchars(date('M d, H:i', strtotime($b['end_time']))) ?></td>
-              <td><?= htmlspecialchars($b['duration']) ?></td>
+              <td>
+                <?php
+                $start = new DateTime($b['start_time']);
+                $end = new DateTime($b['end_time']);
+                $diff = $start->diff($end);
+                $parts = [];
+                if ($diff->d > 0)
+                  $parts[] = $diff->d . 'd';
+                if ($diff->h > 0)
+                  $parts[] = $diff->h . 'h';
+                if ($diff->i > 0)
+                  $parts[] = $diff->i . 'm';
+                echo htmlspecialchars(implode(' ', $parts) ?: '0m');
+                ?>
+              </td>
               <td>
                 <?php
                 $badgeClass = 'badge-glass-info'; // ongoing
