@@ -83,6 +83,23 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
               <span class="badge badge-glass-<?= $statusColor ?> w-100 py-2">
                 <?= htmlspecialchars(ucfirst($slot['slot_status'] === 'unavailable' ? 'Maintenance' : $slot['slot_status'])) ?>
               </span>
+
+              <?php if ($slot['owner_name'] && ($slot['slot_status'] === 'occupied' || $slot['slot_status'] === 'reserved')): ?>
+                <hr class="border-secondary my-2">
+                <div class="small">
+                  <div class="text-white-50">Occupant:</div>
+                  <div class="font-weight-bold"><?= htmlspecialchars($slot['owner_name']) ?></div>
+                  <?php if ($slot['plate_number']): ?>
+                    <div class="text-white-50 mt-1">Vehicle:</div>
+                    <div class="font-weight-bold text-warning"><?= htmlspecialchars($slot['plate_number']) ?></div>
+                  <?php endif; ?>
+                  <?php if ($slot['start_time']): ?>
+                    <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                      Waiting until: <?= date('M d, H:i', strtotime($slot['end_time'])) ?>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
             </div>
           </div>
         </div>

@@ -174,16 +174,20 @@ $slots_where = ["1=1"];
 $slots_params = [];
 
 if ($search) {
-    $slots_where[] = "slot_number LIKE :s_search";
+    // Basic search on slot number + basic types
+    // Since we join, we might want to search owner name too? For now keep it simple to match original intent or enhance.
+    // Original only searched slot_number. Let's keep it safe or enhance if desired.
+    // Matching existing behavior:
+    $slots_where[] = "parking_slots.slot_number LIKE :s_search";
     $slots_params[':s_search'] = "%$search%";
 }
 if ($filter_type) {
-    $slots_where[] = "slot_type = :s_type";
+    $slots_where[] = "parking_slots.slot_type = :s_type";
     $slots_params[':s_type'] = $filter_type;
 }
 // Note: section-slots.php uses 'status' input for status. Checked above.
 if ($filter_status && in_array($filter_status, ['available', 'reserved', 'occupied', 'unavailable'])) {
-    $slots_where[] = "slot_status = :s_status";
+    $slots_where[] = "parking_slots.slot_status = :s_status";
     $slots_params[':s_status'] = $filter_status;
 }
 $slots_sql_where = implode(' AND ', $slots_where);
@@ -194,7 +198,21 @@ $stmt->execute($slots_params);
 $slots_total = $stmt->fetchColumn();
 
 // Fetch
-$sql_slots = "SELECT * FROM parking_slots WHERE $slots_sql_where ORDER BY slot_number ASC LIMIT $per_page OFFSET $slots_offset";
+$sql_slots = "SELECT 
+                parking_slots.*,
+                v.plate_number,
+                CONCAT(u.first_name, ' ', u.last_name) as owner_name,
+                r.start_time,
+                r.end_time
+              FROM parking_slots 
+              LEFT JOIN reservations r ON parking_slots.parking_slot_id = r.parking_slot_id 
+                  AND r.status IN ('confirmed', 'ongoing') 
+                  AND (r.status = 'ongoing' OR (r.start_time <= NOW() AND r.end_time >= NOW()))
+              LEFT JOIN vehicles v ON r.vehicle_id = v.vehicle_id 
+              LEFT JOIN users u ON r.user_id = u.user_id
+              WHERE $slots_sql_where 
+              ORDER BY parking_slots.slot_number ASC 
+              LIMIT $per_page OFFSET $slots_offset";
 $stmt = $pdo->prepare($sql_slots);
 foreach ($slots_params as $k => $v)
     $stmt->bindValue($k, $v);
