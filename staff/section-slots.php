@@ -71,7 +71,6 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
           <div class="glass-card mb-0 h-100 p-3 text-center position-relative overflow-hidden slot-card-hover"
             style="border-top: 5px solid var(--<?= $statusColor == 'secondary' ? 'white' : $statusColor ?>); padding: 1.5rem !important; cursor: pointer;"
-            style="border-top: 5px solid var(--<?= $statusColor == 'secondary' ? 'white' : $statusColor ?>); padding: 1.5rem !important; cursor: pointer;"
             data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
             data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>"
             data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>"
@@ -158,34 +157,34 @@ $availableTypes = $typesStmt->fetchAll(PDO::FETCH_COLUMN);
     });
     $('#slotTypeFilter, #slotStatusFilter, #slotSort').on('change', filterSlots);
     $('#slotTypeFilter, #slotStatusFilter, #slotSort').on('change', filterSlots);
-    
+
     // Event Delegation for Slot Click
-    $(document).off('click', '.slot-card-hover').on('click', '.slot-card-hover', function() {
-        const slot = $(this).data();
-        
-        $('#detail_slot_number').text(slot.slot_number);
-        $('#detail_slot_type').text(slot.slot_type.replace('_', ' ').toUpperCase());
-        
-        // Reset
-        $('#detail_occupied_info').hide();
-        $('#detail_status_badge').removeClass('badge-success badge-warning badge-danger badge-secondary');
-        
-        let badgeClass = 'badge-secondary';
-        if(slot.slot_status === 'available') badgeClass = 'badge-success';
-        if(slot.slot_status === 'reserved') badgeClass = 'badge-warning';
-        if(slot.slot_status === 'occupied') badgeClass = 'badge-danger';
-        
-        $('#detail_status_badge').addClass(badgeClass).text(slot.slot_status.toUpperCase());
+    $(document).off('click', '.slot-card-hover').on('click', '.slot-card-hover', function () {
+      const slot = $(this).data();
 
-        // Show info if occupied/reserved
-        if ((slot.slot_status === 'occupied' || slot.slot_status === 'reserved') && slot.owner) {
-            $('#detail_owner').text(slot.owner);
-            $('#detail_plate').text(slot.plate || 'N/A');
-            $('#detail_time').text(slot.start + ' to ' + slot.end);
-            $('#detail_occupied_info').show();
-        }
+      $('#detail_slot_number').text(slot.slot_number);
+      $('#detail_slot_type').text(slot.slot_type.replace('_', ' ').toUpperCase());
 
-        $('#slotDetailModal').modal('show');
+      // Reset
+      $('#detail_occupied_info').hide();
+      $('#detail_status_badge').removeClass('badge-success badge-warning badge-danger badge-secondary');
+
+      let badgeClass = 'badge-secondary';
+      if (slot.slot_status === 'available') badgeClass = 'badge-success';
+      if (slot.slot_status === 'reserved') badgeClass = 'badge-warning';
+      if (slot.slot_status === 'occupied') badgeClass = 'badge-danger';
+
+      $('#detail_status_badge').addClass(badgeClass).text(slot.slot_status.toUpperCase());
+
+      // Show info if occupied/reserved
+      if ((slot.slot_status === 'occupied' || slot.slot_status === 'reserved') && slot.owner) {
+        $('#detail_owner').text(slot.owner);
+        $('#detail_plate').text(slot.plate || 'N/A');
+        $('#detail_time').text(slot.start + ' to ' + slot.end);
+        $('#detail_occupied_info').show();
+      }
+
+      $('#slotDetailModal').modal('show');
     });
   });
 
