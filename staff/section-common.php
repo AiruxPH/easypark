@@ -35,7 +35,7 @@ $date_to = $_GET['date_to'] ?? '';
 $filter_type = $_GET['type'] ?? '';
 
 // --- 1. BOOKINGS SECTION (Pending) ---
-$bookings_where = ["r.status = 'pending' AND r.start_time >= NOW()"];
+$bookings_where = ["r.status = 'pending'"];
 $bookings_params = [];
 if ($search) {
     $bookings_where[] = "(v.plate_number LIKE :b_search OR u.first_name LIKE :b_search OR u.last_name LIKE :b_search OR r.reservation_id LIKE :b_search)";
