@@ -678,104 +678,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_slot'])) {
     }
 </script>
 <script>
-    // Live Parking Map Updates
     document.addEventListener("DOMContentLoaded", function () {
         const slotsContainer = document.querySelector('.parking-grid-container');
+        const searchInput = document.querySelector('input[name="search"]');
+        const statusSelect = document.querySelector('select[name="status"]');
+        const typeSelect = document.querySelector('select[name="type"]');
+        const sortSelect = document.querySelector('select[name="sort"]');
+        const orderSelect = document.querySelector('select[name="order"]');
+        const filterForm = document.querySelector('form.form-inline'); // The filter form
 
-        function updateParkingMap() {
-            // Only update if not currently editing a slot (modal open)
-            if ($('#editSlotModal').hasClass('show') || $('#addSlotModal').hasClass('show')) {
-                return;
-            }
+        // Pagination Container
+        const paginationContainer = document.querySelector('nav[aria-label="Page navigation"]');
+        let currentPage = 1;
 
-            fetch('ajax/get_all_slots.php')
-                .then(response => response.json())
+        // AJAX Loader
+        function loadParkingGrid(page = 1) {
+            currentPage = page;
+
+            // Build Query Params
+            const params = new URLSearchParams();
+            if (searchInput.value) params.append('search', searchInput.value);
+            if (statusSelect.value) params.append('status', statusSelect.value);
+            if (typeSelect.value) params.append('type', typeSelect.value);
+            if (sortSelect.value) params.append('sort', sortSelect.value);
+            if (orderSelect.value) params.append('order', orderSelect.value);
+            params.append('page', page);
+
+            // Update URL (Push State) without reload
+            const newUrl = 'index.php?section=parking&' + params.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            // Fetch
+            fetch('ajax/search_parking_html.php?' + params.toString())
+                .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Re-render grid
-                        // We need to maintain the current sort/filter context to strictness, 
-                        // but re-rendering the whole container based on raw slots ignores the PHP filters (search/status).
-                        // If the user has filters active, we should technically append those params to the AJAX 
-                        // or just reload the content div.
+                        slotsContainer.innerHTML = data.grid_html;
 
-                        // COMPLEXITY NOTE: The user's filters (search/status) are in PHP $_GET.
-                        // Ideally, we should pass those to get_all_slots.php if we want to respect filters in the live view.
-                        // HOWEVER, for a "Live Map", usually you want to see the *current* state of *displayed* slots.
-                        // Or we can just update the classes of the *existing* DOM elements by ID.
+                        // Update Pagination
+                        // We need to find the container or replace it.
+                        // Since the PHP output might not have pagination if total_pages=1, we need to handle that.
+                        // If standard pagination exists, replace it. 
 
-                        // Strategy: Iterate over existing DOM elements and update them if their ID matches.
-                        // This preserves the filtered view but updates the status of visible slots.
-
-                        data.slots.forEach(slot => {
-                            // Find element by some attribute? We didn't add data-id.
-                            // Currently: onclick="editSlot(...)" contains the JSON.
-                            // Let's rely on finding the .slot-number div text.
-                            // This is a bit fragile but works without rewriting the HTML generation.
-
-                            // Better: Add data-id to the box in the PHP loop (too late, file is large).
-                            // Let's search by text content of .slot-number
-
-                            // Actually, let's just find the box that contains the slot number.
-                            const boxes = document.querySelectorAll('.parking-slot-box');
-                            boxes.forEach(box => {
-                                const numDiv = box.querySelector('.slot-number');
-                                if (numDiv && numDiv.textContent.trim() === slot.slot_number) {
-                                    // Found the box for this slot. Update it.
-
-                                    // Update classes
-                                    box.className = 'parking-slot-box'; // reset
-                                    let icon = 'fa-check';
-                                    let statusLabel = 'Available';
-
-                                    if (slot.slot_status === 'occupied') {
-                                        box.classList.add('slot-occupied');
-                                        icon = 'fa-car';
-                                    } else if (slot.slot_status === 'reserved') {
-                                        box.classList.add('slot-reserved');
-                                        icon = 'fa-clock-o';
-                                    } else if (slot.slot_status === 'unavailable') {
-                                        box.classList.add('slot-unavailable');
-                                        icon = 'fa-ban';
-                                    } else {
-                                        box.classList.add('slot-available');
-                                    }
-
-                                    // Update Icon
-                                    const iconDiv = box.querySelector('.slot-icon i');
-                                    if (iconDiv) iconDiv.className = 'fa ' + icon;
-
-                                    // Update Type Icon (Active only?) No, type is static usually.
-                                    // Update Occupant Info
-                                    let occupantDiv = box.querySelector('.occupant-info');
-                                    if (slot.plate_number) {
-                                        if (!occupantDiv) {
-                                            occupantDiv = document.createElement('div');
-                                            occupantDiv.className = 'occupant-info';
-                                            box.appendChild(occupantDiv);
-                                        }
-                                        occupantDiv.innerHTML = `<small>Plate:</small> <strong>${slot.plate_number}</strong>`;
-                                    } else {
-                                        if (occupantDiv) occupantDiv.remove();
-                                    }
-
-                                    // Update onClick data (important for Edit Modal)
-                                    // We need to update the onclick attribute to have the new JSON
-                                    // box.setAttribute('onclick', `editSlot(${JSON.stringify(slot)})`); 
-                                    // Setting onclick attribute with JSON is tricky with quotes.
-                                    // Ideally we attach event listener, but legacy code uses inline onclick.
-                                    // We will try to update it carefully.
-                                    // Actually, jQuery .data() is safer but not used here.
-                                    // Let's skip updating onclick for now to avoid breaking syntax. 
-                                    // The visual update is the most important part.
-                                }
-                            });
-                        });
+                        let nav = document.querySelector('nav[aria-label="Page navigation"]');
+                        if (data.pagination_html) {
+                            if (nav) {
+                                nav.outerHTML = data.pagination_html;
+                            } else {
+                                // Append if it didn't exist (because <1 page previously)
+                                slotsContainer.insertAdjacentHTML('afterend', data.pagination_html);
+                            }
+                        } else {
+                            if (nav) nav.remove();
+                        }
                     }
                 })
-                .catch(err => console.error('Live Map Error:', err));
+                .catch(err => console.error('Filter Error:', err));
         }
 
-        // Poll every 5 seconds
-        setInterval(updateParkingMap, 5000);
+        // Live Monitor (Replaces the previous simple monitor)
+        // With AJAX filters, the "Live" monitor needs to refresh the grid respecting the filters.
+        // So we can just call loadParkingGrid(currentPage) every 5 seconds?
+        // Issue: It replaces the DOM, which destroys tooltips, hover states, or active clicks?
+        // User asked for "Run it on filters searches or sorting".
+        // They didn't explicitly say "Keep the live monitor".
+        // BUT, we previously implemented live monitor.
+        // If we just re-render grid every 5s, it achieves "Live" AND "filtered".
+        // The downside is blinking if connection is slow, or losing selection if we had one (we don't persist selection yet).
+
+        // Let's implement the Filter Listeners
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                loadParkingGrid(1);
+            });
+        }
+
+        // Auto-trigger on change for selects
+        [statusSelect, typeSelect, sortSelect, orderSelect].forEach(el => {
+            if (el) {
+                el.addEventListener('change', () => loadParkingGrid(1));
+            }
+        });
+
+        // Debounce Search
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => loadParkingGrid(1), 500);
+            });
+        }
+
+        // Pagination Clicks (Delegation)
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.page-link')) {
+                const link = e.target.closest('.page-link');
+                const page = link.getAttribute('data-page');
+
+                // If it's a real AJAX pagination link
+                if (page) {
+                    e.preventDefault();
+                    loadParkingGrid(page);
+                }
+            }
+        });
+
+        // ---------------------------------------------------------
+        // LIVE AUTO-RELOAD LOGIC (Integrated)
+        // ---------------------------------------------------------
+        // We use the same loadParkingGrid to refresh data every 5s.
+        // This ensures the live view respects your filters.
+
+        setInterval(() => {
+            // Only update if no modal is open
+            if (!$('#editSlotModal').hasClass('show') && !$('#addSlotModal').hasClass('show')) {
+                loadParkingGrid(currentPage);
+            }
+        }, 5000);
     });
 </script>
