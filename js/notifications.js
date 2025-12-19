@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function fetchNotifications() {
         if (!scrollAreaCheck) return; // Safety check if user not logged in or element missing
 
-        fetch('fetch_notifications.php?limit=5')
+        fetch('fetch_notifications.php?limit=20')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
