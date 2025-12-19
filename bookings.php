@@ -599,36 +599,116 @@ $user_balance = floatval($user['coins'] ?? 0);
     }
 
     function showBookingDetails(booking) {
-      let html = `<div><strong>Ref #:</strong> ${booking.reservation_id}</div>`;
-      html += `<div><strong>Slot:</strong> ${booking.slot_number} (${booking.slot_type})</div>`;
-      html += `<div><strong>Vehicle:</strong> ${booking.brand} ${booking.model} - ${booking.plate_number}</div>`;
-      html += `<div><strong>Start:</strong> ${formatDateTime(booking.start_time)}</div>`;
-      html += `<div><strong>End:</strong> ${formatDateTime(booking.end_time)}</div>`;
-      html += `<div><strong>Duration:</strong> ${booking.duration}</div>`;
-      html += `<div><strong>Reservation Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.status}</span></div>`;
-      html += `<div><strong>Amount:</strong> <i class="fas fa-coins text-warning"></i> ${Number(booking.amount).toFixed(2)}</div>`;
-      html += `<div><strong>Payment Status:</strong> <span class='badge bg-secondary text-uppercase'>${booking.payment_status || 'N/A'}</span></div>`;
-      html += `<div><strong>Payment Method:</strong> ${booking.method ? booking.method.charAt(0).toUpperCase() + booking.method.slice(1) : '-'}</div>`;
-      html += `<div><strong>Payment Date:</strong> ${formatDateTime(booking.payment_date)}</div>`;
-      // Timer for confirmed/ongoing
+      // Helper for badges
+      const getStatusBadge = (status) => {
+        const map = {
+            'pending': 'warning', 'confirmed': 'success', 'ongoing': 'success',
+            'completed': 'primary', 'cancelled': 'danger', 'expired': 'dark', 'void': 'danger', 'overdue': 'danger'
+        };
+        const color = map[status] || 'secondary';
+        return `<span class="badge badge-${color} text-uppercase px-3 py-2">${status}</span>`;
+      };
+
+      let html = `
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-between align-items-center border-bottom border-secondary pb-3">
+                <h4 class="mb-0 text-white">Ref: <span class="text-warning">#${booking.reservation_id}</span></h4>
+                ${getStatusBadge(booking.status)}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column: Slot & Vehicle -->
+            <div class="col-md-6 border-right border-secondary">
+                <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-parking mr-2"></i> Parking Info</h6>
+                
+                <div class="d-flex align-items-center mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                    <div class="mr-3 text-center">
+                        <span class="display-4 font-weight-bold text-success d-block" style="line-height:1;">${booking.slot_number}</span>
+                        <small class="text-white-50">${booking.slot_type}</small>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase text-white-50 mt-4 mb-3"><i class="fas fa-car mr-2"></i> Vehicle Details</h6>
+                <div class="pl-2">
+                    <p class="mb-1 text-white font-weight-bold" style="font-size: 1.1rem;">${booking.brand} ${booking.model}</p>
+                    <p class="text-white-50"><span class="badge badge-light">${booking.plate_number}</span></p>
+                </div>
+            </div>
+
+            <!-- Right Column: Timing & Payment -->
+            <div class="col-md-6 pl-md-4">
+                 <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-clock mr-2"></i> Timing</h6>
+                 <div class="pl-2 mb-4">
+                    <div class="mb-2">
+                        <small class="text-white-50 d-block">Start Time</small>
+                        <span class="text-white">${formatDateTime(booking.start_time)}</span>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-white-50 d-block">End Time</small>
+                        <span class="text-white">${formatDateTime(booking.end_time)}</span>
+                    </div>
+                    <div class="mb-2">
+                         <small class="text-white-50 d-block">Duration</small>
+                         <span class="text-info">${booking.duration} hours</span>
+                    </div>
+                 </div>
+
+                 <h6 class="text-uppercase text-white-50 mb-3"><i class="fas fa-receipt mr-2"></i> Payment</h6>
+                 <div class="p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-white-50">Total Amount</span>
+                        <span class="text-warning font-weight-bold">🪙 ${Number(booking.amount).toFixed(2)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-white-50">Status</span>
+                        <span class="text-capitalize text-${booking.payment_status==='successful'?'success':'warning'}">${booking.payment_status || 'N/A'}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-white-50">Date</span>
+                        <small class="text-white text-right">${formatDateTime(booking.payment_date)}</small>
+                    </div>
+                 </div>
+            </div>
+        </div>
+      `;
+
+      // Timer Section (if active)
       if (booking.status === 'confirmed' || booking.status === 'ongoing') {
-        html += `<div class='mt-3'><strong>Time Remaining:</strong> <span id='modalTimer'></span></div>`;
+        html += `
+            <div class="row mt-4">
+                <div class="col-12 text-center pt-3 border-top border-secondary">
+                    <h5 class="text-white-50 mb-2">Time Remaining</h5>
+                    <h2 class="text-info font-weight-bold" id="modalTimer">Loading...</h2>
+                </div>
+            </div>
+        `;
       }
+
       modalBodyContent.innerHTML = html;
+      
+      // ... (Timer Logic remains same) ...
       if (timerInterval) clearInterval(timerInterval);
       if (booking.status === 'confirmed' || booking.status === 'ongoing') {
         function updateModalTimer() {
           const end = new Date(booking.end_time.replace(' ', 'T'));
           const now = new Date();
-          let diff = Math.floor((end.getTime() - now.getTime()) / 1000);
+          let diff = Math.floor((end.getTime() - now.getTime()) / 1000); // Seconds
+          
           if (diff > 0) {
             const h = Math.floor(diff / 3600);
             diff %= 3600;
             const m = Math.floor(diff / 60);
             const s = diff % 60;
-            document.getElementById('modalTimer').textContent = `${h}h ${m}m ${s}s left`;
+            const el = document.getElementById('modalTimer');
+            if(el) el.textContent = `${h}h ${m}m ${s}s`;
           } else {
-            document.getElementById('modalTimer').textContent = 'Expired';
+             const el = document.getElementById('modalTimer');
+             if(el) {
+                 el.textContent = 'Expired / Overdue';
+                 el.classList.remove('text-info');
+                 el.classList.add('text-danger');
+             }
             clearInterval(timerInterval);
           }
         }
