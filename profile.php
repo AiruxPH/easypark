@@ -560,6 +560,58 @@ $recent_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
+  <!-- Edit Vehicle Modal -->
+  <div class="modal fade" id="editVehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-warning">Edit Vehicle</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+        </div>
+        <form method="POST">
+          <div class="modal-body">
+            <input type="hidden" name="vehicle_id" id="editVehicleId">
+            <div class="form-group">
+              <label>Plate Number</label>
+              <input type="text" name="plate_number" id="editPlate" class="form-control" required autocomplete="off">
+              <small id="editPlateFeedback" class="form-text font-weight-bold ml-1"></small>
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" name="color" id="editColor" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select name="type" id="editVehicleType" class="form-control" required>
+                <option value="">Select Type</option>
+                <?php foreach ($types as $type): ?>
+                  <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Brand</label>
+              <select id="editBrand" class="form-control" required disabled>
+                <option value="">Select Brand</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <select name="model_id" id="editModel" class="form-control" required disabled>
+                <option value="">Select Model</option>
+              </select>
+            </div>
+            <input type="hidden" name="edit_vehicle" value="1">
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-warning">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Forgot Password Modal (Preserved Functionality) -->
   <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -676,50 +728,53 @@ $recent_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
           });
       });
 
-      // 2.b Live Plate Checker
-      let plateTimeout = null;
-      $('#plateInput').on('input', function() {
-        const input = $(this);
-        const feedback = $('#plateFeedback');
-        const submitBtn = input.closest('form').find('button[type="submit"]');
-        const plate = input.val().trim();
-
-        // Reset UI
-        feedback.text('').removeClass('text-success text-danger');
-        submitBtn.prop('disabled', false); // Default to enabled unless error
-
-        if (plate.length < 3) return; // Wait for at least 3 chars
-
-        clearTimeout(plateTimeout);
-        feedback.html('<i class="fas fa-spinner fa-spin text-muted"></i> Checking...');
-
-        plateTimeout = setTimeout(() => {
-          const formData = new FormData();
-          formData.append('action', 'check_plate');
-          formData.append('plate_number', plate);
-
-          fetch('action_client_profile.php', {
-              method: 'POST',
-              body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                if (data.exists) {
-                  feedback.html('<i class="fas fa-times-circle"></i> Plate number already taken').addClass('text-danger');
-                  submitBtn.prop('disabled', true);
-                } else {
-                  feedback.html('<i class="fas fa-check-circle"></i> Available').addClass('text-success');
-                  submitBtn.prop('disabled', false); // Ensure enabled
-                }
-              }
-            })
-            .catch(err => {
-              console.error(err);
-              feedback.text(''); // Clear on error
-            });
-        }, 500); // 500ms Debounce
       });
+
+      // 2.b Live Plate Checker (Add Modal)
+      let plateTimeout = null;
+      function setupLiveChecker(inputSelector, feedbackSelector, excludeIdSelector = null) {
+        $(inputSelector).on('input', function() {
+            const input = $(this);
+            const feedback = $(feedbackSelector);
+            const submitBtn = input.closest('form').find('button[type="submit"]');
+            const plate = input.val().trim();
+            const excludeId = excludeIdSelector ? $(excludeIdSelector).val() : 0;
+
+            // Reset UI
+            feedback.text('').removeClass('text-success text-danger');
+            submitBtn.prop('disabled', false); 
+
+            if (plate.length < 3) return;
+
+            clearTimeout(plateTimeout);
+            feedback.html('<i class="fas fa-spinner fa-spin text-muted"></i> Checking...');
+
+            plateTimeout = setTimeout(() => {
+            const formData = new FormData();
+            formData.append('action', 'check_plate');
+            formData.append('plate_number', plate);
+            if (excludeId) formData.append('exclude_vehicle_id', excludeId);
+
+            fetch('action_client_profile.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                if (data.success) {
+                    if (data.exists) {
+                    feedback.html('<i class="fas fa-times-circle"></i> Taken').addClass('text-danger');
+                    submitBtn.prop('disabled', true);
+                    } else {
+                    feedback.html('<i class="fas fa-check-circle"></i> Available').addClass('text-success');
+                    submitBtn.prop('disabled', false);
+                    }
+                }
+                })
+                .catch(err => feedback.text(''));
+            }, 500);
+        });
+      }
+
+      setupLiveChecker('#plateInput', '#plateFeedback');
+      setupLiveChecker('#editPlate', '#editPlateFeedback', '#editVehicleId');
 
       // 3. Add Vehicle
       $('#addVehicleModal form').on('submit', function (e) {
