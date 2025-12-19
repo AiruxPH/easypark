@@ -82,31 +82,41 @@ document.addEventListener('DOMContentLoaded', function () {
             noMsg.innerHTML = '<small>No new notifications</small>';
             scrollArea.appendChild(noMsg);
         } else {
-            // Sort Descending by Date
+            // 1. Sort notifications safely
             notifications.sort((a, b) => {
                 const da = new Date(a.created_at.replace(' ', 'T'));
                 const db = new Date(b.created_at.replace(' ', 'T'));
-                return db - da;
+                return db - da; // Descending
             });
 
-            let lastDateLabel = '';
+            // 2. Group by Date Label
+            const groups = [];
+            let currentGroup = null;
 
             notifications.forEach(notif => {
-                const dateLabel = getRelativeDateLabel(notif.created_at);
-
-                // sticky header if date changes
-                if (dateLabel !== lastDateLabel) {
-                    const header = document.createElement('h6');
-                    header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
-                    header.style.fontSize = '0.7rem';
-                    header.style.opacity = '0.9';
-                    header.innerText = dateLabel;
-                    scrollArea.appendChild(header);
-                    lastDateLabel = dateLabel;
+                const label = getRelativeDateLabel(notif.created_at);
+                if (!currentGroup || currentGroup.label !== label) {
+                    currentGroup = { label: label, items: [] };
+                    groups.push(currentGroup);
                 }
+                currentGroup.items.push(notif);
+            });
 
-                const el = createNotificationElement(notif);
-                scrollArea.appendChild(el);
+            // 3. Render Groups
+            groups.forEach(group => {
+                // Render Header
+                const header = document.createElement('h6');
+                header.className = 'dropdown-header pl-3 text-gray-500 font-weight-bold small mt-2 mb-1 border-0 bg-transparent';
+                header.style.fontSize = '0.7rem';
+                header.style.opacity = '0.9';
+                header.innerText = group.label;
+                scrollArea.appendChild(header);
+
+                // Render Items
+                group.items.forEach(notif => {
+                    const el = createNotificationElement(notif);
+                    scrollArea.appendChild(el);
+                });
             });
         }
     }
