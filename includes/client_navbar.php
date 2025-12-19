@@ -481,7 +481,7 @@ if (isset($_SESSION['user_id'])) {
     setInterval(tick, 1000);
     tick();
 </script>
-<script src="js/notifications.js"></script>
+
 
 <!-- Notification Center Modal -->
 <div class="modal fade" id="notificationCenterModal" tabindex="-1" role="dialog" aria-labelledby="notifCenterLabel"
@@ -511,3 +511,4 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
 </div>
+<script src="js/notifications.js"></script>
