@@ -403,9 +403,13 @@ $current_session = $stmt->fetch(PDO::FETCH_ASSOC);
     <div class="hero-overlay"></div>
     <div class="hero-content">
 
+      <!-- ALWAYS SHOW WELCOME -->
+      <h1 class="display-title">Welcome Back, <?= htmlspecialchars($user_name ?? 'Driver') ?>!</h1>
+      <p class="lead-text">Ready to park? Your perfect spot is just a click away.</p>
+
       <?php if ($current_session): ?>
         <!-- ACTIVE SESSION WIDGET -->
-        <div class="session-widget">
+        <div class="session-widget mt-4">
           <div class="session-header">
             <span class="text-white-50 small"><i class="fas fa-satellite-dish mr-2 text-success"></i> LIVE STATUS</span>
             <span class="session-badge"><?= strtoupper($current_session['status']) ?></span>
@@ -430,9 +434,7 @@ $current_session = $stmt->fetch(PDO::FETCH_ASSOC);
           </div>
         </div>
       <?php else: ?>
-        <!-- STANDARD GREETING -->
-        <h1 class="display-title">Welcome Back, <?= htmlspecialchars($user_name ?? 'Driver') ?>!</h1>
-        <p class="lead-text">Ready to park? Your perfect spot is just a click away.</p>
+        <!-- STANDARD CTA -->
         <a href="reservations.php" class="btn btn-glow"><i class="fas fa-car mr-2"></i> Book Now</a>
       <?php endif; ?>
 
