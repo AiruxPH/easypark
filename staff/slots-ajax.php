@@ -109,10 +109,16 @@ $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ob_start();
 foreach ($slots as $slot): ?>
-  <div class="col-md-4 mb-3 slot-card" data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
-    data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>"
-    data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>">
-    <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>" style="border-width:3px;">
+  <div class="col-md-4 mb-3 slot-card">
+    <div class="card bg-dark text-light <?= getSlotColorClass($slot['slot_status']) ?>"
+      style="border-width:3px; cursor: pointer;" onclick="viewSlotDetails(this)"
+      data-slot_number="<?= htmlspecialchars($slot['slot_number']) ?>"
+      data-slot_status="<?= htmlspecialchars($slot['slot_status']) ?>"
+      data-slot_type="<?= htmlspecialchars($slot['slot_type']) ?>"
+      data-owner="<?= htmlspecialchars($slot['owner_name'] ?? '') ?>"
+      data-plate="<?= htmlspecialchars($slot['plate_number'] ?? '') ?>"
+      data-start="<?= htmlspecialchars($slot['start_time'] ?? '') ?>"
+      data-end="<?= htmlspecialchars($slot['end_time'] ?? '') ?>">
       <div class="card-body">
         <h5 class="card-title">Slot <?= htmlspecialchars($slot['slot_number']) ?></h5>
         <p class="card-text">Type: <?= htmlspecialchars($slot['slot_type']) ?></p>
@@ -131,22 +137,7 @@ foreach ($slots as $slot): ?>
         <p class="card-text">Status: <span
             class="font-weight-bold <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span></p>
 
-        <?php if ($slot['owner_name'] && ($slot['slot_status'] === 'occupied' || $slot['slot_status'] === 'reserved')): ?>
-          <hr class="border-secondary my-2">
-          <div class="small">
-            <div class="text-white-50">Occupant:</div>
-            <div class="font-weight-bold"><?= htmlspecialchars($slot['owner_name']) ?></div>
-            <?php if ($slot['plate_number']): ?>
-              <div class="text-white-50 mt-1">Vehicle:</div>
-              <div class="font-weight-bold text-warning"><?= htmlspecialchars($slot['plate_number']) ?></div>
-            <?php endif; ?>
-            <?php if ($slot['start_time']): ?>
-              <div class="text-muted mt-1" style="font-size: 0.8rem;">
-                Waiting until: <?= date('M d, H:i', strtotime($slot['end_time'])) ?>
-              </div>
-            <?php endif; ?>
-          </div>
-        <?php endif; ?>
+
       </div>
     </div>
   </div>
